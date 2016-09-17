@@ -5,6 +5,7 @@ const Message = Joi.object().keys({
   to: Joi.string().required(),
   text: Joi.string().required(),
   isPrivate: Joi.boolean().required(),
+  timestamp: Joi.date().required(),
 })
 
 module.exports = {

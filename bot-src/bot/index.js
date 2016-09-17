@@ -43,13 +43,18 @@ client.on('join', (channel, nick, message) => {
 client.on('message', (from, to, text) => {
   // Apparently & is a valid prefix.
   const isPrivate = !_.startsWith(to, '#') && !_.startsWith(to, '&')
+  const timestamp = new Date()
 
   const message = {
-    from, to, text, isPrivate,
+    from, to, text, isPrivate, timestamp,
   }
 
   validate(message, schemas.Message).then(message => {
     db.table('messages').insert(message).run()
+      .then(() => {
+        // Simple indication for activity.
+        console.log('.')
+      })
       .catch(err => {
         console.error(err)
       })
