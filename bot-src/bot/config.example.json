@@ -1,0 +1,9 @@
+{
+  "server": "chat.freenode.net",
+  "sasl": false,
+  "nick": "msks",
+  "userName": "msks",
+  "password": "",
+  "realName": "Mr. Meeseeks",
+  "channels": ["#freenode"]
+}
