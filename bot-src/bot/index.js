@@ -59,10 +59,11 @@ client.on('message', (from, to, text) => {
         console.error(err)
       })
 
-    if (isMe(to)) {
-      if (text === '!version') {
-        client.say(from, `msks v${VERSION}`)
-      }
+    if (text === '!version') {
+      client.say(
+        isPrivate ? from : to,
+        `msks-bot v${VERSION}, https://github.com/daGrevis/msks-bot`
+      )
     }
   })
 })
