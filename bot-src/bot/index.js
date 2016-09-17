@@ -3,6 +3,7 @@ const _ = require('lodash')
 const Joi = require('joi')
 const irc = require('irc')
 
+const utils = require('./utils')
 const config = require('./config')
 const schemas = require('./schemas')
 const db = require('./db')
@@ -12,6 +13,8 @@ const validate = Promise.promisify(Joi.validate)
 const VERSION = '0.0.1'
 
 const isMe = x => x === config.nick
+
+const bootTime = new Date()
 
 console.log('connecting to IRC server')
 const client = new irc.Client(config.server, config.nick, {
@@ -59,11 +62,14 @@ client.on('message', (from, to, text) => {
         console.error(err)
       })
 
+    const recipient = isPrivate ? from : to
+
     if (text === '!version') {
-      client.say(
-        isPrivate ? from : to,
-        `msks-bot v${VERSION}, https://github.com/daGrevis/msks-bot`
-      )
+      client.say(recipient, `msks-bot v${VERSION}, https://github.com/daGrevis/msks-bot`)
+    }
+    if (text === '!uptime') {
+      const uptime = new Date() - bootTime
+      client.say(recipient, utils.humanizeDelta(uptime))
     }
   })
 })
