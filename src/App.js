@@ -19,12 +19,9 @@ class App extends Component {
   }
 
   componentDidMount() {
-    horizon('messages').order('timestamp', 'descending')
-      .watch({ rawChanges: true }).subscribe(message => {
-        if (!_.includes(['initial', 'add'], message.type)) {
-          return
-        }
-
+    horizon('messages').order('timestamp', 'descending').watch({ rawChanges: true })
+      .filter(({ type }) => _.includes(['initial', 'add'], type))
+      .subscribe(message => {
         console.log('.')
 
         let { messages } = this.state
