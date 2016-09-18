@@ -1,0 +1,23 @@
+{
+  "name": "msks-web",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "@horizon/client": "^2.0.0",
+    "horizon": "^2.0.0",
+    "lodash": "^4.15.0",
+    "react-scripts": "0.4.2"
+  },
+  "dependencies": {
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "hz-schema": "hz schema apply .hz/schema.toml",
+    "hz": "hz serve --secure=no --allow-unauthenticated=yes --permissions=no"
+  }
+}
