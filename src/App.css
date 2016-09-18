@@ -1,0 +1,19 @@
+html body {
+  margin: 20px 40px;
+}
+
+.message.is-first {
+  margin-top: 10px;
+}
+
+.message .nick {
+  font-weight: bold;
+  padding-right: 10px;
+}
+
+.message .text {
+  padding: 5px 0;
+}
+.message.is-consecutive .text {
+  padding-top: 0;
+}
