@@ -2,8 +2,7 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 import Horizon from '@horizon/client'
 
-import logo from './logo.svg'
-import './App.css'
+import './app.css'
 
 const horizon = Horizon({ host: 'localhost:8181' })
 
@@ -33,16 +32,10 @@ class App extends Component {
   render() {
     const { messages } = this.state
     return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-        </div>
-        <div className="App-intro">
-          {_.map(messages, m => {
-            return <div key={m.id}>{m.from} -> {m.to}: {m.text}</div>
-          })}
-        </div>
+      <div id='app'>
+        {_.map(messages, m => {
+          return <div key={m.id}>{m.from} -> {m.to}: {m.text}</div>
+        })}
       </div>
     )
   }
