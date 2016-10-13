@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
+    "nodemon": "^1.11.0",
     "react-scripts": "0.4.2"
   },
   "dependencies": {
@@ -11,12 +12,16 @@
     "moment": "^2.15.0",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
-    "socket.io": "^1.5.0"
+    "socket.io": "^1.5.0",
+    "socket.io-client": "^1.5.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "echo \"Execute: npm run start:react-scripts and npm run start:server separately\" && exit 1",
+    "start:react-scripts": "react-scripts start",
+    "start:server": "nodemon src/server.js",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  }
+  },
+  "proxy": "http://localhost:3001/"
 }

@@ -2,8 +2,15 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { Component } from 'react'
 import classNames from 'classnames'
+import io from 'socket.io-client'
 
 import './app.css'
+
+console.log('creating socket...')
+const socket = io('http://localhost:3000')
+socket.on('ping', data => {
+  console.log('pinged!', data)
+})
 
 class Maybe extends Component {
   render() {
