@@ -1,5 +1,6 @@
 const http = require('http')
 const socketio = require('socket.io')
+const r = require('./rethink')
 
 console.log('starting server...')
 var server = http.createServer()
@@ -8,10 +9,18 @@ var io = socketio(server)
 io.on('connection', (client) => {
   console.log('on io.connection')
 
-  setInterval(() => {
-    console.log('pinging...')
-    client.emit('ping', { now: new Date() })
-  }, 1000)
+  r.table('messages')
+    .orderBy({ index: r.desc('timestamp') })
+    .changes({ includeInitial: true })
+    .filter(
+      r.row('new_val')('to').eq('#vim')
+    ).run()
+    .then(feed => {
+      feed.each((err, change) => {
+        console.log('emitting message...', change)
+        client.emit('message', change)
+      })
+    })
 
   client.on('event', (data) => {
     console.log('on client.event')

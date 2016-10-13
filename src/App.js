@@ -8,9 +8,6 @@ import './app.css'
 
 console.log('creating socket...')
 const socket = io('http://localhost:3000')
-socket.on('ping', data => {
-  console.log('pinged!', data)
-})
 
 class Maybe extends Component {
   render() {
@@ -63,12 +60,12 @@ class App extends Component {
     messages: [],
   }
 
-  componentDidMount() {
-    const now = new Date()
-    const messages = [
-      {id: 1, timestamp: now, from: 'daGrevis', text: 'test'},
-    ]
-    this.setState({ messages })
+  componentWillMount() {
+    socket.on('message', change => {
+      const messageNew = change.new_val
+      const messages = _.concat(this.state.messages, messageNew)
+      this.setState({ messages })
+    })
   }
 
   render() {
