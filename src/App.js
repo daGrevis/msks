@@ -2,17 +2,8 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { Component } from 'react'
 import classNames from 'classnames'
-import Horizon from '@horizon/client'
 
 import './app.css'
-
-const horizon = Horizon({ host: 'localhost:8181' })
-
-horizon.status().subscribe(
-  status => console.log('Horizon status', status)
-)
-
-horizon.connect()
 
 class Maybe extends Component {
   render() {
@@ -45,26 +36,39 @@ class Message extends Component {
   }
 }
 
+class Channel extends Component {
+  render() {
+    const { messages } = this.props
+    return <div className='channel'>
+      {_.map(messages, (m, i) =>
+        <Message
+          key={m.id}
+          message={m}
+          isConsecutive={i > 0 && messages[i - 1].from === m.from}
+        />
+      )}
+    </div>
+  }
+}
+
 class App extends Component {
   state = {
     messages: [],
   }
 
   componentDidMount() {
-    horizon('messages').order('timestamp', 'descending').watch()
-      .subscribe(messages => {
-        this.setState({ messages })
-      })
+    const now = new Date()
+    const messages = [
+      {id: 1, timestamp: now, from: 'daGrevis', text: 'test'},
+    ]
+    this.setState({ messages })
   }
 
   render() {
     const { messages } = this.state
     return (
       <div id='app'>
-        {_.map(messages, (m, i) => {
-          const isConsecutive = i > 0 && messages[i - 1].from === m.from
-          return <Message key={m.id} message={m} isConsecutive={isConsecutive} />
-        })}
+        <Channel messages={messages} />
       </div>
     )
   }

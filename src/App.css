@@ -1,5 +1,16 @@
 html body {
-  margin: 20px 40px;
+  margin: 0;
+}
+
+.channel {
+  width: 640px;
+  height: 100vh;
+  overflow-y: scroll;
+  margin: 10px 20px;
+}
+
+.message {
+  width: 100%;
 }
 
 .message.is-first {
@@ -12,7 +23,10 @@ html body {
 }
 
 .message .text {
-  padding: 5px 0;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-right: 10px;
+  word-break: break-all;
 }
 .message.is-consecutive .text {
   padding-top: 0;
