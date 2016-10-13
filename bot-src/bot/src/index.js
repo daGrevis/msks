@@ -6,7 +6,7 @@ const irc = require('irc')
 const utils = require('./utils')
 const config = require('./config')
 const schemas = require('./schemas')
-const db = require('./db')
+const r = require('./rethink')
 
 const validate = Promise.promisify(Joi.validate)
 
@@ -19,7 +19,7 @@ function createChannel(name) {
 
   validate(channel, schemas.Channel).then(channel => {
     // This creates the channel or silently fails when it exists already.
-    db.table('channels').insert(channel).run()
+    r.table('channels').insert(channel).run()
       .catch(_.noop)
   })
 }
@@ -28,25 +28,25 @@ function joinChannel(nick, channel) {
   const activeUser = { nick, channel }
 
   validate(activeUser, schemas.ActiveUser).then(() => {
-    db.table('active_users').insert(activeUser).run()
+    r.table('active_users').insert(activeUser).run()
   })
 }
 
 function leaveChannel(nick, channel) {
-  db.table('active_users').filter({ nick, channel }).delete().run()
+  r.table('active_users').filter({ nick, channel }).delete().run()
 }
 
 function leaveNetwork(nick) {
-  db.table('active_users').filter({ nick }).delete().run()
+  r.table('active_users').filter({ nick }).delete().run()
 }
 
 function updateChannelActiveUsers(channel, nicks) {
   const activeUsers = _.map(_.keys(nicks), nick => ({ nick, channel }))
 
   // TODO: I'm pretty here's a race condition with parallel joins/leaves.
-  db.table('active_users').filter({ channel }).delete().run()
+  r.table('active_users').filter({ channel }).delete().run()
     .then(() => {
-      db.table('active_users').insert(activeUsers).run()
+      r.table('active_users').insert(activeUsers).run()
     })
 }
 
@@ -102,7 +102,7 @@ client.on('names', (channel, nicks) => {
 
 client.on('nick', (nickOld, nickNew) => {
   // Done like this to avoid need of handling updates when listening to changefeed.
-  db.table('active_users').filter({ nick: nickOld }).delete({ returnChanges: true }).run()
+  r.table('active_users').filter({ nick: nickOld }).delete({ returnChanges: true }).run()
     .then(({ changes }) => {
       const channels = _.map(changes, 'old_val.channel')
       _.forEach(channels, channel => {
@@ -121,7 +121,7 @@ client.on('message', (from, to, text) => {
   }
 
   validate(message, schemas.Message).then(message => {
-    db.table('messages').insert(message).run()
+    r.table('messages').insert(message).run()
       .then(() => {
         // Simple indication for activity.
         console.log('.')

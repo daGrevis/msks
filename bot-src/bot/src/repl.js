@@ -1,9 +1,9 @@
 const repl = require('repl')
 
-const db = require('./db')
+const r = require('./rethink')
 const schemas = require('./schemas')
 
-r = repl.start()
+const nodeRepl = repl.start()
 
-r.context.db = db
-r.context.schemas = schemas
+nodeRepl.context.r = r
+nodeRepl.context.schemas = schemas
