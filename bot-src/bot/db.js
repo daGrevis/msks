@@ -5,7 +5,14 @@ const rethinkdb = require('rethinkdbdash')
 const db = rethinkdb({ silent: true })
 
 const queries = [
+  db.tableCreate('channels', { primaryKey: 'name' }),
+
+  db.tableCreate('active_users'),
+  db.table('active_users').indexCreate('username'),
+  db.table('active_users').indexCreate('channel'),
+
   db.tableCreate('messages'),
+  db.table('messages').indexCreate('from'),
   db.table('messages').indexCreate('timestamp'),
 ]
 
