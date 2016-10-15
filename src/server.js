@@ -10,14 +10,11 @@ io.on('connection', (client) => {
   console.log('on io.connection')
 
   r.table('messages')
-    .orderBy({ index: r.desc('timestamp') })
+    .filter({ to: '#meeseekeria' })
     .changes({ includeInitial: true })
-    .filter(
-      r.row('new_val')('to').eq('#vim')
-    ).run()
+    .run()
     .then(feed => {
       feed.each((err, change) => {
-        console.log('emitting message...', change)
         client.emit('message', change)
       })
     })

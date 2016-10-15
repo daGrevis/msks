@@ -1,5 +1,39 @@
-body {
+* {
+  box-sizing: border-box;
+}
+
+html body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+}
+
+.channel {
+  width: 100%;
+  height: 100vh;
+  overflow-y: scroll;
+  margin: 10px 20px;
+}
+
+.message {
+  width: 100%;
+}
+
+.message.is-first {
+  margin-top: 10px;
+}
+
+.message .nick {
+  font-weight: bold;
+  padding-right: 10px;
+}
+
+.message .text {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-right: 40px;
+  word-break: break-all;
+}
+.message.is-consecutive .text {
+  padding-top: 0;
 }
