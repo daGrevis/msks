@@ -17,6 +17,7 @@
     "redux-actions": "^0.12.0",
     "redux-fp": "^0.1.1",
     "redux-thunk": "^2.1.0",
+    "reselect": "^2.5.4",
     "rethinkdbdash": "^2.3.23",
     "socket.io": "^1.5.0",
     "socket.io-client": "^1.5.0"

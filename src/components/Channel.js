@@ -8,11 +8,11 @@ export default class Channel extends Component {
     const { messages } = this.props
 
     return <div className='channel'>
-      {_.map(messages, message =>
+      {_.map(messages, (message, i) =>
         <Message
           key={message.id}
           message={message}
-          isConsecutive={false}
+          isConsecutive={i > 0 && messages[i - 1].from === message.from}
         />
       )}
     </div>
