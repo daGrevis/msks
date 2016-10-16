@@ -15,7 +15,7 @@ io.on('connection', (client) => {
     .run()
     .then(feed => {
       feed.each((err, change) => {
-        client.emit('message', change)
+        client.emit('messages', change)
       })
     })
 

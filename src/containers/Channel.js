@@ -1,13 +1,19 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import Channel from '../components/Channel'
+import { loadChannel } from '../actions'
 import { messages, sortedMessages } from '../selectors'
+import Channel from '../components/Channel'
 
 function mapStateToProps(state) {
   return {
+    channelName: state.channelName,
     messages: sortedMessages(state),
   }
 }
 
-export default connect(mapStateToProps)(Channel)
+const actionCreators = {
+  loadChannel,
+}
+
+export default connect(mapStateToProps, actionCreators)(Channel)

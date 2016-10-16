@@ -1,10 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, applyMiddleware, compose } from 'redux'
-import { Provider, connect } from 'react-redux'
+import { Provider } from 'react-redux'
 import thunkMiddleware from 'redux-thunk'
 
 import { initialState, reducer } from  './reducers'
+import { loadChannel } from './actions'
 import App from './containers/App'
 import './index.css'
 
@@ -17,6 +18,8 @@ const store = createStore(
 )
 
 function onReady() {
+  store.dispatch(loadChannel('#developerslv'))
+
   ReactDOM.render(
     <Provider store={store}>
       <App />
