@@ -6,24 +6,64 @@ console.log('starting server...')
 var server = http.createServer()
 var io = socketio(server)
 
-io.on('connection', (client) => {
-  console.log('on io.connection')
+function getInitialMessages(channelName) {
+  return r.table('messages')
+    .orderBy({ index: 'timestamp' })
+    .filter({ to: channelName })
+    .limit(100)
+}
 
-  r.table('messages')
-    .filter({ to: '#meeseekeria' })
-    .changes({ includeInitial: true })
-    .run()
-    .then(feed => {
-      feed.each((err, change) => {
-        client.emit('messages', change)
+function getMessagesBefore(channelName, timestamp) {
+  return r.table('messages')
+    .orderBy({ index: 'timestamp' })
+    .filter({ to: channelName })
+    .filter(r.row('timestamp').gt(r.ISO8601(timestamp)))
+    .limit(100)
+}
+
+io.on('connection', client => {
+  const loadMessages = ({ channelName, timestamp = null }) => {
+    let messagePromise
+    if (timestamp === null) {
+      messagePromise = getInitialMessages(channelName)
+    } else {
+      messagePromise = getMessagesBefore(channelName, timestamp)
+    }
+
+    messagePromise.then(messages => {
+      client.emit('action', {
+        type: 'LOADED_MESSAGES',
+        payload: { channelName, timestamp, messages }
       })
     })
+  }
 
-  client.on('event', (data) => {
-    console.log('on client.event')
-  })
-  client.on('disconnect', () => {
-    console.log('on client.disconnect')
+  const subscribeToMessages = ({ channelName, timestamp }) => {
+    r.table('messages')
+      .orderBy({ index: 'timestamp' })
+      .filter({ to: channelName })
+      .filter(r.row('timestamp').gt(r.ISO8601(timestamp)))
+      .changes({ includeInitial: true })
+      .run()
+      .then(feed => {
+        feed.each((err, change) => {
+          client.emit('action', {
+            type: 'MESSAGE_CHANGE',
+            payload: change,
+          })
+        })
+      })
+  }
+
+  const TYPE_TO_ACTION = {
+    LOAD_MESSAGES: loadMessages,
+    SUBSCRIBE_TO_MESSAGES: subscribeToMessages,
+  }
+
+  client.on('action', action => {
+    const { type, payload = null } = action
+
+    TYPE_TO_ACTION[type](payload)
   })
 })
 
