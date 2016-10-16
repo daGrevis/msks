@@ -10,7 +10,7 @@ const r = require('./rethink')
 
 const validate = Promise.promisify(Joi.validate)
 
-const VERSION = '0.0.2'
+const VERSION = '0.0.3'
 
 const isMe = x => x === config.nick
 
@@ -40,6 +40,17 @@ function leaveNetwork(nick) {
   r.table('active_users').filter({ nick }).delete().run()
 }
 
+function updateNick(nickOld, nickNew) {
+  // Done like this to avoid need of handling updates when listening to changefeed.
+  r.table('active_users').filter({ nick: nickOld }).delete({ returnChanges: true }).run()
+    .then(({ changes }) => {
+      const channels = _.map(changes, 'old_val.channel')
+      _.forEach(channels, channel => {
+        joinChannel(nickNew, channel)
+      })
+    })
+}
+
 function updateChannelActiveUsers(channel, nicks) {
   const activeUsers = _.map(_.keys(nicks), nick => ({ nick, channel }))
 
@@ -50,68 +61,7 @@ function updateChannelActiveUsers(channel, nicks) {
     })
 }
 
-const bootTime = new Date()
-
-console.log('connecting to IRC server...')
-const client = new irc.Client(
-  config.server, config.nick,
-  _.pick(config, ['sasl', 'nick', 'userName', 'password', 'realName'])
-)
-
-client.on('error', (message) => {
-  console.log('error:', message)
-})
-
-client.on('registered', () => {
-  console.log('connected to IRC server!')
-
-  _.forEach(config.channels, channel => {
-    console.log(`joining ${channel}...`)
-    client.join(channel)
-  })
-})
-
-client.on('join', (channelName, nick) => {
-  if (isMe(nick)) {
-    console.log(`joined ${channelName}!`)
-    createChannel(channelName)
-  } else {
-    joinChannel(nick, channelName)
-  }
-})
-
-client.on('part', (channel, nick) => {
-  leaveChannel(nick, channel)
-})
-
-client.on('kick', (channel, nick) => {
-  leaveChannel(nick, channel)
-})
-
-client.on('kill', nick => {
-  leaveNetwork(nick)
-})
-
-client.on('quit', nick => {
-  leaveNetwork(nick)
-})
-
-client.on('names', (channel, nicks) => {
-  updateChannelActiveUsers(channel, nicks)
-})
-
-client.on('nick', (nickOld, nickNew) => {
-  // Done like this to avoid need of handling updates when listening to changefeed.
-  r.table('active_users').filter({ nick: nickOld }).delete({ returnChanges: true }).run()
-    .then(({ changes }) => {
-      const channels = _.map(changes, 'old_val.channel')
-      _.forEach(channels, channel => {
-        joinChannel(nickNew, channel)
-      })
-    })
-})
-
-client.on('message', (from, to, text) => {
+function onMessage(from, to, text) {
   // Apparently & is a valid prefix.
   const isPrivate = !_.startsWith(to, '#') && !_.startsWith(to, '&')
   const timestamp = new Date()
@@ -140,4 +90,64 @@ client.on('message', (from, to, text) => {
       client.say(recipient, utils.humanizeDelta(uptime))
     }
   })
+}
+
+const bootTime = new Date()
+
+console.log('connecting to IRC server...')
+const client = new irc.Client(
+  config.server, config.nick,
+  _.pick(config, ['sasl', 'nick', 'userName', 'password', 'realName'])
+)
+
+client.on('error', (message) => {
+  console.log('error:', message)
+})
+
+client.on('registered', () => {
+  console.log('connected to IRC server!')
+
+  _.forEach(config.channels, channel => {
+    console.log(`joining ${channel}...`)
+    client.join(channel)
+  })
+})
+
+client.on('join', (channelName, nick) => {
+  if (isMe(nick)) {
+    console.log(`joined ${channelName}!`)
+    createChannel(channelName)
+  }
+
+  joinChannel(nick, channelName)
+})
+
+client.on('part', (channel, nick) => {
+  leaveChannel(nick, channel)
+})
+
+client.on('kick', (channel, nick) => {
+  leaveChannel(nick, channel)
+})
+
+client.on('kill', nick => {
+  leaveNetwork(nick)
+})
+
+client.on('quit', nick => {
+  leaveNetwork(nick)
+})
+
+client.on('nick', (nickOld, nickNew) => {
+  updateNick(nickOld, nickNew)
+})
+
+client.on('names', (channel, nicks) => {
+  updateChannelActiveUsers(channel, nicks)
+})
+
+client.on('message', onMessage)
+
+client.on('selfMessage', (to, text) => {
+  onMessage(config.nick, to, text)
 })
