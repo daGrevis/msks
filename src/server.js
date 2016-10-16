@@ -8,14 +8,14 @@ var io = socketio(server)
 
 function getInitialMessages(channelName) {
   return r.table('messages')
-    .orderBy({ index: 'timestamp' })
+    .orderBy({ index: r.desc('timestamp') })
     .filter({ to: channelName })
     .limit(100)
 }
 
 function getMessagesBefore(channelName, timestamp) {
   return r.table('messages')
-    .orderBy({ index: 'timestamp' })
+    .orderBy({ index: r.desc('timestamp') })
     .filter({ to: channelName })
     .filter(r.row('timestamp').gt(r.ISO8601(timestamp)))
     .limit(100)
@@ -40,7 +40,7 @@ io.on('connection', client => {
 
   const subscribeToMessages = ({ channelName, timestamp }) => {
     r.table('messages')
-      .orderBy({ index: 'timestamp' })
+      .orderBy({ index: r.desc('timestamp') })
       .filter({ to: channelName })
       .filter(r.row('timestamp').gt(r.ISO8601(timestamp)))
       .changes({ includeInitial: true })
