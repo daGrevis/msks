@@ -22,6 +22,18 @@ function getMessagesBefore(channelName, timestamp) {
 }
 
 io.on('connection', client => {
+  const subscribeToChannels = () => {
+    r.table('channels').changes({ includeInitial: true }).run()
+      .then(feed => {
+        feed.each((err, change) => {
+          client.emit('action', {
+            type: 'CHANNEL_CHANGE',
+            payload: change,
+          })
+        })
+      })
+  }
+
   const loadMessages = ({ channelName, timestamp = null }) => {
     let messagePromise
     if (timestamp === null) {
@@ -56,6 +68,8 @@ io.on('connection', client => {
   }
 
   const TYPE_TO_ACTION = {
+    SUBSCRIBE_TO_CHANNELS: subscribeToChannels,
+
     LOAD_MESSAGES: loadMessages,
     SUBSCRIBE_TO_MESSAGES: subscribeToMessages,
   }

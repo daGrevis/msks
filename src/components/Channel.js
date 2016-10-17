@@ -20,12 +20,12 @@ export default class Channel extends Component {
   }
 
   render() {
-    const { channelName, messages } = this.props
+    const { selectedChannel, messages } = this.props
 
     return <div className='channel'>
       <header>
-        <h2 className='name'>{channelName}</h2>
-        <p className='topic'>Register with NickServ to talk. | About software and hacking in Latvian. Language and paradigm agnostic. Flamewars allowed while it doesn't get too personal. Not really for novice programmers. | daGrevis: neraudi, susuriņ | Tik tikko pievienojies? /msg Xn !history 25</p>
+        <h2 className='name'>{selectedChannel.name}</h2>
+        <p className='topic'>{selectedChannel.topic}</p>
       </header>
 
       <div className='messages-wrapper'>

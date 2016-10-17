@@ -5,7 +5,7 @@ import { Provider } from 'react-redux'
 import thunkMiddleware from 'redux-thunk'
 
 import { initialState, reducer } from  './reducers'
-import { subscribeToSocket, loadChannel } from './actions'
+import { subscribeToSocket, subscribeToChannels, loadChannel } from './actions'
 import App from './containers/App'
 import './index.css'
 
@@ -17,8 +17,11 @@ const store = createStore(
   )
 )
 
+window.store = store
+
 function onReady() {
   store.dispatch(subscribeToSocket())
+  store.dispatch(subscribeToChannels())
   store.dispatch(loadChannel('#meeseekeria'))
 
   ReactDOM.render(

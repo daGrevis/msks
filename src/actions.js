@@ -6,6 +6,20 @@ import socket from './websocket-client'
 
 const addMessage = createAction('ADD_MESSAGE')
 
+const subscribeToChannels = () => dispatch => {
+  socket.emit('action', { type: 'SUBSCRIBE_TO_CHANNELS' })
+}
+
+const updateChannel = createAction('UPDATE_CHANNEL')
+
+const channelChange = change => dispatch => {
+  const { new_val = null } = change
+
+  if (new_val !== null) {
+    dispatch(updateChannel(new_val))
+  }
+}
+
 const loadChannel = channelName => dispatch => {
   dispatch(createAction('LOAD_CHANNEL')(channelName))
 
@@ -21,16 +35,20 @@ const loadMessages = channelName => dispatch => {
   })
 }
 
+const subscribeToMessages = (channelName, timestamp) => dispatch => {
+  socket.emit('action', {
+    type: 'SUBSCRIBE_TO_MESSAGES',
+    payload: { channelName, timestamp },
+  })
+}
+
 const loadedMessages = ({ channelName, timestamp, messages }) => dispatch => {
   _.forEach(messages, message => dispatch(addMessage(message)))
 
   if (timestamp === null) {
     const lastMessage = _.last(messages)
 
-    socket.emit('action', {
-      type: 'SUBSCRIBE_TO_MESSAGES',
-      payload: { channelName, timestamp: lastMessage.timestamp },
-    })
+    dispatch(subscribeToMessages(channelName, lastMessage.timestamp))
   }
 }
 
@@ -42,6 +60,8 @@ const messageChange = change => dispatch => {
 }
 
 const TYPE_TO_ACTION = {
+  CHANNEL_CHANGE: channelChange,
+
   LOADED_MESSAGES: loadedMessages,
   MESSAGE_CHANGE: messageChange,
 }
@@ -57,5 +77,6 @@ const subscribeToSocket = () => dispatch => {
 
 export {
   subscribeToSocket,
+  subscribeToChannels,
   loadChannel,
 }
