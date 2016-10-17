@@ -7,9 +7,11 @@ const channels = state => state.channels
 
 const messages = state => state.messages
 
-const selectedChannel = createSelector(
-  [channels, channelName],
-  (channels, channelName) => channels[channelName] || '',
+const selectedChannel = state => state.channels[state.channelName]
+
+const isLoading = createSelector(
+  [selectedChannel],
+  fp.isUndefined
 )
 
 const sortedMessages = createSelector(
@@ -19,5 +21,6 @@ const sortedMessages = createSelector(
 
 export {
   selectedChannel,
+  isLoading,
   sortedMessages,
 }
