@@ -2,6 +2,7 @@ const Joi = require('joi')
 
 const Channel = Joi.object().keys({
   name: Joi.string().required(),
+  topic: Joi.string(),
 })
 
 const ActiveUser = Joi.object().keys({

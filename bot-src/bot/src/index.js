@@ -61,6 +61,11 @@ function updateChannelActiveUsers(channel, nicks) {
     })
 }
 
+function updateTopic(channel, topic) {
+  // TODO: Race condition when this runs before channel exists.
+  r.table('channels').get(channel).update({ topic: topic }).run()
+}
+
 function onMessage(from, to, text) {
   // Apparently & is a valid prefix.
   const isPrivate = !_.startsWith(to, '#') && !_.startsWith(to, '&')
@@ -144,6 +149,10 @@ client.on('nick', (nickOld, nickNew) => {
 
 client.on('names', (channel, nicks) => {
   updateChannelActiveUsers(channel, nicks)
+})
+
+client.on('topic', (channel, topic) => {
+  updateTopic(channel, topic)
 })
 
 client.on('message', onMessage)
