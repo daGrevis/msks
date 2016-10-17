@@ -4,7 +4,7 @@ import { createUpdater, pipeUpdaters } from 'redux-fp'
 const initialState = {
   channelName: null,
   channels: {},
-  messages: {},
+  messagesByChannel: {},
 }
 
 const channelUpdater = createUpdater({
@@ -13,7 +13,7 @@ const channelUpdater = createUpdater({
 })
 
 const messagesUpdater = createUpdater({
-  ADD_MESSAGE: ({ payload }) => fp.set(['messages', payload.id], payload),
+  ADD_MESSAGE: ({ payload }) => fp.set(['messagesByChannel', payload.to, payload.id], payload),
 })
 
 const reducer = (state, action) => pipeUpdaters(

@@ -1,13 +1,13 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { selectedChannel, sortedMessages } from '../selectors'
+import { selectedChannel, channelMessages } from '../selectors'
 import Channel from '../components/Channel'
 
 function mapStateToProps(state) {
   return {
     selectedChannel: selectedChannel(state),
-    messages: sortedMessages(state),
+    messages: channelMessages(state),
   }
 }
 

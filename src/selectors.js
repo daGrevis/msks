@@ -3,7 +3,7 @@ import { createSelector } from 'reselect'
 
 const channelName = state => state.channelName
 
-const channels = state => state.channels
+const messagesByChannel = state => state.messagesByChannel
 
 const messages = state => state.messages
 
@@ -14,13 +14,13 @@ const isLoading = createSelector(
   fp.isUndefined
 )
 
-const sortedMessages = createSelector(
-  [messages],
-  messages => fp.sortBy('timestamp', messages)
+const channelMessages = createSelector(
+  [channelName, messagesByChannel],
+  (channelName, messages) => fp.sortBy('timestamp', messages[channelName])
 )
 
 export {
   selectedChannel,
   isLoading,
-  sortedMessages,
+  channelMessages,
 }
