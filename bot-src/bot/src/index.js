@@ -67,7 +67,7 @@ function onMessage(from, to, text) {
   const timestamp = new Date()
 
   const message = {
-    from, to, text, isPrivate, timestamp,
+    from, to, text, timestamp,
   }
 
   validate(message, schemas.Message).then(message => {

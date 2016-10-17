@@ -8,12 +8,13 @@ const queries = [
   r.tableCreate('channels', { primaryKey: 'name' }),
 
   r.tableCreate('active_users'),
-  r.table('active_users').indexCreate('username'),
+  r.table('active_users').indexCreate('nick'),
   r.table('active_users').indexCreate('channel'),
 
   r.tableCreate('messages'),
-  r.table('messages').indexCreate('from'),
+  r.table('messages').indexCreate('to'),
   r.table('messages').indexCreate('timestamp'),
+  r.table('messages').indexCreate('toAndTimestamp', [r.row('to'), r.row('timestamp')])
 ]
 
 // Run queries in sequence, but never fail.
