@@ -2,7 +2,15 @@ import _ from 'lodash'
 import moment from 'moment'
 import { createAction } from 'redux-actions'
 
+import { channelName } from './selectors'
 import socket from './websocket-client'
+
+const navigate = location => dispatch => {
+  dispatch({
+    type: 'ROUTER_PUSH',
+    payload: location,
+  })
+}
 
 const addMessage = createAction('ADD_MESSAGE')
 
@@ -20,10 +28,24 @@ const channelChange = change => dispatch => {
   }
 }
 
-const loadChannel = channelName => dispatch => {
-  dispatch(createAction('LOAD_CHANNEL')(channelName))
+const loadChannel = () => (dispatch, getState) => {
+  const state = getState()
 
-  dispatch(loadMessages(channelName))
+  const name = channelName(state)
+
+  if (!name) {
+    return
+  }
+
+  if (_.has(state, ['isChannelLoadingInitiated', name])) {
+    return
+  } else {
+    dispatch(createAction('LOAD_CHANNEL')(name))
+  }
+
+  // Code below gets run only once.
+
+  dispatch(loadMessages(name))
 }
 
 const loadMessages = channelName => dispatch => {
@@ -48,7 +70,12 @@ const loadedMessages = ({ channelName, timestamp, messages }) => dispatch => {
   if (timestamp === null) {
     const lastMessage = _.last(messages)
 
-    dispatch(subscribeToMessages(channelName, lastMessage.timestamp))
+    dispatch(
+      subscribeToMessages(
+        channelName,
+        lastMessage ? lastMessage.timestamp : new Date()
+      )
+    )
   }
 }
 
@@ -76,6 +103,7 @@ const subscribeToSocket = () => dispatch => {
 }
 
 export {
+  navigate,
   subscribeToSocket,
   subscribeToChannels,
   loadChannel,

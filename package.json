@@ -16,6 +16,8 @@
     "redux": "^3.6.0",
     "redux-actions": "^0.12.0",
     "redux-fp": "^0.1.1",
+    "redux-little-router": "^11.2.0",
+    "redux-logger": "^2.7.0",
     "redux-thunk": "^2.1.0",
     "reselect": "^2.5.4",
     "rethinkdbdash": "^2.3.23",
@@ -23,7 +25,7 @@
     "socket.io-client": "^1.5.0"
   },
   "scripts": {
-    "start": "echo \"Execute: npm run start:react-scripts and npm run start:server separately\" && exit 1",
+    "start": "echo \"Execute: 'npm run start:react-scripts' and 'npm run start:server' separately\" && exit 1",
     "start:react-scripts": "react-scripts start",
     "start:server": "nodemon src/server.js",
     "build": "react-scripts build",

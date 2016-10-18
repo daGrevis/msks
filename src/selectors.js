@@ -1,26 +1,54 @@
 import fp from 'lodash/fp'
 import { createSelector } from 'reselect'
 
-const channelName = state => state.channelName
+import { stripURI } from './utils'
+
+const router = state => state.router
+
+const channels = state => state.channels
+
+const channelName = createSelector(
+  [router, channels],
+  (router, channels) => {
+    // Can't store '#' in URI like in '/#vim' so we escape to '/vim' and later try to find match.
+    const channel = fp.find(channel => (
+      router.params.channel === stripURI(channel.name)
+    ))(channels)
+    return channel ? channel.name : null
+  }
+)
 
 const messagesByChannel = state => state.messagesByChannel
 
-const messages = state => state.messages
+const selectedChannel = createSelector(
+  [channels, channelName],
+  (channels, channelName) => channels[channelName]
+)
 
-const selectedChannel = state => state.channels[state.channelName]
+const isAppLoading = () => false
 
-const isLoading = createSelector(
+const isChannelLoading = createSelector(
   [selectedChannel],
-  fp.isUndefined
+  (selectedChannel) => {
+    return !selectedChannel
+  }
+)
+
+const sortedChannels = createSelector(
+  [channels],
+  fp.sortBy('name')
 )
 
 const channelMessages = createSelector(
   [channelName, messagesByChannel],
-  (channelName, messages) => fp.sortBy('timestamp', messages[channelName])
+  (channelName, messagesByChannel) => fp.sortBy('timestamp', messagesByChannel[channelName])
 )
 
 export {
+  channelName,
   selectedChannel,
-  isLoading,
+  isAppLoading,
+  isChannelLoading,
+  sortedChannels,
   channelMessages,
 }
