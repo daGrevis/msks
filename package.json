@@ -4,7 +4,7 @@
   "private": true,
   "devDependencies": {
     "nodemon": "^1.11.0",
-    "react-scripts": "0.4.2"
+    "react-scripts": "^0.6.1"
   },
   "dependencies": {
     "classnames": "^2.2.5",
@@ -25,8 +25,8 @@
     "socket.io-client": "^1.5.0"
   },
   "scripts": {
-    "start": "echo \"Execute: 'npm run start:react-scripts' and 'npm run start:server' separately\" && exit 1",
-    "start:react-scripts": "react-scripts start",
+    "start": "echo \"Execute: 'npm run start:server' and 'npm run start:client' separately\" && exit 1",
+    "start:client": "react-scripts start",
     "start:server": "nodemon src/server.js",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
