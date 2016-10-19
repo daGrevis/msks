@@ -13,6 +13,7 @@ const navigate = location => dispatch => {
 }
 
 const addMessage = createAction('ADD_MESSAGE')
+const addMessages = createAction('ADD_MESSAGES')
 
 const subscribeToChannels = () => dispatch => {
   socket.emit('action', { type: 'SUBSCRIBE_TO_CHANNELS' })
@@ -65,15 +66,15 @@ const subscribeToMessages = (channelName, timestamp) => dispatch => {
 }
 
 const loadedMessages = ({ channelName, timestamp, messages }) => dispatch => {
-  _.forEach(messages, message => dispatch(addMessage(message)))
+  dispatch(addMessages(messages))
 
   if (timestamp === null) {
-    const lastMessage = _.last(messages)
+    const newestMessage = _.first(messages)
 
     dispatch(
       subscribeToMessages(
         channelName,
-        lastMessage ? lastMessage.timestamp : new Date()
+        newestMessage ? newestMessage.timestamp : new Date()
       )
     )
   }

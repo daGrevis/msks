@@ -9,11 +9,16 @@ const initialState = {
 
 const channelUpdater = createUpdater({
   UPDATE_CHANNEL: ({ payload }) => fp.set(['channels', payload.name], payload),
-  LOAD_CHANNEL: ({ payload }) => fp.set(['isChannelLoadingInitiated', payload], true)
+  LOAD_CHANNEL: ({ payload }) => fp.set(['isChannelLoadingInitiated', payload], true),
 })
 
+const addMessage = message => fp.set(['messagesByChannel', message.to, message.id], message)
+
 const messagesUpdater = createUpdater({
-  ADD_MESSAGE: ({ payload }) => fp.set(['messagesByChannel', payload.to, payload.id], payload),
+  ADD_MESSAGE: ({ payload }) => addMessage(payload),
+  ADD_MESSAGES: ({ payload }) => state => fp.reduce((state, message) => (
+    addMessage(message)(state)
+  ), state, payload),
 })
 
 const reducer = (state, action) => pipeUpdaters(
