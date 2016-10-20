@@ -1,4 +1,9 @@
 import fp from 'lodash/fp'
+import frozenMoment from 'frozen-moment'
+
+function mo(when) {
+  return frozenMoment(when).freeze()
+}
 
 function stripURI(uri) {
   // Removes all characters except the following: alphabetic, decimal digits, - _ . ! ~ * ' ( )
@@ -6,5 +11,6 @@ function stripURI(uri) {
 }
 
 export {
+  mo,
   stripURI,
 }

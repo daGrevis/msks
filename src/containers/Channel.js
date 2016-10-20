@@ -2,6 +2,7 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+import { mo } from '../utils'
 import { isChannelLoading, selectedChannel, channelMessages } from '../selectors'
 import { loadChannel } from '../actions'
 import Message from '../components/Message'
@@ -35,24 +36,35 @@ class Channel extends Component {
 
     const { selectedChannel, messages } = this.props
 
-    return <div className='channel'>
-      <header>
-        <h2 className='name'>{selectedChannel.name}</h2>
-        <p className='topic'>{selectedChannel.topic}</p>
-      </header>
+    return (
+      <div id='channel'>
+        <div className='header'>
+          <h2 className='name bold'>{selectedChannel.name}</h2>
+          <p className='topic'>{selectedChannel.topic}</p>
+        </div>
 
-      <div className='messages-wrapper'>
         <div className='messages' ref={node => this.messagesNode = node}>
-          {_.map(messages, (message, i) =>
-            <Message
-              key={message.id}
-              message={message}
-              isConsecutive={i > 0 && messages[i - 1].from === message.from}
-            />
-          )}
+          {_.map(messages, (message, i) => {
+            const messageBefore = i > 0 ? messages[i - 1] : null
+            const timestamp = new Date(message.timestamp)
+            const timestampBefore = messageBefore ? new Date(messageBefore.timestamp) : null
+            const isFirst = (
+              !messageBefore
+              || messageBefore.from !== message.from
+              || mo(timestamp).diff(timestampBefore, 'minutes') > 1
+            )
+
+            return (
+              <Message
+                key={message.id}
+                message={message}
+                isFirst={isFirst}
+              />
+            )
+          })}
         </div>
       </div>
-    </div>
+    )
   }
 }
 

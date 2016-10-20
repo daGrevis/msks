@@ -11,7 +11,7 @@ function ChannelHeader(props) {
 
   return (
     <header onClick={onClick}>
-      <h2>
+      <h2 className='bold'>
         {channel.name}
       </h2>
     </header>
@@ -28,7 +28,7 @@ class Front extends React.Component {
     const { sortedChannels: channels } = this.props
 
     return (
-      <div className='front'>
+      <div id='front'>
         {_.map(channels, channel => (
           <ChannelHeader
             key={channel.name}

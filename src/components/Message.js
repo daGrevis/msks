@@ -1,24 +1,25 @@
-import moment from 'moment'
 import React, { Component } from 'react'
 import classNames from 'classnames'
 
+import { mo } from '../utils'
 import Maybe from './Maybe'
 
 export default class Message extends Component {
   render() {
-    const { message, isConsecutive } = this.props
+    const { message, isFirst } = this.props
 
     const classes = classNames('message', {
-      'is-consecutive': isConsecutive,
-      'is-first': !isConsecutive,
+      'is-first': isFirst,
+      'is-not-first': !isFirst,
     })
     return <div className={classes}>
-      <Maybe when={!isConsecutive}>
+      <Maybe when={isFirst}>
         <div>
-          <span className='nick'>{message.from}</span>
-          <span className='timestamp'>{moment(message.timestamp).format('h:mm A')}</span>
+          <span className='nick bold'>{message.from}</span>
+          <span className='timestamp'>{mo(message.timestamp).format('HH:mm')}</span>
         </div>
       </Maybe>
+
       <div className='text'>
         {message.text}
       </div>

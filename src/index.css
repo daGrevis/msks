@@ -1,50 +1,62 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:700|Noto+Sans');
+
 * {
   box-sizing: border-box;
 }
 
-html body {
+html, body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+  color: #444;
 }
 
-#app {
+h1, h2, h3, h4, h5, h6 {
+}
+
+.bold {
+  font-family: Lato, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: bold;
+  color: #111;
+}
+
+#front {
   margin: 0 20px;
 }
 
-.channel header {
-  height: 10vh;
-  max-width: 960px;
+#channel {
 }
 
-.channel .name {
+#channel .header {
+  position: fixed;
+  height: 120px;
+  width: 100%;
+  z-index: 1;
+  background: white;
+  padding: 20px;
+  padding-top: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+#channel .header .name {
   line-height: .5;
 }
 
-.channel .messages-wrapper {
-  height: 85vh;
-  max-width: 960px;
-  overflow: hidden;
-  position: relative;
-  left: -20px;
-}
-
-.channel .messages {
-  height: 100%;
-  width: 100%;
-  overflow-y: scroll;
-  position: absolute;
-  top: 0;
-  left: 20px;
-}
-
-.message.is-first {
-  padding-top: 10px;
+#channel .messages {
+  padding: 20px;
+  padding-top: 140px;
+  padding-bottom: 40px;
 }
 
 .message .nick {
-  font-weight: bold;
   padding-right: 10px;
+  font-size: 16px;
+}
+
+.message .timestamp {
+  color: #888;
+  font-size: 12px;
 }
 
 .message .text {
@@ -52,7 +64,12 @@ html body {
   padding-bottom: 5px;
   padding-right: 40px;
   word-break: break-all;
+  line-height: 1.1;
 }
-.message.is-consecutive .text {
+
+.message.is-first {
+  padding-top: 10px;
+}
+.message.is-not-first .text {
   padding-top: 0;
 }
