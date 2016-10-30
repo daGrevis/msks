@@ -68,7 +68,7 @@ html, body {
 }
 
 .message.is-first {
-  padding-top: 10px;
+  padding-top: 5px;
 }
 .message.is-not-first .text {
   padding-top: 0;

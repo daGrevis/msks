@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import fp from 'lodash/fp'
 import moment from 'moment'
 import { createAction } from 'redux-actions'
 
@@ -29,7 +30,7 @@ const channelChange = change => dispatch => {
   }
 }
 
-const loadChannel = () => (dispatch, getState) => {
+const loadMessages = (timestamp = null) => (dispatch, getState) => {
   const state = getState()
 
   const name = channelName(state)
@@ -38,23 +39,17 @@ const loadChannel = () => (dispatch, getState) => {
     return
   }
 
-  if (_.has(state, ['isChannelLoadingInitiated', name])) {
+  const cacheKey = [name, timestamp]
+
+  if (fp.some(fp.isEqual(cacheKey), state.loadMessagesCache)) {
     return
-  } else {
-    dispatch(createAction('LOAD_CHANNEL')(name))
   }
 
-  // Code below gets run only once.
-
-  dispatch(loadMessages(name))
-}
-
-const loadMessages = channelName => dispatch => {
-  dispatch(createAction('LOAD_MESSAGES')(channelName))
+  dispatch(createAction('LOAD_MESSAGES')(cacheKey))
 
   socket.emit('action', {
     type: 'LOAD_MESSAGES',
-    payload: { channelName },
+    payload: { channelName: name, timestamp },
   })
 }
 
@@ -107,5 +102,5 @@ export {
   navigate,
   subscribeToSocket,
   subscribeToChannels,
-  loadChannel,
+  loadMessages,
 }

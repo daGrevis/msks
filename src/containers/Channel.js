@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import { mo } from '../utils'
 import { isChannelLoading, selectedChannel, channelMessages } from '../selectors'
-import { loadChannel } from '../actions'
+import { loadMessages } from '../actions'
 import Message from '../components/Message'
 
 class Channel extends Component {
@@ -12,6 +12,7 @@ class Channel extends Component {
 
   state = {
     autoScroll: true,
+    scrollOffset: 0,
   }
 
   scroll() {
@@ -21,15 +22,19 @@ class Channel extends Component {
       return
     }
 
-    if (!this.state.autoScroll) {
-      return
-    }
+    const { scrollOffset } = this.state
 
-    wrapperNode.scrollTop = wrapperNode.scrollHeight
+    let scrollTop
+    if (this.state.autoScroll) {
+      scrollTop = wrapperNode.scrollHeight
+    } else {
+      scrollTop = (wrapperNode.scrollHeight - wrapperNode.clientHeight) - scrollOffset
+    }
+    wrapperNode.scrollTop = scrollTop
   }
 
   componentDidRender() {
-    this.props.loadChannel()
+    this.props.loadMessages()
     this.scroll()
   }
 
@@ -48,8 +53,20 @@ class Channel extends Component {
   onScroll = ev => {
     const { target: wrapperNode } = ev
 
+    const stateUpdate = {}
+
+    const scrollOffset = (wrapperNode.scrollHeight - wrapperNode.clientHeight) - wrapperNode.scrollTop
+    stateUpdate.scrollOffset = scrollOffset
+
+    if (wrapperNode.scrollTop <= 500) {
+      const messageFirst = _.first(this.props.messages)
+      this.props.loadMessages(messageFirst ? messageFirst.timestamp : null)
+    }
+
     const autoScroll = wrapperNode.scrollTop === wrapperNode.scrollHeight - wrapperNode.clientHeight
-    this.setState({ autoScroll })
+    stateUpdate.autoScroll = autoScroll
+
+    this.setState(stateUpdate)
   }
 
   render() {
@@ -103,7 +120,7 @@ function mapStateToProps(state, props) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    loadChannel: () => dispatch(loadChannel()),
+    loadMessages: timestamp => dispatch(loadMessages(timestamp)),
   }
 }
 
