@@ -18,6 +18,11 @@ html, body {
   color: #111;
 }
 
+a {
+  color: #0074D9;
+  text-decoration: none;
+}
+
 #front {
   margin: 0 20px;
 }
