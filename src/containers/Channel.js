@@ -8,25 +8,48 @@ import { loadChannel } from '../actions'
 import Message from '../components/Message'
 
 class Channel extends Component {
-  messagesNode = null
+  wrapperNode = null
+
+  state = {
+    autoScroll: true,
+  }
 
   scroll() {
-    const { messagesNode } = this
+    const { wrapperNode } = this
 
-    if (!messagesNode) {
+    if (!wrapperNode) {
       return
     }
 
-    messagesNode.scrollTop = messagesNode.scrollHeight
+    if (!this.state.autoScroll) {
+      return
+    }
+
+    wrapperNode.scrollTop = wrapperNode.scrollHeight
+  }
+
+  componentDidRender() {
+    this.props.loadChannel()
+    this.scroll()
   }
 
   componentDidMount() {
-    this.props.loadChannel()
+    this.componentDidRender()
   }
 
   componentDidUpdate() {
-    this.props.loadChannel()
-    this.scroll()
+    this.componentDidRender()
+  }
+
+  onRef = node => {
+    this.wrapperNode = node
+  }
+
+  onScroll = ev => {
+    const { target: wrapperNode } = ev
+
+    const autoScroll = wrapperNode.scrollTop === wrapperNode.scrollHeight - wrapperNode.clientHeight
+    this.setState({ autoScroll })
   }
 
   render() {
@@ -43,25 +66,27 @@ class Channel extends Component {
           <p className='topic'>{selectedChannel.topic}</p>
         </div>
 
-        <div className='messages' ref={node => this.messagesNode = node}>
-          {_.map(messages, (message, i) => {
-            const messageBefore = i > 0 ? messages[i - 1] : null
-            const timestamp = new Date(message.timestamp)
-            const timestampBefore = messageBefore ? new Date(messageBefore.timestamp) : null
-            const isFirst = (
-              !messageBefore
-              || messageBefore.from !== message.from
-              || mo(timestamp).diff(timestampBefore, 'minutes') > 1
-            )
+        <div className='messages-wrapper' ref={this.onRef} onScroll={this.onScroll}>
+          <div className='messages'>
+            {_.map(messages, (message, i) => {
+              const messageBefore = i > 0 ? messages[i - 1] : null
+              const timestamp = new Date(message.timestamp)
+              const timestampBefore = messageBefore ? new Date(messageBefore.timestamp) : null
+              const isFirst = (
+                !messageBefore
+                || messageBefore.from !== message.from
+                || mo(timestamp).diff(timestampBefore, 'minutes') > 1
+              )
 
-            return (
-              <Message
-                key={message.id}
-                message={message}
-                isFirst={isFirst}
-              />
-            )
-          })}
+              return (
+                <Message
+                  key={message.id}
+                  message={message}
+                  isFirst={isFirst}
+                />
+              )
+            })}
+          </div>
         </div>
       </div>
     )

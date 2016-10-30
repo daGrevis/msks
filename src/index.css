@@ -12,9 +12,6 @@ html, body {
   color: #444;
 }
 
-h1, h2, h3, h4, h5, h6 {
-}
-
 .bold {
   font-family: Lato, -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: bold;
@@ -26,16 +23,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #channel {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
 }
 
 #channel .header {
-  position: fixed;
-  height: 120px;
-  width: 100%;
-  z-index: 1;
-  background: white;
-  padding: 20px;
-  padding-top: 0;
+  padding: 0 20px;
   border-bottom: 1px solid #ddd;
 }
 
@@ -43,10 +37,16 @@ h1, h2, h3, h4, h5, h6 {
   line-height: .5;
 }
 
+#channel .messages-wrapper {
+  display: flex;
+  flex: 1 1 auto;
+  overflow-y: scroll;
+}
+
 #channel .messages {
   padding: 20px;
-  padding-top: 140px;
-  padding-bottom: 40px;
+  padding-bottom: 30px;
+  margin: auto 0;
 }
 
 .message .nick {
