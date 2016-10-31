@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Lato:700|Noto+Sans');
+@import url('https://fonts.googleapis.com/css?family=Lato:700|Fira+Sans');
 
 * {
   box-sizing: border-box;
@@ -7,7 +7,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Fira Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 15px;
   color: #444;
 }
@@ -40,6 +40,10 @@ a {
 
 #channel > .header .name {
   line-height: .5;
+}
+
+#channel > .header .topic {
+  line-height: 1.2;
 }
 
 #channel .messages-wrapper {
@@ -75,7 +79,7 @@ a {
 }
 
 .message .nick {
-  padding-right: 10px;
+  padding-right: 5px;
   font-size: 16px;
 }
 
@@ -85,7 +89,6 @@ a {
 }
 
 .message .text {
-  padding-top: 5px;
   padding-bottom: 5px;
   padding-right: 40px;
   word-break: break-all;

@@ -6,6 +6,7 @@ import { mo } from '../utils'
 import { isChannelLoading, selectedChannel, channelMessages, channelMessagesByDay } from '../selectors'
 import { loadMessages } from '../actions'
 import Message from '../components/Message'
+import Text from '../components/Text'
 
 class Messages extends Component {
   isFirst(messages, message, i) {
@@ -44,7 +45,7 @@ class Messages extends Component {
         {_.map(messagesByDay, ([day, messages]) =>
           <div key={day} className='day'>
             <div className='header'>
-              <span className='text bold'>
+              <span className='text bold' title={mo(day).format()}>
                 {this.getHeaderText(day)}
               </span>
               <div className='divider' />
@@ -137,7 +138,9 @@ class Channel extends Component {
       <div id='channel'>
         <div className='header'>
           <h2 className='name bold'>{selectedChannel.name}</h2>
-          <p className='topic'>{selectedChannel.topic}</p>
+          <p className='topic'>
+            <Text>{selectedChannel.topic}</Text>
+          </p>
         </div>
 
         <div className='messages-wrapper' ref={this.onRef} onScroll={this.onScroll}>
