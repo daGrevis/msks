@@ -27,6 +27,10 @@ a {
   margin: 0 20px;
 }
 
+#front a {
+  color: #111;
+}
+
 #channel {
   display: flex;
   height: 100vh;

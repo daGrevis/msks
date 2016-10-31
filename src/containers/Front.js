@@ -1,40 +1,44 @@
 import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
+import { Link } from 'redux-little-router'
 
 import { stripURI } from "../utils"
-import { navigate } from '../actions'
 import { sortedChannels } from '../selectors'
 
-function ChannelHeader(props) {
-  const { onClick, channel } = props
+class ChannelHeader extends React.Component {
+  getChannelHref(channel) {
+    const channelNameInLink = stripURI(channel.name)
+    return `/${channelNameInLink}`
+  }
 
-  return (
-    <header onClick={onClick}>
-      <h2 className='bold'>
-        {channel.name}
-      </h2>
-    </header>
-  )
+  render() {
+    const { onClick, channel } = this.props
+
+    return (
+      <header onClick={onClick}>
+        <h2 className='bold'>
+          <Link href={this.getChannelHref(channel)}>
+            {channel.name}
+          </Link>
+        </h2>
+      </header>
+    )
+  }
 }
 
 class Front extends React.Component {
-  navigateToChannel(channel) {
-    const channelNameInLink = stripURI(channel.name)
-    this.props.navigate(`/${channelNameInLink}`)
-  }
-
   render() {
     const { sortedChannels: channels } = this.props
 
     return (
       <div id='front'>
+        <a href='https://github.com/daGrevis/msks-web' target='_blank'>
+          <h1>msks</h1>
+        </a>
+
         {_.map(channels, channel => (
-          <ChannelHeader
-            key={channel.name}
-            channel={channel}
-            onClick={() => this.navigateToChannel(channel)}
-          />
+          <ChannelHeader key={channel.name} channel={channel} />
         ))}
       </div>
     )
@@ -47,10 +51,4 @@ function mapStateToProps(state) {
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    navigate: x => dispatch(navigate(x)),
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Front)
+export default connect(mapStateToProps)(Front)
