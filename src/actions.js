@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import fp from 'lodash/fp'
-import moment from 'moment'
 import { createAction } from 'redux-actions'
 
 import { channelName } from './selectors'

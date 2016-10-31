@@ -1,4 +1,3 @@
-import fp from 'lodash/fp'
 import frozenMoment from 'frozen-moment'
 
 function mo(when) {

@@ -1,7 +1,7 @@
 import fp from 'lodash/fp'
 import { createSelector } from 'reselect'
 
-import { stripURI } from './utils'
+import { stripURI, mo } from './utils'
 
 const router = state => state.router
 
@@ -44,6 +44,15 @@ const channelMessages = createSelector(
   (channelName, messagesByChannel) => fp.sortBy('timestamp', messagesByChannel[channelName])
 )
 
+const channelMessagesByDay = createSelector(
+  [channelMessages],
+  fp.pipe(
+    fp.groupBy(m => mo(m.timestamp).startOf('day').toISOString()),
+    fp.toPairs,
+    fp.orderBy(x => mo(x[0]).unix(), 'asc')
+  )
+)
+
 export {
   channelName,
   selectedChannel,
@@ -51,4 +60,5 @@ export {
   isChannelLoading,
   sortedChannels,
   channelMessages,
+  channelMessagesByDay,
 }

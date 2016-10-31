@@ -1,11 +1,11 @@
+import _ from 'lodash'
+import fp from 'lodash/fp'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'
 import thunkMiddleware from 'redux-thunk'
-import {
-  routerForBrowser, RouterProvider, Link, Fragment as AbsoluteFragment, RelativeFragment, provideRouter,
-} from 'redux-little-router'
+import { routerForBrowser, RouterProvider, Fragment as AbsoluteFragment, RelativeFragment } from 'redux-little-router'
 import createLogger from 'redux-logger'
 
 import { initialState, reducer } from  './reducers'
@@ -57,9 +57,9 @@ const store = createStore(
   )
 )
 
+window._ = _
+window.fp = fp
 window.store = store
-
-const RootWithRouter = provideRouter({ store })(Root)
 
 function onReady() {
   store.dispatch(subscribeToSocket())
@@ -67,7 +67,9 @@ function onReady() {
 
   ReactDOM.render(
     <Provider store={store}>
-      <RootWithRouter />
+      <RouterProvider store={store}>
+        <Root />
+      </RouterProvider>
     </Provider>,
     document.getElementById('root')
   )
