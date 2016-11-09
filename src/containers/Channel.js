@@ -2,67 +2,49 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { mo } from '../utils'
-import { isChannelLoading, selectedChannel, channelMessages, channelMessagesByDay } from '../selectors'
+import { isChannelLoading, selectedChannel, channelMessages, messageRows } from '../selectors'
 import { loadMessages } from '../actions'
 import Message from '../components/Message'
 import Text from '../components/Text'
 
-class Messages extends Component {
-  isFirst(messages, message, i) {
-    const messageBefore = i > 0 ? messages[i - 1] : null
-    const timestamp = new Date(message.timestamp)
-    const timestampBefore = messageBefore ? new Date(messageBefore.timestamp) : null
-    const isFirst = (
-      !messageBefore
-      || messageBefore.from !== message.from
-      || mo(timestamp).diff(timestampBefore, 'minutes') > 1
-    )
+const DayHeader = ({ text, isoTimestamp }) => {
+  return (
+    <div className='day-header'>
+      <span className='text bold' title={isoTimestamp}>
+        {text}
+      </span>
+      <div className='divider' />
+    </div>
+  )
+}
 
-    return isFirst
+const getMessageRowKey = ({ type, payload }) => {
+  const keyerMapping = {
+    day: ({ isoTimestamp }) => isoTimestamp,
+    message: ({ message }) => message.id,
   }
 
-  getHeaderText(day) {
-    day = mo(day)
-    const now = mo()
+  return keyerMapping[type](payload)
+}
 
-    if (day.isSame(now, 'day')) {
-      return 'Today'
-    }
-
-    if (day.isSame(now.subtract(1, 'd'), 'day')) {
-      return 'Yesterday'
-    }
-
-    return day.format('dddd, MMMM Do')
+const MessageRow = ({ type, payload }) => {
+  const componentMapping = {
+    day: DayHeader,
+    message: Message,
   }
 
-  render() {
-    const { messagesByDay } = this.props
+  const component = componentMapping[type]
+  const props = payload
 
-    return (
-      <div className='messages'>
-        {_.map(messagesByDay, ([day, messages]) =>
-          <div key={day} className='day'>
-            <div className='header'>
-              <span className='text bold' title={mo(day).format()}>
-                {this.getHeaderText(day)}
-              </span>
-              <div className='divider' />
-            </div>
+  return React.createElement(component, props)
+}
 
-            {_.map(messages, (message, i) => (
-              <Message
-                key={message.id}
-                message={message}
-                isFirst={this.isFirst(messages, message, i)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
+const Messages = ({ messageRows }) => {
+  return (
+    <div className='messages'>
+      {_.map(messageRows, props => <MessageRow {...props} key={getMessageRowKey(props)} />)}
+    </div>
+  )
 }
 
 class Channel extends Component {
@@ -116,7 +98,7 @@ class Channel extends Component {
     const scrollOffset = (wrapperNode.scrollHeight - wrapperNode.clientHeight) - wrapperNode.scrollTop
     stateUpdate.scrollOffset = scrollOffset
 
-    if (wrapperNode.scrollTop <= 1000) {
+    if (wrapperNode.scrollTop <= document.documentElement.clientHeight) {
       const messageFirst = _.first(this.props.messages)
       this.props.loadMessages(messageFirst ? messageFirst.timestamp : null)
     }
@@ -132,7 +114,7 @@ class Channel extends Component {
       return null
     }
 
-    const { selectedChannel } = this.props
+    const { selectedChannel, messageRows } = this.props
 
     return (
       <div id='channel'>
@@ -144,7 +126,7 @@ class Channel extends Component {
         </div>
 
         <div className='messages-wrapper' ref={this.onRef} onScroll={this.onScroll}>
-          <Messages messagesByDay={this.props.messagesByDay} />
+          <Messages messageRows={messageRows} />
         </div>
       </div>
     )
@@ -156,7 +138,7 @@ function mapStateToProps(state, props) {
     isChannelLoading: isChannelLoading(state),
     selectedChannel: selectedChannel(state),
     messages: channelMessages(state),
-    messagesByDay: channelMessagesByDay(state),
+    messageRows: messageRows(state),
   }
 }
 

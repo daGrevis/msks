@@ -1,25 +1,23 @@
 import _ from 'lodash'
-import React, { Component } from 'react'
+import React from 'react'
 import classNames from 'classnames'
+import { onlyUpdateForKeys } from 'recompose'
 
-import { mo } from '../utils'
 import Maybe from './Maybe'
 import Text from './Text'
 
-export default class Message extends Component {
-  render() {
-    const { message, isFirst } = this.props
-
-    const classes = classNames('message', {
-      'is-first': isFirst,
-      'is-not-first': !isFirst,
-    })
-    return <div className={classes}>
+const Message = onlyUpdateForKeys(['id'])(({ message, isFirst, isoTimestamp, timestampText }) => {
+  const classes = classNames('message', {
+    'is-first': isFirst,
+    'is-not-first': !isFirst,
+  })
+  return (
+    <div className={classes}>
       <Maybe when={isFirst}>
         <div>
           <span className='nick bold'>{message.from}</span>
-          <span className='timestamp' title={mo(message.timestamp).format()}>
-            {mo(message.timestamp).format('HH:mm')}
+          <span className='timestamp' title={isoTimestamp}>
+            {timestampText}
           </span>
         </div>
       </Maybe>
@@ -28,5 +26,7 @@ export default class Message extends Component {
         <Text>{message.text}</Text>
       </div>
     </div>
-  }
-}
+  )
+})
+
+export default Message

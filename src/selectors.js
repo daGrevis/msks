@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import fp from 'lodash/fp'
 import { createSelector } from 'reselect'
 
@@ -44,13 +45,71 @@ const channelMessages = createSelector(
   (channelName, messagesByChannel) => fp.sortBy('timestamp', messagesByChannel[channelName])
 )
 
-const channelMessagesByDay = createSelector(
+const messageRows = createSelector(
   [channelMessages],
-  fp.pipe(
-    fp.groupBy(m => mo(m.timestamp).startOf('day').toISOString()),
-    fp.toPairs,
-    fp.orderBy(x => mo(x[0]).unix(), 'asc')
-  )
+  // TODO: Can this be expressed in a more declarative way without the performance penalty?
+  messages => {
+    if (messages.length === 0) {
+      return []
+    }
+
+    let now = mo()
+
+    let rows = []
+
+    let currentDate
+    _.forEach(messages, (message, i) => {
+      let messageTimestamp = mo(message.timestamp)
+
+      let messageDate = messageTimestamp.date()
+      let isNewDay = !currentDate || messageDate !== currentDate
+
+      if (isNewDay) {
+        currentDate = messageDate
+
+        let currentDay = messageTimestamp.startOf('day')
+
+        let text
+        if (currentDay.isSame(now, 'day')) {
+          text = 'Today'
+        } else if (currentDay.isSame(now.subtract(1, 'd'), 'day')) {
+          text = 'Yesterday'
+        } else {
+          text = currentDay.format('dddd, MMMM Do')
+        }
+
+        let isoTimestamp = currentDay.format()
+
+        rows.push({
+          type: 'day',
+          payload: { text, isoTimestamp },
+        })
+      }
+
+      let isFirst
+
+      if (isNewDay) {
+        isFirst = true
+      } else {
+        let messageBefore = messages[i - 1]
+
+        isFirst = (
+          messageBefore.from !== message.from
+          || messageTimestamp - mo(messageBefore.timestamp) >= 60000
+        )
+      }
+
+      let timestampText = messageTimestamp.format('HH:mm')
+      let isoTimestamp = messageTimestamp.format()
+
+      rows.push({
+        type: 'message',
+        payload: { message, timestampText, isoTimestamp, isFirst },
+      })
+    })
+
+    return rows
+  },
 )
 
 export {
@@ -60,5 +119,5 @@ export {
   isChannelLoading,
   sortedChannels,
   channelMessages,
-  channelMessagesByDay,
+  messageRows,
 }

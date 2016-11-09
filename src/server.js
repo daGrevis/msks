@@ -10,7 +10,7 @@ function getInitialMessages(channelName) {
   return r.table('messages')
     .orderBy({ index: r.desc('timestamp') })
     .filter({ to: channelName })
-    .limit(50)
+    .limit(100)
 }
 
 function getMessagesBefore(channelName, timestamp) {
@@ -18,7 +18,7 @@ function getMessagesBefore(channelName, timestamp) {
     .orderBy({ index: r.desc('timestamp') })
     .filter({ to: channelName })
     .filter(r.row('timestamp').le(r.ISO8601(timestamp)))
-    .limit(51)
+    .limit(101)
 }
 
 io.on('connection', client => {
