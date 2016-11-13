@@ -50,40 +50,58 @@ const Messages = ({ messageRows }) => {
 class Channel extends Component {
   wrapperNode = null
 
-  state = {
-    autoScroll: true,
-    scrollOffset: 0,
+  autoScroll = true
+  persistScroll = false
+  scrollHeight = 0
+  scrollTop = 0
+
+  componentDidMount() {
+    this.props.loadMessages()
+
+    this.autoScroll = true
+    this.scroll()
   }
 
-  scroll() {
+  componentWillUpdate(nextProps) {
     const { wrapperNode } = this
 
     if (!wrapperNode) {
       return
     }
 
-    const { scrollOffset } = this.state
+    this.autoScroll = wrapperNode.scrollTop + wrapperNode.offsetHeight === wrapperNode.scrollHeight
 
-    let scrollTop
-    if (this.state.autoScroll) {
-      scrollTop = wrapperNode.scrollHeight
-    } else {
-      scrollTop = (wrapperNode.scrollHeight - wrapperNode.clientHeight) - scrollOffset
+    if (!this.autoScroll) {
+      this.persistScroll = (
+        !_.isEmpty(nextProps.messages)
+        && _.first(nextProps.messages) !== _.first(this.props.messages)
+      )
+
+      if (this.persistScroll) {
+        this.scrollHeight = wrapperNode.scrollHeight
+        this.scrollTop = wrapperNode.scrollTop
+      }
     }
-    wrapperNode.scrollTop = scrollTop
-  }
-
-  componentDidRender() {
-    this.props.loadMessages()
-    this.scroll()
-  }
-
-  componentDidMount() {
-    this.componentDidRender()
   }
 
   componentDidUpdate() {
-    this.componentDidRender()
+    this.props.loadMessages()
+
+    this.scroll()
+  }
+
+  scroll() {
+    const { wrapperNode } = this
+
+    if (wrapperNode) {
+      if (this.autoScroll) {
+        setTimeout(() => {
+          wrapperNode.scrollTop = wrapperNode.scrollHeight
+        })
+      } else if (this.persistScroll) {
+        wrapperNode.scrollTop = this.scrollTop + (wrapperNode.scrollHeight - this.scrollHeight)
+      }
+    }
   }
 
   onRef = node => {
@@ -93,20 +111,10 @@ class Channel extends Component {
   onScroll = ev => {
     const { target: wrapperNode } = ev
 
-    const stateUpdate = {}
-
-    const scrollOffset = (wrapperNode.scrollHeight - wrapperNode.clientHeight) - wrapperNode.scrollTop
-    stateUpdate.scrollOffset = scrollOffset
-
     if (wrapperNode.scrollTop <= document.documentElement.clientHeight) {
       const messageFirst = _.first(this.props.messages)
       this.props.loadMessages(messageFirst ? messageFirst.timestamp : null)
     }
-
-    const autoScroll = wrapperNode.scrollTop === wrapperNode.scrollHeight - wrapperNode.clientHeight
-    stateUpdate.autoScroll = autoScroll
-
-    this.setState(stateUpdate)
   }
 
   render() {
