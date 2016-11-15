@@ -22,9 +22,17 @@ const Message = onlyUpdateForKeys(['id'])(({ message, isFirst, isoTimestamp, tim
         </div>
       </Maybe>
 
-      <div className='text'>
-        <Text>{message.text}</Text>
-      </div>
+      <Maybe when={message.kind === 'message'}>
+        <div className='text'>
+          <Text>{message.text}</Text>
+        </div>
+      </Maybe>
+
+      <Maybe when={message.kind === 'action'}>
+        <div className='text action'>
+          <Text>{`${message.from} ${message.text}`}</Text>
+        </div>
+      </Maybe>
     </div>
   )
 })
