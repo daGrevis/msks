@@ -66,13 +66,13 @@ function updateTopic(channel, topic) {
   r.table('channels').get(channel).update({ topic: topic }).run()
 }
 
-function onMessage(from, to, text) {
+function onMessage(from, to, text, kind='message') {
   // Apparently & is a valid prefix.
   const isPrivate = !_.startsWith(to, '#') && !_.startsWith(to, '&')
   const timestamp = new Date()
 
   const message = {
-    from, to, text, timestamp,
+    from, to, text, kind, timestamp,
   }
 
   validate(message, schemas.Message).then(message => {
@@ -155,8 +155,14 @@ client.on('topic', (channel, topic) => {
   updateTopic(channel, topic)
 })
 
-client.on('message', onMessage)
+client.on('message', (from, to, text) => {
+  onMessage(from, to, text)
+})
 
 client.on('selfMessage', (to, text) => {
   onMessage(config.nick, to, text)
+})
+
+client.on('action', (from, to, text) => {
+  onMessage(from, to, text, 'action')
 })

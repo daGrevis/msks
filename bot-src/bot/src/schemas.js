@@ -14,6 +14,7 @@ const Message = Joi.object().keys({
   from: Joi.string().required(),
   to: Joi.string().required(),
   text: Joi.string().required(),
+  kind: Joi.any().valid(['message', 'action']),
   timestamp: Joi.date().required(),
 })
 
