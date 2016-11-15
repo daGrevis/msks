@@ -3,8 +3,8 @@ const socketio = require('socket.io')
 const r = require('./rethink')
 
 console.log('starting server...')
-var server = http.createServer()
-var io = socketio(server)
+let server = http.createServer()
+let io = socketio(server)
 
 function getInitialMessages(channelName) {
   return r.table('messages')
