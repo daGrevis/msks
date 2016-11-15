@@ -4,8 +4,9 @@ import { connect } from 'react-redux'
 
 import { isChannelLoading, selectedChannel, channelMessages, messageRows } from '../selectors'
 import { loadMessages } from '../actions'
-import Message from '../components/Message'
+import Maybe from '../components/Maybe'
 import Text from '../components/Text'
+import Message from '../components/Message'
 
 const DayHeader = ({ text, isoTimestamp }) => {
   return (
@@ -128,9 +129,11 @@ class Channel extends Component {
       <div id='channel'>
         <div className='header'>
           <h2 className='name bold'>{selectedChannel.name}</h2>
-          <p className='topic'>
-            <Text>{selectedChannel.topic}</Text>
-          </p>
+          <Maybe when={selectedChannel.topic}>
+            <p className='topic'>
+              <Text>{selectedChannel.topic}</Text>
+            </p>
+          </Maybe>
         </div>
 
         <div className='messages-wrapper' ref={this.onRef} onScroll={this.onScroll}>
