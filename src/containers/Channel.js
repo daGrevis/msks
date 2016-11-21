@@ -7,6 +7,7 @@ import { loadMessages } from '../actions'
 import Maybe from '../components/Maybe'
 import Text from '../components/Text'
 import Message from '../components/Message'
+import Loader from '../components/Loader'
 
 const DayHeader = ({ text, isoTimestamp }) => {
   return (
@@ -21,6 +22,7 @@ const DayHeader = ({ text, isoTimestamp }) => {
 
 const getMessageRowKey = ({ type, payload }) => {
   const keyerMapping = {
+    loader: () => 'loader',
     day: ({ isoTimestamp }) => isoTimestamp,
     message: ({ message }) => message.id,
   }
@@ -28,8 +30,9 @@ const getMessageRowKey = ({ type, payload }) => {
   return keyerMapping[type](payload)
 }
 
-const MessageRow = ({ type, payload }) => {
+const MessageRow = ({ type, payload = {} }) => {
   const componentMapping = {
+    loader: Loader,
     day: DayHeader,
     message: Message,
   }
@@ -112,7 +115,8 @@ class Channel extends Component {
   onScroll = ev => {
     const { target: wrapperNode } = ev
 
-    if (wrapperNode.scrollTop <= document.documentElement.clientHeight) {
+    const threshold = document.documentElement.clientHeight
+    if (wrapperNode.scrollTop <= threshold) {
       const messageFirst = _.first(this.props.messages)
       this.props.loadMessages(messageFirst ? messageFirst.timestamp : null)
     }

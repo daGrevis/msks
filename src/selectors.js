@@ -21,6 +21,8 @@ const channelName = createSelector(
 
 const messagesByChannel = state => state.messagesByChannel
 
+const hasReachedChannelBeginning = state => state.hasReachedChannelBeginning
+
 const selectedChannel = createSelector(
   [channels, channelName],
   (channels, channelName) => channels[channelName]
@@ -46,16 +48,24 @@ const channelMessages = createSelector(
 )
 
 const messageRows = createSelector(
-  [channelMessages],
-  // TODO: Can this be expressed in a more declarative way without the performance penalty?
-  messages => {
-    if (messages.length === 0) {
-      return []
+  [channelMessages, channelName, hasReachedChannelBeginning],
+  // TODO: Can this be expressed in a more declarative way without performance penalty?
+  (messages, channelName, hasReachedChannelBeginning) => {
+    const hasReachedBeginning = hasReachedChannelBeginning[channelName]
+
+    let rows = []
+
+    if (hasReachedBeginning && messages.length === 0) {
+      return rows
+    }
+
+    if (!hasReachedBeginning) {
+      rows.push({
+        type: 'loader',
+      })
     }
 
     let now = mo()
-
-    let rows = []
 
     let currentDate
     _.forEach(messages, (message, i) => {
@@ -67,23 +77,25 @@ const messageRows = createSelector(
       if (isNewDay) {
         currentDate = messageDate
 
-        let currentDay = messageTimestamp.startOf('day')
+        if (i !== 0 || hasReachedBeginning) {
+          let currentDay = messageTimestamp.startOf('day')
 
-        let text
-        if (currentDay.isSame(now, 'day')) {
-          text = 'Today'
-        } else if (currentDay.isSame(now.subtract(1, 'd'), 'day')) {
-          text = 'Yesterday'
-        } else {
-          text = currentDay.format('dddd, MMMM Do')
+          let text
+          if (currentDay.isSame(now, 'day')) {
+            text = 'Today'
+          } else if (currentDay.isSame(now.subtract(1, 'd'), 'day')) {
+            text = 'Yesterday'
+          } else {
+            text = currentDay.format('dddd, MMMM Do')
+          }
+
+          let isoTimestamp = currentDay.format()
+
+          rows.push({
+            type: 'day',
+            payload: { text, isoTimestamp },
+          })
         }
-
-        let isoTimestamp = currentDay.format()
-
-        rows.push({
-          type: 'day',
-          payload: { text, isoTimestamp },
-        })
       }
 
       let isFirst

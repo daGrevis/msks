@@ -7,12 +7,16 @@ import Maybe from './Maybe'
 import Text from './Text'
 
 const Message = onlyUpdateForKeys(['id'])(({ message, isFirst, isoTimestamp, timestampText }) => {
-  const classes = classNames('message', {
+  const messageClasses = classNames('message', {
     'is-first': isFirst,
     'is-not-first': !isFirst,
   })
+  const textClasses = classNames('message', {
+    'text': true,
+    'action': message.kind === 'action',
+  })
   return (
-    <div className={classes}>
+    <div className={messageClasses}>
       <Maybe when={isFirst}>
         <div>
           <span className='nick bold'>{message.from}</span>
@@ -22,17 +26,9 @@ const Message = onlyUpdateForKeys(['id'])(({ message, isFirst, isoTimestamp, tim
         </div>
       </Maybe>
 
-      <Maybe when={message.kind === 'message'}>
-        <div className='text'>
-          <Text>{message.text}</Text>
-        </div>
-      </Maybe>
-
-      <Maybe when={message.kind === 'action'}>
-        <div className='text action'>
-          <Text>{`${message.from} ${message.text}`}</Text>
-        </div>
-      </Maybe>
+      <div className={textClasses}>
+        <Text>{message.text}</Text>
+      </div>
     </div>
   )
 })

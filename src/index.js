@@ -15,6 +15,7 @@ import App from './containers/App'
 import Front from './containers/Front'
 import Channel from './containers/Channel'
 
+import "loaders.css/loaders.min.css"
 import './index.css'
 
 const routes = {

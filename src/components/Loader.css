@@ -1,0 +1,11 @@
+.loader {
+  margin: 20px auto;
+}
+
+.loader-inner {
+  text-align: center;
+}
+
+.loader-inner > div {
+  background: #ddd !important;
+}

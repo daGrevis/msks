@@ -52,24 +52,24 @@ const loadMessages = (timestamp = null) => (dispatch, getState) => {
   })
 }
 
-const subscribeToMessages = (channelName, timestamp) => dispatch => {
+const subscribeToMessages = ({ channelName, timestamp }) => dispatch => {
   socket.emit('action', {
     type: 'SUBSCRIBE_TO_MESSAGES',
     payload: { channelName, timestamp },
   })
 }
 
-const loadedMessages = ({ channelName, timestamp, messages }) => dispatch => {
-  dispatch(addMessages(messages))
+const loadedMessages = ({ channelName, messages, timestamp }) => dispatch => {
+  dispatch(addMessages({ channelName, messages }))
 
   if (timestamp === null) {
     const newestMessage = _.first(messages)
 
     dispatch(
-      subscribeToMessages(
+      subscribeToMessages({
         channelName,
-        newestMessage ? newestMessage.timestamp : new Date()
-      )
+        timestamp: newestMessage ? newestMessage.timestamp : new Date(),
+      })
     )
   }
 }
