@@ -28,7 +28,10 @@ const selectedChannel = createSelector(
   (channels, channelName) => channels[channelName]
 )
 
-const isAppLoading = () => false
+const isAppLoading = createSelector(
+  [channels],
+  fp.isEmpty
+)
 
 const isChannelLoading = createSelector(
   [selectedChannel],

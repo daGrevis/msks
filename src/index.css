@@ -23,6 +23,16 @@ a {
   text-decoration: none;
 }
 
+#app.is-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+#app > div {
+  width: 100%;
+}
+
 #front {
   margin: 0 20px;
 }
@@ -48,12 +58,14 @@ a {
 
 #channel > .header .topic {
   line-height: 1.2;
+  font-size: 14px;
 }
 
 #channel .messages-wrapper {
   display: flex;
   flex: 1 1 auto;
   overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
 }
 
 #channel .messages {
