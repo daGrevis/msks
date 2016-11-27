@@ -2,7 +2,7 @@ import _ from 'lodash'
 import fp from 'lodash/fp'
 import { createSelector } from 'reselect'
 
-import { stripURI, mo } from './utils'
+import { mo } from './utils'
 
 const location = state => state.location
 
