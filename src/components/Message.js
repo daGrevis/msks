@@ -6,6 +6,8 @@ import { onlyUpdateForKeys } from 'recompose'
 import Maybe from './Maybe'
 import Text from './Text'
 
+import './Message.css'
+
 const Message = onlyUpdateForKeys(['id'])(({ message, isFirst, isoTimestamp, timestampText }) => {
   const messageClasses = classNames('message', {
     'is-first': isFirst,

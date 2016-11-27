@@ -1,0 +1,27 @@
+.message .nick {
+  padding-right: 5px;
+  font-size: 16px;
+}
+
+.message .timestamp {
+  color: #888;
+  font-size: 12px;
+}
+
+.message .text {
+  padding-bottom: 5px;
+  padding-right: 10px;
+  word-break: break-all;
+  line-height: 1.1;
+}
+
+.message .text.action {
+  font-style: italic;
+}
+
+.message.is-first {
+  padding-top: 5px;
+}
+.message.is-not-first .text {
+  padding-top: 0;
+}

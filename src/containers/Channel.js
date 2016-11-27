@@ -9,6 +9,8 @@ import Text from '../components/Text'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 
+import './Channel.css'
+
 const DayHeader = ({ text, isoTimestamp }) => {
   return (
     <div className='day-header'>

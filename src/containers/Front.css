@@ -1,0 +1,11 @@
+#front {
+  margin: 0 20px;
+}
+
+#front h1 {
+  color: #333;
+}
+
+#front h2 {
+  cursor: pointer;
+}

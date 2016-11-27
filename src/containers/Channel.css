@@ -1,0 +1,52 @@
+#channel {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+}
+
+#channel > .header {
+  padding: 0 20px;
+  border-bottom: 1px solid #cacaca;
+}
+
+#channel > .header .name {
+  line-height: .5;
+}
+
+#channel > .header .topic {
+  line-height: 1.2;
+  font-size: 14px;
+}
+
+#channel .messages-wrapper {
+  display: flex;
+  flex: 1 1 auto;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
+#channel .messages {
+  padding: 20px;
+  padding-bottom: 30px;
+  margin: auto 0;
+  width: 100%;
+}
+
+#channel .messages .day-header {
+  padding: 30px 0;
+  text-align: center;
+}
+#channel .messages .day-header .text {
+  display: inline-block;
+  background: white;
+  color: #444;
+  padding: 0 10px;
+}
+
+#channel .messages .day-header .divider {
+  height: 1px;
+  background: #ddd;
+  position: relative;
+  bottom: 8px;
+  z-index: -1;
+}

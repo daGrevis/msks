@@ -1,0 +1,9 @@
+#app.is-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+#app > div {
+  width: 100%;
+}

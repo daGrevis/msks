@@ -2,33 +2,35 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 
-import { isAppLoading } from '../selectors'
+import { isAppLoading, channelName } from '../selectors'
 import Maybe from '../components/Maybe'
 import Loader from '../components/Loader'
 
-class App extends Component {
-  render() {
-    const { isLoading, children } = this.props
+import Front from './Front'
+import Channel from './Channel'
 
-    const classes = classNames({
-      'is-loading': isLoading,
-    })
-    return (
-      <div id='app' className={classes}>
-        <Maybe when={isLoading}>
-          <Loader />
-        </Maybe>
-        <Maybe when={!isLoading}>
-          {children}
-        </Maybe>
-      </div>
-    )
-  }
+import './App.css'
+
+function App({ isLoading, channelName }) {
+  const classes = classNames({
+    'is-loading': isLoading,
+  })
+  return (
+    <div id='app' className={classes}>
+      <Maybe when={isLoading}>
+        <Loader />
+      </Maybe>
+      <Maybe when={!isLoading}>
+        {channelName ? <Channel /> : <Front />}
+      </Maybe>
+    </div>
+  )
 }
 
 function mapStateToProps(state) {
   return {
     isLoading: isAppLoading(state),
+    channelName: channelName(state),
   }
 }
 

@@ -4,7 +4,7 @@ import { createAction } from 'redux-actions'
 
 import { channelName } from './selectors'
 
-const navigate = createAction('ROUTER_PUSH')
+const navigated = createAction('NAVIGATED')
 
 const subscribeToChannels = createAction('server/SUBSCRIBE_TO_CHANNELS')
 
@@ -37,7 +37,7 @@ const addMessages = createAction('ADD_MESSAGES')
 const subscribeToMessages = createAction('server/SUBSCRIBE_TO_MESSAGES')
 
 export {
-  navigate,
+  navigated,
   subscribeToChannels,
   updateChannel,
   loadMessages,

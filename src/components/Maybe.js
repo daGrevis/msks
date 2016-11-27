@@ -1,10 +1,5 @@
-import { Component } from 'react'
-
-export default class Maybe extends Component {
-  render() {
-    if (this.props.when) {
-      return this.props.children
-    }
-    return false
-  }
+function Maybe(props) {
+  return props.when ? props.children : false
 }
+
+export default Maybe

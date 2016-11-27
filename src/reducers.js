@@ -2,6 +2,8 @@ import fp from 'lodash/fp'
 import { createUpdater, pipeUpdaters } from 'redux-fp'
 
 const initialState = {
+  location: null,
+
   channels: {
     // '##javascript': {
     //   'name': '##javascript',
@@ -46,6 +48,10 @@ const initialState = {
   },
 }
 
+const historyUpdater = createUpdater({
+  NAVIGATED: ({ payload }) => fp.set('location', payload)
+})
+
 const channelUpdater = createUpdater({
   UPDATE_CHANNEL: ({ payload }) => fp.set(['channels', payload.name], payload),
 })
@@ -62,6 +68,7 @@ const messagesUpdater = createUpdater({
 })
 
 const reducer = (state, action) => pipeUpdaters(
+  historyUpdater,
   channelUpdater,
   messagesUpdater
 )(action)(state)

@@ -4,19 +4,13 @@ import { createSelector } from 'reselect'
 
 import { stripURI, mo } from './utils'
 
-const router = state => state.router
+const location = state => state.location
 
 const channels = state => state.channels
 
 const channelName = createSelector(
-  [router, channels],
-  (router, channels) => {
-    // Can't store '#' in URI like in '/#vim' so we escape to '/vim' and later try to find match.
-    const channel = fp.find(channel => (
-      router.params.channel === stripURI(channel.name)
-    ))(channels)
-    return channel ? channel.name : null
-  }
+  [location, channels],
+  (location, channels) => location.hash || null
 )
 
 const messagesByChannel = state => state.messagesByChannel
