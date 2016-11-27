@@ -53,11 +53,11 @@ const channelUpdater = createUpdater({
 const addMessage = message => fp.set(['messagesByChannel', message.to, message.id], message)
 
 const messagesUpdater = createUpdater({
-  LOAD_MESSAGES: ({ payload }) => fp.update('loadMessagesCache', cache => fp.concat(cache, [payload])),
+  'server/LOAD_MESSAGES': ({ payload }) => fp.update('loadMessagesCache', cache => fp.concat(cache, [[payload.channelName, payload.timestamp]])),
   ADD_MESSAGE: ({ payload }) => addMessage(payload),
   ADD_MESSAGES: ({ payload: { channelName, messages }}) => state => fp.pipe(
     state => fp.reduce((st, m) => addMessage(m)(st), state, messages),
-    fp.set(['hasReachedChannelBeginning', channelName], messages.length === 1)
+    fp.set(['hasReachedChannelBeginning', channelName], messages.length === 1 || messages.length < 100)
   )(state),
 })
 

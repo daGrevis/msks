@@ -1,3 +1,4 @@
+const fp = 'lodash/fp'
 const http = require('http')
 const socketio = require('socket.io')
 const r = require('./rethink')
@@ -21,63 +22,73 @@ function getMessagesBefore(channelName, timestamp) {
     .limit(101)
 }
 
-io.on('connection', client => {
-  const subscribeToChannels = () => {
-    r.table('channels').changes({ includeInitial: true }).run()
-      .then(feed => {
-        feed.each((err, change) => {
-          client.emit('action', {
-            type: 'CHANNEL_CHANGE',
-            payload: change,
-          })
+const subscribeToChannels = () => client => {
+  r.table('channels').changes({ includeInitial: true }).run()
+    .then(feed => {
+      feed.each((err, change) => {
+        client.emit('action', {
+          type: 'client/CHANNEL_CHANGE',
+          payload: change,
         })
-      })
-  }
-
-  const loadMessages = ({ channelName, timestamp = null }) => {
-    let messagePromise
-    if (timestamp === null) {
-      messagePromise = getInitialMessages(channelName)
-    } else {
-      messagePromise = getMessagesBefore(channelName, timestamp)
-    }
-
-    messagePromise.then(messages => {
-      client.emit('action', {
-        type: 'LOADED_MESSAGES',
-        payload: { channelName, timestamp, messages }
       })
     })
+}
+
+const loadMessages = ({ channelName = null, timestamp = null }) => client => {
+  if (!channelName) {
+    return
   }
 
-  const subscribeToMessages = ({ channelName, timestamp }) => {
-    r.table('messages')
-      .orderBy({ index: r.desc('timestamp') })
-      .filter({ to: channelName })
-      .filter(r.row('timestamp').gt(r.ISO8601(timestamp)))
-      .changes({ includeInitial: true })
-      .run()
-      .then(feed => {
-        feed.each((err, change) => {
-          client.emit('action', {
-            type: 'MESSAGE_CHANGE',
-            payload: change,
-          })
+  let messagePromise
+  if (timestamp === null) {
+    messagePromise = getInitialMessages(channelName)
+  } else {
+    messagePromise = getMessagesBefore(channelName, timestamp)
+  }
+
+  messagePromise.then(messages => {
+    client.emit('action', {
+      type: 'client/LOADED_MESSAGES',
+      payload: { channelName, timestamp, messages }
+    })
+  })
+}
+
+const subscribeToMessages = ({ channelName = null, timestamp = null }) => client => {
+  if (!channelName || !timestamp) {
+    return
+  }
+
+  r.table('messages')
+    .orderBy({ index: r.desc('timestamp') })
+    .filter({ to: channelName })
+    .filter(r.row('timestamp').gt(r.ISO8601(timestamp)))
+    .changes({ includeInitial: true })
+    .run()
+    .then(feed => {
+      feed.each((err, change) => {
+        client.emit('action', {
+          type: 'client/MESSAGE_CHANGE',
+          payload: change,
         })
       })
-  }
+    })
+}
 
-  const TYPE_TO_ACTION = {
-    SUBSCRIBE_TO_CHANNELS: subscribeToChannels,
+const ACTIONS = {
+  'server/SUBSCRIBE_TO_CHANNELS': subscribeToChannels,
+  'server/LOAD_MESSAGES': loadMessages,
+  'server/SUBSCRIBE_TO_MESSAGES': subscribeToMessages,
+}
 
-    LOAD_MESSAGES: loadMessages,
-    SUBSCRIBE_TO_MESSAGES: subscribeToMessages,
-  }
+io.on('connection', client => {
+  client.on('action', ({ type, payload = null }) => {
+    if (!ACTIONS[type]) {
+      console.error(`Unknown action: ${type}`)
+      return
+    }
 
-  client.on('action', action => {
-    const { type, payload = null } = action
-
-    TYPE_TO_ACTION[type](payload)
+    ACTIONS[type](payload || {})(client)
   })
 })
 
