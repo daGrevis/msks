@@ -2,7 +2,9 @@ const Promise = require('bluebird')
 const _ = require('lodash')
 const rethinkdb = require('rethinkdbdash')
 
-const r = rethinkdb({ silent: true })
+const config = require('./config')
+
+const r = rethinkdb({ host: config.rethinkHost, silent: true })
 
 const queries = [
   r.tableCreate('channels', { primaryKey: 'name' }),

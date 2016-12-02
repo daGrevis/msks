@@ -12,7 +12,7 @@ const validate = Promise.promisify(Joi.validate)
 
 const VERSION = '0.0.3'
 
-const isMe = x => x === config.nick
+const isMe = x => x === config.ircNick
 
 function createChannel(name) {
   const channel = { name }
@@ -101,8 +101,14 @@ const bootTime = new Date()
 
 console.log('connecting to IRC server...')
 const client = new irc.Client(
-  config.server, config.nick,
-  _.pick(config, ['sasl', 'nick', 'userName', 'password', 'realName'])
+  config.ircServer, config.ircNick,
+  {
+    sasl: config.ircSasl,
+    nick: config.ircNick,
+    userName: config.ircUserName,
+    password: config.ircPassword,
+    realName: config.ircRealName,
+  }
 )
 
 client.on('error', (message) => {
@@ -112,7 +118,7 @@ client.on('error', (message) => {
 client.on('registered', () => {
   console.log('connected to IRC server!')
 
-  _.forEach(config.channels, channel => {
+  _.forEach(config.ircChannels, channel => {
     console.log(`joining ${channel}...`)
     client.join(channel)
   })
@@ -160,7 +166,7 @@ client.on('message', (from, to, text) => {
 })
 
 client.on('selfMessage', (to, text) => {
-  onMessage(config.nick, to, text)
+  onMessage(config.ircNick, to, text)
 })
 
 client.on('action', (from, to, text) => {

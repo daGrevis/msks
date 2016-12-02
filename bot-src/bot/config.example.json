@@ -1,9 +1,10 @@
 {
-  "server": "chat.freenode.net",
-  "sasl": false,
-  "nick": "msks",
-  "userName": "msks",
-  "password": "",
-  "realName": "Mr. Meeseeks",
-  "channels": ["#freenode"]
+  "rethinkHost": "localhost",
+  "ircServer": "chat.freenode.net",
+  "ircSasl": false,
+  "ircNick": "msks",
+  "ircUserName": "msks",
+  "ircPassword": "",
+  "ircRealName": "Mr. Meeseeks",
+  "ircChannels": ["#freenode"]
 }
