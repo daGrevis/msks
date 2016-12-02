@@ -1,5 +1,7 @@
 const rethinkdb = require('rethinkdbdash')
 
-const r = rethinkdb({ silent: true })
+const host = process.env.RETHINK_HOST || 'localhost'
+
+const r = rethinkdb({ host, silent: true })
 
 module.exports = r

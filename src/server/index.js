@@ -1,4 +1,3 @@
-const fp = 'lodash/fp'
 const http = require('http')
 const socketio = require('socket.io')
 const r = require('./rethink')

@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "dependencies": {
+    "rethinkdbdash": "^2.3.23",
+    "socket.io": "^1.5.0"
+  },
+  "scripts": {
+    "start": "node ."
+  }
+}

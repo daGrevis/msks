@@ -1,0 +1,43 @@
+version: '2'
+
+services:
+  rethink:
+    container_name: rethink
+    image: rethinkdb
+    volumes:
+     - ~/msks/rethink-data:/data
+    restart: always
+
+  msks-server:
+    container_name: msks-server
+    image: msks-server
+    links:
+      - rethink
+    ports:
+     - '3001:3001'
+    environment:
+      RETHINK_HOST: rethink
+    restart: always
+
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    links:
+     - msks-server
+     - rethink
+    ports:
+     - '80:80'
+    volumes:
+     - ~/msks/nginx.conf:/etc/nginx/nginx.conf:ro
+     - ~/msks/.htpasswd:/etc/nginx/.htpasswd:ro
+     - ~/msks/build:/srv/msks-web:ro
+    restart: always
+
+  msks-bot:
+    container_name: msks-bot
+    image: msks-bot
+    links:
+      - rethink
+    volumes:
+      - ~/msks/config.json:/usr/src/app/config.json:ro
+    restart: always
