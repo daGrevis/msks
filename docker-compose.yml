@@ -23,7 +23,6 @@ services:
     container_name: nginx
     image: nginx:alpine
     links:
-     - msks-server
      - rethink
     ports:
      - '80:80'
