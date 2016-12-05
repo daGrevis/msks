@@ -25,7 +25,8 @@
     "redux-thunk": "^2.1.0",
     "reselect": "^2.5.4",
     "rxjs": "^5.0.0-rc.4",
-    "socket.io-client": "^1.5.0"
+    "socket.io-client": "^1.5.0",
+    "uuid": "^3.0.1"
   },
   "scripts": {
     "start": "echo \"Execute: 'npm run start:server' and 'npm run start:client' separately\" && exit 1",
