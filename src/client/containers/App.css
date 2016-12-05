@@ -3,7 +3,3 @@
   display: flex;
   align-items: center;
 }
-
-#app > div {
-  width: 100%;
-}

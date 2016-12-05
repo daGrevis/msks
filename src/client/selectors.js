@@ -22,16 +22,26 @@ const selectedChannel = createSelector(
   (channels, channelName) => channels[channelName]
 )
 
-const isAppLoading = createSelector(
-  [channels],
-  fp.isEmpty
+const openedChannels = createSelector(
+  [channels, messagesByChannel],
+  (channels, messagesByChannel) => fp.pipe(
+    fp.map(k => channels[k]),
+    fp.keyBy('name')
+  )(fp.keys(messagesByChannel))
 )
 
 const isChannelLoading = createSelector(
   [selectedChannel],
-  (selectedChannel) => {
-    return !selectedChannel
-  }
+  (selectedChannel) => (
+    !selectedChannel
+  )
+)
+
+const isAppLoading = createSelector(
+  [channels, channelName, isChannelLoading],
+  (channels, channelName, isChannelLoading) => (
+    channelName ? isChannelLoading : fp.isEmpty(channels)
+  )
 )
 
 const sortedChannels = createSelector(
@@ -39,15 +49,15 @@ const sortedChannels = createSelector(
   fp.sortBy('name')
 )
 
-const channelMessages = createSelector(
-  [channelName, messagesByChannel],
-  (channelName, messagesByChannel) => fp.sortBy('timestamp', messagesByChannel[channelName])
+const channelMessages = channelName => createSelector(
+  [messagesByChannel],
+  messagesByChannel => fp.sortBy('timestamp', messagesByChannel[channelName])
 )
 
-const messageRows = createSelector(
-  [channelMessages, channelName, hasReachedChannelBeginning],
-  // TODO: Can this be expressed in a more declarative way without performance penalty?
-  (messages, channelName, hasReachedChannelBeginning) => {
+const messageRows = channelName => createSelector(
+  [channelMessages(channelName), hasReachedChannelBeginning],
+  (messages, hasReachedChannelBeginning) => {
+    // TODO: Can this be expressed in a more declarative way without performance penalty?
     const hasReachedBeginning = hasReachedChannelBeginning[channelName]
 
     let rows = []
@@ -121,12 +131,25 @@ const messageRows = createSelector(
   },
 )
 
+const mostRecentChannelMessage = channelName => createSelector(
+  [channelMessages(channelName)],
+  fp.last
+)
+
+const mostRecentChannelTimestamp = channelName => createSelector(
+  [mostRecentChannelMessage(channelName)],
+  m => m ? m.timestamp : new Date()
+)
+
 export {
   channelName,
   selectedChannel,
+  openedChannels,
   isAppLoading,
   isChannelLoading,
   sortedChannels,
   channelMessages,
   messageRows,
+  mostRecentChannelMessage,
+  mostRecentChannelTimestamp,
 }

@@ -13,15 +13,16 @@ import createSocketIoMiddleware from 'redux-socket.io'
 
 import socket from './socket'
 import { initialState, reducer } from  './reducers'
-import { navigated, subscribeToChannels } from './actions'
+import { openedChannels, mostRecentChannelTimestamp } from './selectors'
+import { navigated, subscribeToChannels, subscribeToMessages, addNotification } from './actions'
 import { rootEpic } from './epics'
 import { history } from  './history'
 import App from './containers/App'
 
-import "loaders.css/loaders.min.css"
+import 'loaders.css/loaders.min.css'
 import './index.css'
 
-const socketMiddleware = createSocketIoMiddleware(socket, "server/")
+const socketMiddleware = createSocketIoMiddleware(socket, 'server/')
 
 const loggerMiddleware = createLogger({
   duration: true,
@@ -44,6 +45,20 @@ const store = createStore(
     loggerMiddleware
   )
 )
+
+socket.on('reconnect', () => {
+  const state = store.getState()
+
+  store.dispatch(addNotification('Reconnected!'))
+
+  store.dispatch(subscribeToChannels())
+  fp.map(({ name }) => (
+    store.dispatch(subscribeToMessages({
+      channelName: name,
+      timestamp: mostRecentChannelTimestamp(name)(state),
+    }))
+  ))(openedChannels(state))
+})
 
 store.dispatch(navigated(history.location))
 history.listen(loc => {

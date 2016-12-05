@@ -46,6 +46,13 @@ const initialState = {
   hasReachedChannelBeginning: {
     // '#developerslv': true,
   },
+
+  notifications: [
+    // {
+    //   'key': '826833f3-d75e-40f9-8bbc-cae5712a0799',
+    //   'message': 'Hello, world',
+    // },
+  ],
 }
 
 const historyUpdater = createUpdater({
@@ -67,10 +74,16 @@ const messagesUpdater = createUpdater({
   )(state),
 })
 
+const notificationUpdater = createUpdater({
+  ADD_NOTIFICATION: ({ payload }) => fp.update('notifications', notifs => fp.concat(notifs, payload)),
+  REMOVE_NOTIFICATION: ({ payload }) => fp.update('notifications', fp.reject(({ key }) => key === payload)),
+})
+
 const reducer = (state, action) => pipeUpdaters(
   historyUpdater,
   channelUpdater,
-  messagesUpdater
+  messagesUpdater,
+  notificationUpdater,
 )(action)(state)
 
 export {

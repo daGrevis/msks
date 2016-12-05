@@ -18,10 +18,3 @@
 .message .text.action {
   font-style: italic;
 }
-
-.message.is-first {
-  padding-top: 5px;
-}
-.message.is-not-first .text {
-  padding-top: 0;
-}

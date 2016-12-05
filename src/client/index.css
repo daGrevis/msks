@@ -10,6 +10,8 @@ html, body {
   font-family: 'Fira Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 15px;
   color: #555;
+  word-break: break-all;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .bold {
@@ -21,4 +23,11 @@ html, body {
 a {
   color: #0074D9;
   text-decoration: none;
+}
+
+.notification-bar {
+  background: rgba(0, 0, 0, .9) !important;
+}
+.notification-bar-action {
+  color: white !important;
 }

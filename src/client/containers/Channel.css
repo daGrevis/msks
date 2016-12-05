@@ -5,17 +5,30 @@
 }
 
 #channel > .header {
-  padding: 0 20px;
+  padding: 0 10px;
+  padding-bottom: 5px;
   border-bottom: 1px solid #cacaca;
+  cursor: pointer;
 }
 
 #channel > .header .name {
   line-height: .5;
 }
 
-#channel > .header .topic {
+#channel > .header .topic-wrapper {
+  margin: 0;
+  margin-bottom: 5px;
   line-height: 1.2;
   font-size: 14px;
+}
+
+#channel > .header .topic {
+  padding-right: 5px;
+}
+
+#channel > .header .topic-ellipsis {
+  font-size: 24px;
+  line-height: 0;
 }
 
 #channel .messages-wrapper {
@@ -26,8 +39,7 @@
 }
 
 #channel .messages {
-  padding: 20px;
-  padding-bottom: 30px;
+  padding: 10px;
   margin: auto 0;
   width: 100%;
 }

@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import fp from 'lodash/fp'
 import { createAction } from 'redux-actions'
+import uuid from 'uuid'
 
 import { channelName } from './selectors'
 
@@ -36,6 +37,15 @@ const addMessages = createAction('ADD_MESSAGES')
 
 const subscribeToMessages = createAction('server/SUBSCRIBE_TO_MESSAGES')
 
+const addNotification = message => dispatch => {
+  dispatch({ type: 'ADD_NOTIFICATION', payload: {
+    message,
+    key: uuid(),
+  }})
+}
+
+const removeNotification = createAction('REMOVE_NOTIFICATION')
+
 export {
   navigated,
   subscribeToChannels,
@@ -44,4 +54,6 @@ export {
   addMessage,
   addMessages,
   subscribeToMessages,
+  addNotification,
+  removeNotification,
 }

@@ -2,8 +2,9 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { isChannelLoading, selectedChannel, channelMessages, messageRows } from '../selectors'
+import { channelName, isChannelLoading, selectedChannel, channelMessages, messageRows } from '../selectors'
 import { loadMessages } from '../actions'
+import Link from '../components/Link'
 import Maybe from '../components/Maybe'
 import Text from '../components/Text'
 import Message from '../components/Message'
@@ -60,6 +61,10 @@ class Channel extends Component {
   persistScroll = false
   scrollHeight = 0
   scrollTop = 0
+
+  state = {
+    isTopicExpanded: false,
+  }
 
   componentDidMount() {
     this.props.loadMessages()
@@ -124,6 +129,10 @@ class Channel extends Component {
     }
   }
 
+  onTopicClick = () => {
+    this.setState({ isTopicExpanded: !this.state.isTopicExpanded })
+  }
+
   render() {
     if (this.props.isChannelLoading) {
       return null
@@ -134,10 +143,17 @@ class Channel extends Component {
     return (
       <div id='channel'>
         <div className='header'>
-          <h2 className='name bold'>{selectedChannel.name}</h2>
+          <Link href='/'>
+            <h2 className='name bold'>{selectedChannel.name}</h2>
+          </Link>
           <Maybe when={selectedChannel.topic}>
-            <p className='topic'>
-              <Text>{selectedChannel.topic}</Text>
+            <p className='topic-wrapper'>
+              <Maybe when={this.state.isTopicExpanded}>
+                <span className='topic'>
+                  <Text>{selectedChannel.topic}</Text>
+                </span>
+              </Maybe>
+              <span className='topic-ellipsis' onClick={this.onTopicClick}>…</span>
             </p>
           </Maybe>
         </div>
@@ -151,11 +167,12 @@ class Channel extends Component {
 }
 
 function mapStateToProps(state, props) {
+  const name = channelName(state)
   return {
     isChannelLoading: isChannelLoading(state),
     selectedChannel: selectedChannel(state),
-    messages: channelMessages(state),
-    messageRows: messageRows(state),
+    messages: channelMessages(name)(state),
+    messageRows: messageRows(name)(state),
   }
 }
 

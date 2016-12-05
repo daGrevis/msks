@@ -3,7 +3,6 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import Link from '../components/Link'
-
 import { sortedChannels } from '../selectors'
 
 import './Front.css'
