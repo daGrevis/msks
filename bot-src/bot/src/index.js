@@ -12,7 +12,7 @@ const validate = Promise.promisify(Joi.validate)
 
 const VERSION = '0.0.3'
 
-const isMe = x => x === config.ircNick
+const isMe = (client, nick) => client.nick === nick
 
 function createChannel(name) {
   const channel = { name }
@@ -127,7 +127,7 @@ client.on('registered', () => {
 })
 
 client.on('join', (channelName, nick) => {
-  if (isMe(nick)) {
+  if (isMe(client, nick)) {
     console.log(`joined ${channelName}!`)
     createChannel(channelName)
   }
