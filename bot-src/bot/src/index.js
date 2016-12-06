@@ -77,10 +77,7 @@ function onMessage(from, to, text, kind='message') {
 
   validate(message, schemas.Message).then(message => {
     r.table('messages').insert(message).run()
-      .then(() => {
-        // Simple indication for activity.
-        console.log('.')
-      })
+      .then(() => {})
       .catch(err => {
         console.error(err)
       })
