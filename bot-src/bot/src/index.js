@@ -84,9 +84,14 @@ function onMessage(from, to, text, kind='message') {
 
     const recipient = isPrivate ? from : to
 
+    if (text === '!ping') {
+      client.say(recipient, 'pong')
+    }
+
     if (text === '!version') {
       client.say(recipient, `msks-bot v${VERSION}, https://github.com/daGrevis/msks-bot`)
     }
+
     if (text === '!uptime') {
       const uptime = new Date() - bootTime
       client.say(recipient, utils.humanizeDelta(uptime))
