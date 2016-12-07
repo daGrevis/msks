@@ -3,14 +3,14 @@ const _ = require('lodash')
 const Joi = require('joi')
 const irc = require('irc')
 
-const utils = require('./utils')
+const { humanizeDelta } = require('./utils')
 const config = require('./config')
 const schemas = require('./schemas')
 const r = require('./rethink')
 
 const validate = Promise.promisify(Joi.validate)
 
-const VERSION = '0.0.3'
+const VERSION = '0.0.4'
 
 const isMe = (client, nick) => client.nick === nick
 
@@ -63,7 +63,7 @@ function updateChannelActiveUsers(channel, nicks) {
 
 function updateTopic(channel, topic) {
   // TODO: Race condition when this runs before channel exists.
-  r.table('channels').get(channel).update({ topic: topic }).run()
+  r.table('channels').get(channel).update({ topic }).run()
 }
 
 function onMessage(from, to, text, kind='message') {
@@ -79,7 +79,7 @@ function onMessage(from, to, text, kind='message') {
     r.table('messages').insert(message).run()
       .then(() => {})
       .catch(err => {
-        console.error(err)
+        console.error('error while saving message', err)
       })
 
     const recipient = isPrivate ? from : to
@@ -93,15 +93,21 @@ function onMessage(from, to, text, kind='message') {
     }
 
     if (text === '!uptime') {
-      const uptime = new Date() - bootTime
-      client.say(recipient, utils.humanizeDelta(uptime))
+      const bootUptime = new Date() - bootTime
+      const connectionUptime = new Date() - connectionTime
+
+      client.say(recipient,
+        `${humanizeDelta(bootUptime)} (${humanizeDelta(connectionUptime)})`
+      )
     }
   })
 }
 
 const bootTime = new Date()
+let connectionTime
 
-console.log('connecting to IRC server...')
+console.log('starting bot...')
+
 const client = new irc.Client(
   config.ircServer, config.ircNick,
   {
@@ -113,12 +119,18 @@ const client = new irc.Client(
   }
 )
 
-client.on('error', (message) => {
-  console.log('error:', message)
+client.on('error', err => {
+  console.error('error:', err)
+})
+
+client.on('netError', err => {
+  console.error('network error:', err)
 })
 
 client.on('registered', () => {
-  console.log('connected to IRC server!')
+  connectionTime = new Date()
+
+  console.log('connected to server!')
 
   _.forEach(config.ircChannels, channel => {
     console.log(`joining ${channel}...`)
@@ -126,13 +138,13 @@ client.on('registered', () => {
   })
 })
 
-client.on('join', (channelName, nick) => {
+client.on('join', (channel, nick) => {
   if (isMe(client, nick)) {
-    console.log(`joined ${channelName}!`)
-    createChannel(channelName)
+    console.log(`joined ${channel}!`)
+    createChannel(channel)
   }
 
-  joinChannel(nick, channelName)
+  joinChannel(nick, channel)
 })
 
 client.on('part', (channel, nick) => {
