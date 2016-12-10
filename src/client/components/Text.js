@@ -5,7 +5,8 @@ import fp from 'lodash/fp'
 export default props => {
   const { children: text } = props
 
-  const linkPattern = /([a-z]+:\/\/[^,\s]+)/g
+  // Anything starting with one or more word characters followed by :// is considered a link.
+  const linkPattern = /(\w+:\/\/\S+)/g
 
   const parts = fp.filter(s => s !== '')(text.split(linkPattern))
 
