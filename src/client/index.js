@@ -19,6 +19,10 @@ import { rootEpic } from './epics'
 import { history } from  './history'
 import App from './containers/App'
 
+import viewportUnitsBuggyfill from 'viewport-units-buggyfill'
+
+viewportUnitsBuggyfill.init()
+
 import 'loaders.css/loaders.min.css'
 import './index.css'
 
