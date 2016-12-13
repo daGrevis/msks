@@ -2,7 +2,9 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { channelName, isChannelLoading, selectedChannel, channelMessages, messageRows } from '../selectors'
+import {
+  isChannelLoadingSelector, getChannelSelector, getMessagesSelector, messageRowsSelector,
+} from '../selectors'
 import { loadMessages } from '../actions'
 import Link from '../components/Link'
 import Maybe from '../components/Maybe'
@@ -138,19 +140,19 @@ class Channel extends Component {
       return null
     }
 
-    const { selectedChannel, messageRows } = this.props
+    const { channel, messageRows } = this.props
 
     return (
       <div id='channel'>
         <div className='header'>
           <Link href='/'>
-            <h2 className='name bold'>{selectedChannel.name}</h2>
+            <h2 className='name bold'>{channel.name}</h2>
           </Link>
-          <Maybe when={selectedChannel.topic}>
+          <Maybe when={channel.topic}>
             <p className='topic-wrapper'>
               <Maybe when={this.state.isTopicExpanded}>
                 <span className='topic'>
-                  <Text>{selectedChannel.topic}</Text>
+                  <Text>{channel.topic}</Text>
                 </span>
               </Maybe>
               <span className='topic-ellipsis' onClick={this.onTopicClick}>…</span>
@@ -166,20 +168,15 @@ class Channel extends Component {
   }
 }
 
-function mapStateToProps(state, props) {
-  const name = channelName(state)
-  return {
-    isChannelLoading: isChannelLoading(state),
-    selectedChannel: selectedChannel(state),
-    messages: channelMessages(name)(state),
-    messageRows: messageRows(name)(state),
-  }
-}
+const mapStateToProps = (state, props) => ({
+  isChannelLoading: isChannelLoadingSelector(state),
+  channel: getChannelSelector()(state),
+  messages: getMessagesSelector()(state),
+  messageRows: messageRowsSelector(state),
+})
 
-function mapDispatchToProps(dispatch) {
-  return {
-    loadMessages: timestamp => dispatch(loadMessages(timestamp)),
-  }
-}
+const mapDispatchToProps = dispatch => ({
+  loadMessages: timestamp => dispatch(loadMessages(timestamp)),
+})
 
 export default connect(mapStateToProps, mapDispatchToProps)(Channel)

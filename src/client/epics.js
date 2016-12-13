@@ -1,7 +1,7 @@
 import { combineEpics } from 'redux-observable'
 
 import { updateChannel, subscribeToMessages, addMessages, addMessage } from './actions'
-import { mostRecentChannelTimestamp } from './selectors'
+import { getLastMessageTimestampSelector } from './selectors'
 
 const channelChangeEpic = action$ =>
   action$.ofType('client/CHANNEL_CHANGE')
@@ -15,7 +15,7 @@ const subscribeToMessagesEpic = (action$, store) =>
   action$.ofType('client/LOADED_MESSAGES')
     .filter(({ payload }) => payload.timestamp === null)
     .map(({ payload: { channelName } }) => {
-      const timestamp = mostRecentChannelTimestamp(channelName)(store.getState())
+      const timestamp = getLastMessageTimestampSelector(channelName)(store.getState())
       return subscribeToMessages({
         channelName,
         timestamp,

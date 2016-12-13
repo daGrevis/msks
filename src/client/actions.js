@@ -3,7 +3,7 @@ import fp from 'lodash/fp'
 import { createAction } from 'redux-actions'
 import uuid from 'uuid'
 
-import { channelName } from './selectors'
+import { channelNameSelector } from './selectors'
 
 const navigated = createAction('NAVIGATED')
 
@@ -14,13 +14,13 @@ const updateChannel = createAction('UPDATE_CHANNEL')
 const loadMessages = (timestamp = null) => (dispatch, getState) => {
   const state = getState()
 
-  const name = channelName(state)
+  const channelName = channelNameSelector(state)
 
-  if (!name) {
+  if (!channelName) {
     return
   }
 
-  const cacheKey = [name, timestamp]
+  const cacheKey = [channelName, timestamp]
 
   if (fp.some(fp.isEqual(cacheKey), state.loadMessagesCache)) {
     return
@@ -28,7 +28,7 @@ const loadMessages = (timestamp = null) => (dispatch, getState) => {
 
   dispatch({
     type: 'server/LOAD_MESSAGES',
-    payload: { channelName: name, timestamp },
+    payload: { channelName, timestamp },
   })
 }
 

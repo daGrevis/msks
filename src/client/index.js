@@ -11,13 +11,16 @@ import { createEpicMiddleware } from 'redux-observable'
 import createLogger from 'redux-logger'
 import createSocketIoMiddleware from 'redux-socket.io'
 
-import socket from './socket'
-import { initialState, reducer } from  './reducers'
-import { openedChannels, mostRecentChannelTimestamp } from './selectors'
-import { navigated, subscribeToChannels, subscribeToMessages, addNotification } from './actions'
+import { mo } from './utils'
+import { initialState } from './state'
+import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
-import { history } from  './history'
+import { navigated, subscribeToChannels, subscribeToMessages, addNotification } from './actions'
+import { openedChannelsSelector, getLastMessageTimestampSelector } from './selectors'
 import App from './containers/App'
+
+import { history } from  './history'
+import socket from './socket'
 
 import viewportUnitsBuggyfill from 'viewport-units-buggyfill'
 
@@ -40,7 +43,7 @@ const loggerMiddleware = createLogger({
 const epicMiddleware = createEpicMiddleware(rootEpic)
 
 const store = createStore(
-  reducer,
+  rootReducer,
   initialState,
   applyMiddleware(
     thunkMiddleware,
@@ -56,12 +59,12 @@ socket.on('reconnect', () => {
   store.dispatch(addNotification('Reconnected!'))
 
   store.dispatch(subscribeToChannels())
-  fp.map(({ name }) => (
+  fp.map(channelName => (
     store.dispatch(subscribeToMessages({
-      channelName: name,
-      timestamp: mostRecentChannelTimestamp(name)(state),
+      channelName,
+      timestamp: getLastMessageTimestampSelector(channelName)(state),
     }))
-  ))(openedChannels(state))
+  ))(openedChannelsSelector(state))
 })
 
 store.dispatch(navigated(history.location))
@@ -85,3 +88,4 @@ document.addEventListener('DOMContentLoaded', onReady)
 window._ = _
 window.fp = fp
 window.store = store
+window.mo = mo

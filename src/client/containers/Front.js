@@ -3,7 +3,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import Link from '../components/Link'
-import { sortedChannels } from '../selectors'
+import { sortedChannelsSelector } from '../selectors'
 
 import './Front.css'
 
@@ -33,7 +33,7 @@ function Front({ sortedChannels: channels }) {
 
 function mapStateToProps(state) {
   return {
-    sortedChannels: sortedChannels(state),
+    sortedChannels: sortedChannelsSelector(state),
   }
 }
 

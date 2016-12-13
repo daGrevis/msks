@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { NotificationStack } from 'react-notification'
 import classNames from 'classnames'
 
-import { isAppLoading, channelName } from '../selectors'
+import { isAppLoadingSelector, channelNameSelector } from '../selectors'
 import { removeNotification } from '../actions'
 import Maybe from '../components/Maybe'
 import Loader from '../components/Loader'
@@ -13,20 +13,20 @@ import Channel from './Channel'
 
 import './App.css'
 
-function App({ isLoading, channelName, notifications, removeNotification }) {
+function App({ isAppLoading, channelName, notifications, removeNotification }) {
   const notifsWithClickEv = fp.map(notif => (
     fp.set('onClick', () => removeNotification(notif.key))(notif)
   ))(notifications)
 
   const classes = classNames({
-    'is-loading': isLoading,
+    'is-loading': isAppLoading,
   })
   return (
     <div id='app' className={classes}>
-      <Maybe when={isLoading}>
+      <Maybe when={isAppLoading}>
         <Loader />
       </Maybe>
-      <Maybe when={!isLoading}>
+      <Maybe when={!isAppLoading}>
         {channelName ? <Channel /> : <Front />}
       </Maybe>
 
@@ -42,8 +42,8 @@ function App({ isLoading, channelName, notifications, removeNotification }) {
 
 function mapStateToProps(state) {
   return {
-    isLoading: isAppLoading(state),
-    channelName: channelName(state),
+    isAppLoading: isAppLoadingSelector(state),
+    channelName: channelNameSelector(state),
     notifications: state.notifications,
   }
 }

@@ -4,62 +4,65 @@ import { createSelector } from 'reselect'
 
 import { mo } from './utils'
 
-const location = state => state.location
+const locationSelector = fp.get('location')
 
-const channels = state => state.channels
+const channelsSelector = fp.get('channels')
 
-const channelName = createSelector(
-  [location, channels],
-  (location, channels) => location.hash || null
+const sortedChannelsSelector = createSelector(
+  channelsSelector,
+  fp.sortBy('name')
 )
 
-const messagesByChannel = state => state.messagesByChannel
-
-const hasReachedChannelBeginning = state => state.hasReachedChannelBeginning
-
-const selectedChannel = createSelector(
-  [channels, channelName],
-  (channels, channelName) => channels[channelName]
+const openedChannelsSelector = createSelector(
+  fp.get('messages'),
+  fp.keys
 )
 
-const openedChannels = createSelector(
-  [channels, messagesByChannel],
-  (channels, messagesByChannel) => fp.pipe(
-    fp.map(k => channels[k]),
-    fp.keyBy('name')
-  )(fp.keys(messagesByChannel))
+const channelNameSelector = createSelector(
+  locationSelector,
+  fp.get('hash')
 )
 
-const isChannelLoading = createSelector(
-  [selectedChannel],
-  (selectedChannel) => (
-    !selectedChannel
+const getChannelSelector = (channelName = null) => createSelector(
+  channelsSelector, channelNameSelector,
+  (channels, name) => channels[channelName || name]
+)
+
+const getMessagesSelector = (channelName = null) => createSelector(
+  fp.get('messages'), channelNameSelector,
+  (messages, name) => (
+    messages[channelName || name] || []
   )
 )
 
-const isAppLoading = createSelector(
-  [channels, channelName, isChannelLoading],
+const getLastMessageTimestampSelector = (channelName = null) => createSelector(
+  getMessagesSelector(channelName),
+  messages => fp.last(messages).timestamp
+)
+
+const isChannelLoadingSelector = createSelector(
+  getChannelSelector(),
+  channel => !channel
+)
+
+const isAppLoadingSelector = createSelector(
+  channelsSelector, channelNameSelector, isChannelLoadingSelector,
   (channels, channelName, isChannelLoading) => (
     channelName ? isChannelLoading : fp.isEmpty(channels)
   )
 )
 
-const sortedChannels = createSelector(
-  [channels],
-  fp.sortBy('name')
+const hasReachedBeginningSelector = createSelector(
+  fp.get('hasReachedBeginning'), channelNameSelector,
+  (hasReachedBeginning, channelName) => (
+    hasReachedBeginning[channelName]
+  )
 )
 
-const channelMessages = channelName => createSelector(
-  [messagesByChannel],
-  messagesByChannel => fp.sortBy('timestamp', messagesByChannel[channelName])
-)
-
-const messageRows = channelName => createSelector(
-  [channelMessages(channelName), hasReachedChannelBeginning],
-  (messages, hasReachedChannelBeginning) => {
+const messageRowsSelector = createSelector(
+  getMessagesSelector(), hasReachedBeginningSelector,
+  (messages, hasReachedBeginning) => {
     // TODO: Can this be expressed in a more declarative way without performance penalty?
-    const hasReachedBeginning = hasReachedChannelBeginning[channelName]
-
     let rows = []
 
     if (hasReachedBeginning && messages.length === 0) {
@@ -128,28 +131,20 @@ const messageRows = channelName => createSelector(
     })
 
     return rows
-  },
-)
-
-const mostRecentChannelMessage = channelName => createSelector(
-  [channelMessages(channelName)],
-  fp.last
-)
-
-const mostRecentChannelTimestamp = channelName => createSelector(
-  [mostRecentChannelMessage(channelName)],
-  m => m ? m.timestamp : new Date()
+  }
 )
 
 export {
-  channelName,
-  selectedChannel,
-  openedChannels,
-  isAppLoading,
-  isChannelLoading,
-  sortedChannels,
-  channelMessages,
-  messageRows,
-  mostRecentChannelMessage,
-  mostRecentChannelTimestamp,
+  locationSelector,
+  channelsSelector,
+  sortedChannelsSelector,
+  openedChannelsSelector,
+  channelNameSelector,
+  getChannelSelector,
+  getMessagesSelector,
+  getLastMessageTimestampSelector,
+  isChannelLoadingSelector,
+  isAppLoadingSelector,
+  hasReachedBeginningSelector,
+  messageRowsSelector,
 }

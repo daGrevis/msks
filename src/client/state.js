@@ -1,0 +1,57 @@
+const initialState = {
+  location: null,
+
+  channels: {
+    // '##javascript': {
+    //   'name': '##javascript',
+    //   'topic': 'Can't talk? Get registered on freenode (HOWTO: https://gist.github.com/brigand/f271177642368307f051 ). | JavaScript is *not* Java. | Just ask your question. | Say \'!mdn abc\' for docs on \'abc\'. | Don't paste code in the channel.',
+    // },
+    // '#developerslv': {
+    //   'name': '#developerslv',
+    //   'topic': 'About software and hacking in Latvian. | Can't talk? Get registered on Freenode.',
+    // },
+  },
+
+  messages: {
+    // '##javascript': [
+    //   {
+    //     'id': '7eec370e-36e4-496a-9dcf-390cbfa1fbe0',
+    //     'from': 'Sorella',
+    //     'to': '##javascript',
+    //     'text': 'Chrome only allows up to 1GB heaps',
+    //     'kind': 'message',
+    //     'timestamp': '2016-11-21T21:13:44.338Z',
+    //   },
+    //   {
+    //     'id': 'd3348233-440e-4962-b60a-9fb174f75331',
+    //     'from': 'reisio',
+    //     'to': '##javascript',
+    //     'text': 'shrugs',
+    //     'kind': 'action',
+    //     'timestamp': '2016-11-21T21:13:41.985Z',
+    //   },
+    // ],
+  },
+
+  loadMessagesCache: [
+    // ['##javascript', null],
+    // ['##javascript', '2016-11-17T15:06:04.481Z'],
+    // ['##javascript', '2016-11-02T10:55:24.932Z'],
+    // ['#developerslv', null],
+  ],
+
+  hasReachedBeginning: {
+    // '#developerslv': true,
+  },
+
+  notifications: [
+    // {
+    //   'key': '826833f3-d75e-40f9-8bbc-cae5712a0799',
+    //   'message': 'Hello, world',
+    // },
+  ],
+}
+
+export {
+  initialState,
+}
