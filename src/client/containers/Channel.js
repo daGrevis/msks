@@ -82,7 +82,10 @@ class Channel extends Component {
       return
     }
 
-    this.autoScroll = wrapperNode.scrollTop + wrapperNode.offsetHeight === wrapperNode.scrollHeight
+    this.autoScroll = (
+      wrapperNode.scrollHeight - wrapperNode.scrollTop
+      <= wrapperNode.clientHeight + 10
+    )
 
     if (!this.autoScroll) {
       this.persistScroll = (
