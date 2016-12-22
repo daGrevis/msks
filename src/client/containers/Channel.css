@@ -38,6 +38,10 @@
   -webkit-overflow-scrolling: touch;
 }
 
+#channel .messages-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
 #channel .messages {
   padding: 10px;
   margin: auto 0;

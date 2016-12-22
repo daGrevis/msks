@@ -5,6 +5,7 @@ import { onlyUpdateForKeys } from 'recompose'
 
 import Maybe from './Maybe'
 import Text from './Text'
+import { getColor } from '../colors'
 
 import './Message.css'
 
@@ -21,7 +22,8 @@ const Message = onlyUpdateForKeys(['id'])(({ message, isFirst, isoTimestamp, tim
     <div className={messageClasses}>
       <Maybe when={isFirst}>
         <div>
-          <span className='nick bold'>{message.from}</span>
+          <span className='nick bold' style={{ color: getColor(message.from) }}>{message.from}</span>
+          &nbsp;
           <span className='timestamp' title={isoTimestamp}>
             {timestampText}
           </span>

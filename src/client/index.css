@@ -9,7 +9,7 @@ html, body {
   padding: 0;
   font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
   color: #555;
-  word-break: break-all;
+  overflow-wrap: break-word;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
@@ -20,7 +20,8 @@ html, body {
 }
 
 a {
-  color: #0074D9;
+  color: #0074d9;
+  font-size: 14px;
   text-decoration: none;
 }
 

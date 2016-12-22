@@ -1,5 +1,5 @@
 .message .nick {
-  padding-right: 5px;
+  padding-right: 2px;
   font-size: 16px;
 }
 
@@ -11,7 +11,6 @@
 .message .text {
   padding-bottom: 5px;
   padding-right: 10px;
-  word-break: break-all;
   line-height: 1.1;
 }
 
