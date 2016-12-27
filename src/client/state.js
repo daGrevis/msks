@@ -1,5 +1,9 @@
 const initialState = {
+  isEmbed: false,
+
   location: null,
+
+  channelName: null,
 
   channels: {
     // '##javascript': {

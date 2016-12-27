@@ -1,7 +1,12 @@
 import { combineEpics } from 'redux-observable'
 
-import { updateChannel, subscribeToMessages, loadMessagesFromServer, addMessages, addMessage } from './actions'
-import { getLastMessageTimestampSelector } from './selectors'
+import { navigate } from './history'
+import {
+  updateChannel, setChannelName,
+  subscribeToMessages, loadMessagesFromServer,
+  addMessages, addMessage,
+} from './actions'
+import { getLastMessageTimestampSelector, isEmbedSelector } from './selectors'
 
 const channelChangeEpic = action$ =>
   action$.ofType('client/CHANNEL_CHANGE')
@@ -33,12 +38,21 @@ const messageChangeEpic = action$ =>
   action$.ofType('client/MESSAGE_CHANGE')
     .map(({ payload }) => addMessage(payload.new_val))
 
+const openChannelEpic = (action$, store) =>
+  action$.ofType('OPEN_CHANNEL')
+    .filter(() => !isEmbedSelector(store.getState()))
+    .map(({ payload: channelName }) => {
+      navigate(`/${channelName || ''}`)
+      return setChannelName(channelName)
+    })
+
 const rootEpic = combineEpics(
   channelChangeEpic,
   loadMessagesEpic,
   addMessagesEpic,
   subscribeToMessagesEpic,
-  messageChangeEpic
+  messageChangeEpic,
+  openChannelEpic
 )
 
 export {

@@ -5,8 +5,7 @@ import { connect } from 'react-redux'
 import {
   isChannelLoadingSelector, getChannelSelector, getMessagesSelector, messageRowsSelector,
 } from '../selectors'
-import { loadMessages } from '../actions'
-import Link from '../components/Link'
+import { loadMessages, openChannel } from '../actions'
 import Maybe from '../components/Maybe'
 import Text from '../components/Text'
 import Message from '../components/Message'
@@ -151,9 +150,7 @@ class Channel extends Component {
     return (
       <div id='channel'>
         <div className='header'>
-          <Link href='/'>
-            <h2 className='name bold'>{channel.name}</h2>
-          </Link>
+          <h2 className='name bold' onClick={this.props.goToFront}>{channel.name}</h2>
           <Maybe when={channel.topic}>
             <p className='topic-wrapper'>
               <Maybe when={this.state.isTopicExpanded}>
@@ -183,6 +180,7 @@ const mapStateToProps = (state, props) => ({
 
 const mapDispatchToProps = dispatch => ({
   loadMessages: p => dispatch(loadMessages(p)),
+  goToFront: () => dispatch(openChannel()),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Channel)

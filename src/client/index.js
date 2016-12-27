@@ -15,7 +15,11 @@ import { mo } from './utils'
 import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
-import { navigated, subscribeToChannels, unsubscribeFromAllMessages, loadMessagesFromServer, addNotification } from './actions'
+import {
+  initApp, navigated,
+  openChannel, setChannelName, subscribeToChannels, unsubscribeFromAllMessages,
+  loadMessagesFromServer, addNotification,
+} from './actions'
 import { openedChannelsSelector, getLastMessageTimestampSelector } from './selectors'
 import App from './containers/App'
 
@@ -28,6 +32,8 @@ viewportUnitsBuggyfill.init()
 
 import 'loaders.css/loaders.min.css'
 import './index.css'
+
+const EMBED_CHANNEL = process.env.REACT_APP_EMBED_CHANNEL
 
 const socketMiddleware = createSocketIoMiddleware(socket, 'server/')
 
@@ -55,6 +61,8 @@ const store = createStore(
 
 const { dispatch, getState } = store
 
+dispatch(initApp(EMBED_CHANNEL))
+
 window.onerror = () => {
   dispatch(addNotification('Something broke!'))
 }
@@ -80,21 +88,24 @@ socket.on('reconnect', () => {
   })
 })
 
-store.dispatch(navigated(history.location))
+const currentLocation = history.location
+dispatch(navigated(currentLocation))
+dispatch(openChannel(EMBED_CHANNEL ? EMBED_CHANNEL : currentLocation.hash))
+
 history.listen(loc => {
-  store.dispatch(navigated(loc))
+  dispatch(navigated(loc))
+  dispatch(setChannelName(loc.hash))
 })
 
-store.dispatch(subscribeToChannels())
+dispatch(subscribeToChannels())
 
-function onReady() {
+const onReady = () =>
   ReactDOM.render(
     <Provider store={store}>
       <App />
     </Provider>,
     document.getElementById('root')
   )
-}
 
 document.addEventListener('DOMContentLoaded', onReady)
 

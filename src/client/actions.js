@@ -2,7 +2,13 @@ import _ from 'lodash'
 import { createAction } from 'redux-actions'
 import uuid from 'uuid'
 
+const initApp = createAction('INIT_APP')
+
 const navigated = createAction('NAVIGATED')
+
+const openChannel = createAction('OPEN_CHANNEL')
+
+const setChannelName = createAction('SET_CHANNEL_NAME')
 
 const subscribeToChannels = createAction('server/SUBSCRIBE_TO_CHANNELS')
 
@@ -28,7 +34,10 @@ const addNotification = message => dispatch => {
 const removeNotification = createAction('REMOVE_NOTIFICATION')
 
 export {
+  initApp,
   navigated,
+  openChannel,
+  setChannelName,
   subscribeToChannels,
   updateChannel,
   loadMessages,

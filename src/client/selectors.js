@@ -4,6 +4,8 @@ import { createSelector } from 'reselect'
 
 import { mo } from './utils'
 
+const isEmbedSelector = fp.get('isEmbed')
+
 const locationSelector = fp.get('location')
 
 const channelsSelector = fp.get('channels')
@@ -21,10 +23,7 @@ const openedChannelsSelector = createSelector(
   )(fp.keys(messages))
 )
 
-const channelNameSelector = createSelector(
-  locationSelector,
-  fp.get('hash')
-)
+const channelNameSelector = fp.get('channelName')
 
 const getChannelSelector = (channelName = null) => createSelector(
   channelsSelector, channelNameSelector,
@@ -153,6 +152,7 @@ const messageRowsSelector = createSelector(
 )
 
 export {
+  isEmbedSelector,
   locationSelector,
   channelsSelector,
   sortedChannelsSelector,

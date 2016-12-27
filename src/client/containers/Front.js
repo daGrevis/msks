@@ -2,39 +2,30 @@ import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
 
-import Link from '../components/Link'
 import { sortedChannelsSelector } from '../selectors'
+import { openChannel } from '../actions'
 
 import './Front.css'
 
-function ChannelHeader({ channel }) {
-  return (
-    <header>
-      <Link href={`/${channel.name}`}>
+const Front = ({ sortedChannels: channels, openChannel }) => (
+  <div id='front'>
+    <a href='https://github.com/daGrevis/msks-web' target='_blank'>
+      <h1>msks</h1>
+    </a>
+
+    {_.map(channels, channel => (
+      <header key={channel.name} onClick={() => openChannel(channel.name)}>
         <h2 className='bold'>{channel.name}</h2>
-      </Link>
-    </header>
-  )
-}
+      </header>
+    ))}
+  </div>
+)
 
-function Front({ sortedChannels: channels }) {
-  return (
-    <div id='front'>
-      <a href='https://github.com/daGrevis/msks-web' target='_blank'>
-        <h1>msks</h1>
-      </a>
-
-      {_.map(channels, channel => (
-        <ChannelHeader key={channel.name} channel={channel} />
-      ))}
-    </div>
-  )
-}
-
-function mapStateToProps(state) {
-  return {
+export default connect(
+  state => ({
     sortedChannels: sortedChannelsSelector(state),
-  }
-}
-
-export default connect(mapStateToProps)(Front)
+  }),
+  dispatch => ({
+    openChannel: x => dispatch(openChannel(x)),
+  })
+)(Front)

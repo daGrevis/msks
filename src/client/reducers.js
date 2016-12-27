@@ -3,11 +3,19 @@ import { createUpdater, pipeUpdaters } from 'redux-fp'
 
 import { mo } from './utils'
 
+const appUpdater = createUpdater({
+  INIT_APP: ({ payload: channelName }) => fp.pipe(
+    fp.set('isEmbed', !!channelName),
+    fp.set('channelName', channelName)
+  ),
+})
+
 const historyUpdater = createUpdater({
   NAVIGATED: ({ payload }) => fp.set('location', payload)
 })
 
 const channelUpdater = createUpdater({
+  SET_CHANNEL_NAME: ({ payload }) => fp.set('channelName', payload),
   UPDATE_CHANNEL: ({ payload }) => fp.set(['channels', payload.name], payload),
 })
 
@@ -79,6 +87,7 @@ const notificationUpdater = createUpdater({
 })
 
 const rootReducer = (state, action) => pipeUpdaters(
+  appUpdater,
   historyUpdater,
   channelUpdater,
   messagesUpdater,
