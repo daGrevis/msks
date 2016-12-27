@@ -15,7 +15,7 @@ import { mo } from './utils'
 import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
-import { navigated, subscribeToChannels, unsubscribeFromAllMessages, subscribeToMessages, loadMessagesFromServer, addNotification } from './actions'
+import { navigated, subscribeToChannels, unsubscribeFromAllMessages, loadMessagesFromServer, addNotification } from './actions'
 import { openedChannelsSelector, getLastMessageTimestampSelector } from './selectors'
 import App from './containers/App'
 
@@ -55,8 +55,12 @@ const store = createStore(
 
 const { dispatch, getState } = store
 
-socket.on('error', () => {
-  dispatch(addNotification('Socket error!'))
+window.onerror = () => {
+  dispatch(addNotification('Something broke!'))
+}
+
+socket.on('error', err => {
+  console.error(err)
 })
 
 socket.on('disconnect', () => {
