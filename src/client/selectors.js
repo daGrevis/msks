@@ -14,8 +14,11 @@ const sortedChannelsSelector = createSelector(
 )
 
 const openedChannelsSelector = createSelector(
-  fp.get('messages'),
-  fp.keys
+  channelsSelector, fp.get('messages'),
+  (channels, messages) => fp.pipe(
+    fp.map(channelName => channels[channelName]),
+    fp.keyBy('name')
+  )(fp.keys(messages))
 )
 
 const channelNameSelector = createSelector(
@@ -59,9 +62,16 @@ const hasReachedBeginningSelector = createSelector(
   )
 )
 
+const isSubscribedToMessagesSelector = createSelector(
+  fp.get('isSubscribedToMessages'), channelNameSelector,
+  (isSubscribedToMessages, channelName) => (
+    isSubscribedToMessages[channelName]
+  )
+)
+
 const messageRowsSelector = createSelector(
-  getMessagesSelector(), hasReachedBeginningSelector,
-  (messages, hasReachedBeginning) => {
+  getMessagesSelector(), hasReachedBeginningSelector, isSubscribedToMessagesSelector,
+  (messages, hasReachedBeginning, isSubscribedToMessages) => {
     // TODO: Can this be expressed in a more declarative way without performance penalty?
     let rows = []
 
@@ -72,6 +82,7 @@ const messageRowsSelector = createSelector(
     if (!hasReachedBeginning) {
       rows.push({
         type: 'loader',
+        payload: { key: 'has-not-reached-beginning' },
       })
     }
 
@@ -129,6 +140,13 @@ const messageRowsSelector = createSelector(
         payload: { message, timestampText, isoTimestamp, isFirst },
       })
     })
+
+    if (messages.length && !isSubscribedToMessages) {
+      rows.push({
+        type: 'loader',
+        payload: { key: 'is-not-subscribed-to-messages' },
+      })
+    }
 
     return rows
   }

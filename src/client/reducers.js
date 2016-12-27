@@ -63,7 +63,9 @@ const addMessages = newMessages => fp.update(
 )
 
 const messagesUpdater = createUpdater({
-  'server/LOAD_MESSAGES': ({ payload }) => fp.update('loadMessagesCache', cache => fp.concat(cache, [[payload.channelName, payload.timestamp]])),
+  'server/SUBSCRIBE_TO_MESSAGES': ({ payload }) => fp.set(['isSubscribedToMessages', payload.channelName], true),
+  'UNSUBSCRIBE_FROM_ALL_MESSAGES': () => fp.set('isSubscribedToMessages', {}),
+
   ADD_MESSAGE: ({ payload }) => addMessage(payload),
   ADD_MESSAGES: ({ payload: { channelName, messages }}) => state => fp.pipe(
     addMessages(messages),

@@ -23,6 +23,13 @@ const getMessagesBeforePromise = (channelName, timestamp) => (
     .limit(101)
 )
 
+const getMessagesAfterPromise = (channelName, timestamp) => (
+  r.table('messages')
+    .orderBy({ index: r.desc('timestamp') })
+    .filter({ to: channelName })
+    .filter(r.row('timestamp').ge(r.ISO8601(timestamp)))
+)
+
 const subscribeToChannels = () => client => {
   r.table('channels').changes({ includeInitial: true }).run()
     .then(feed => {
@@ -35,16 +42,18 @@ const subscribeToChannels = () => client => {
     })
 }
 
-const loadMessages = ({ channelName = null, timestamp = null }) => client => {
+const loadMessages = ({ channelName = null, before = null, after = null }) => client => {
   if (!channelName) {
     return
   }
 
   let messagePromise
-  if (timestamp === null) {
-    messagePromise = getInitialMessagesPromise(channelName)
+  if (before) {
+    messagePromise = getMessagesBeforePromise(channelName, before)
+  } else if (after) {
+    messagePromise = getMessagesAfterPromise(channelName, after)
   } else {
-    messagePromise = getMessagesBeforePromise(channelName, timestamp)
+    messagePromise = getInitialMessagesPromise(channelName)
   }
 
   messagePromise.then(messages => {
@@ -52,7 +61,8 @@ const loadMessages = ({ channelName = null, timestamp = null }) => client => {
       type: 'client/LOADED_MESSAGES',
       payload: {
         channelName,
-        timestamp,
+        before,
+        after,
         messages: fp.reverse(messages),
       }
     })

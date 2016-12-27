@@ -27,7 +27,7 @@ const DayHeader = ({ text, isoTimestamp }) => {
 
 const getMessageRowKey = ({ type, payload }) => {
   const keyerMapping = {
-    loader: () => 'loader',
+    loader: ({ key }) => `loader.${key}`,
     day: ({ isoTimestamp }) => isoTimestamp,
     message: ({ message }) => message.id,
   }
@@ -69,7 +69,7 @@ class Channel extends Component {
   }
 
   componentDidMount() {
-    this.props.loadMessages()
+    this.props.loadMessages({ channelName: this.props.channel.name })
 
     this.autoScroll = true
     this.scroll()
@@ -101,7 +101,7 @@ class Channel extends Component {
   }
 
   componentDidUpdate() {
-    this.props.loadMessages()
+    this.props.loadMessages({ channelName: this.props.channel.name })
 
     this.scroll()
   }
@@ -130,7 +130,10 @@ class Channel extends Component {
     const threshold = document.documentElement.clientHeight
     if (wrapperNode.scrollTop <= threshold) {
       const messageFirst = _.first(this.props.messages)
-      this.props.loadMessages(messageFirst ? messageFirst.timestamp : null)
+      this.props.loadMessages({
+        channelName: this.props.channel.name,
+        before: messageFirst ? messageFirst.timestamp : null
+      })
     }
   }
 
@@ -179,7 +182,7 @@ const mapStateToProps = (state, props) => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  loadMessages: timestamp => dispatch(loadMessages(timestamp)),
+  loadMessages: p => dispatch(loadMessages(p)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Channel)

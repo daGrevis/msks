@@ -15,7 +15,7 @@ import { mo } from './utils'
 import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
-import { navigated, subscribeToChannels, subscribeToMessages, addNotification } from './actions'
+import { navigated, subscribeToChannels, unsubscribeFromAllMessages, subscribeToMessages, loadMessagesFromServer, addNotification } from './actions'
 import { openedChannelsSelector, getLastMessageTimestampSelector } from './selectors'
 import App from './containers/App'
 
@@ -53,18 +53,27 @@ const store = createStore(
   )
 )
 
+const { dispatch, getState } = store
+
+socket.on('error', () => {
+  dispatch(addNotification('Socket error!'))
+})
+
+socket.on('disconnect', () => {
+  dispatch(unsubscribeFromAllMessages())
+})
+
 socket.on('reconnect', () => {
-  const state = store.getState()
+  const state = getState()
 
-  store.dispatch(addNotification('Reconnected!'))
+  dispatch(subscribeToChannels())
 
-  store.dispatch(subscribeToChannels())
-  fp.map(channelName => (
-    store.dispatch(subscribeToMessages({
-      channelName,
-      timestamp: getLastMessageTimestampSelector(channelName)(state),
+  _.forEach(openedChannelsSelector(state), ({ name: channelName }) => {
+    const after = getLastMessageTimestampSelector(channelName)(state)
+    dispatch(loadMessagesFromServer({
+      channelName, after,
     }))
-  ))(openedChannelsSelector(state))
+  })
 })
 
 store.dispatch(navigated(history.location))

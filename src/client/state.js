@@ -33,12 +33,9 @@ const initialState = {
     // ],
   },
 
-  loadMessagesCache: [
-    // ['##javascript', null],
-    // ['##javascript', '2016-11-17T15:06:04.481Z'],
-    // ['##javascript', '2016-11-02T10:55:24.932Z'],
-    // ['#developerslv', null],
-  ],
+  isSubscribedToMessages: {
+    // '#developerslv': true,
+  },
 
   hasReachedBeginning: {
     // '#developerslv': true,

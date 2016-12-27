@@ -1,9 +1,6 @@
 import _ from 'lodash'
-import fp from 'lodash/fp'
 import { createAction } from 'redux-actions'
 import uuid from 'uuid'
-
-import { channelNameSelector } from './selectors'
 
 const navigated = createAction('NAVIGATED')
 
@@ -11,31 +8,15 @@ const subscribeToChannels = createAction('server/SUBSCRIBE_TO_CHANNELS')
 
 const updateChannel = createAction('UPDATE_CHANNEL')
 
-const loadMessages = (timestamp = null) => (dispatch, getState) => {
-  const state = getState()
-
-  const channelName = channelNameSelector(state)
-
-  if (!channelName) {
-    return
-  }
-
-  const cacheKey = [channelName, timestamp]
-
-  if (fp.some(fp.isEqual(cacheKey), state.loadMessagesCache)) {
-    return
-  }
-
-  dispatch({
-    type: 'server/LOAD_MESSAGES',
-    payload: { channelName, timestamp },
-  })
-}
+const loadMessages = createAction('LOAD_MESSAGES')
+const loadMessagesFromServer = createAction('server/LOAD_MESSAGES')
 
 const addMessage = createAction('ADD_MESSAGE')
 const addMessages = createAction('ADD_MESSAGES')
 
 const subscribeToMessages = createAction('server/SUBSCRIBE_TO_MESSAGES')
+
+const unsubscribeFromAllMessages = createAction('UNSUBSCRIBE_FROM_ALL_MESSAGES')
 
 const addNotification = message => dispatch => {
   dispatch({ type: 'ADD_NOTIFICATION', payload: {
@@ -51,9 +32,11 @@ export {
   subscribeToChannels,
   updateChannel,
   loadMessages,
+  loadMessagesFromServer,
   addMessage,
   addMessages,
   subscribeToMessages,
+  unsubscribeFromAllMessages,
   addNotification,
   removeNotification,
 }
