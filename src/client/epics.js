@@ -46,13 +46,21 @@ const openChannelEpic = (action$, store) =>
       return setChannelName(channelName)
     })
 
+const titleEpic = action$ =>
+  action$.ofType('SET_CHANNEL_NAME')
+    .map(({ payload: channelName }) => {
+      document.title = channelName ? `${channelName} · msks` : 'msks'
+      return { type: 'SET_DOCUMENT_TITLE' }
+    })
+
 const rootEpic = combineEpics(
   channelChangeEpic,
   loadMessagesEpic,
   addMessagesEpic,
   subscribeToMessagesEpic,
   messageChangeEpic,
-  openChannelEpic
+  openChannelEpic,
+  titleEpic
 )
 
 export {
