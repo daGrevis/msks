@@ -17,7 +17,7 @@ import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
 import {
   initApp, navigated,
-  openChannel, setChannelName, subscribeToChannels, unsubscribeFromAllMessages,
+  setChannelName, subscribeToChannels, unsubscribeFromAllMessages,
   loadMessagesFromServer, addNotification,
 } from './actions'
 import { openedChannelsSelector, getLastMessageTimestampSelector } from './selectors'
@@ -90,7 +90,7 @@ socket.on('reconnect', () => {
 
 const currentLocation = history.location
 dispatch(navigated(currentLocation))
-dispatch(openChannel(EMBED_CHANNEL ? EMBED_CHANNEL : currentLocation.hash))
+dispatch(setChannelName(EMBED_CHANNEL ? EMBED_CHANNEL : currentLocation.hash))
 
 history.listen(loc => {
   dispatch(navigated(loc))
