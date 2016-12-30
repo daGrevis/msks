@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import React, { Component } from 'react'
+import classNames from 'classnames'
 import { connect } from 'react-redux'
 
 import {
@@ -64,7 +65,7 @@ class Channel extends Component {
   scrollTop = 0
 
   state = {
-    isTopicExpanded: false,
+    isTopicClipped: true,
   }
 
   componentDidMount() {
@@ -137,7 +138,7 @@ class Channel extends Component {
   }
 
   onTopicClick = () => {
-    this.setState({ isTopicExpanded: !this.state.isTopicExpanded })
+    this.setState({ isTopicClipped: !this.state.isTopicClipped })
   }
 
   render() {
@@ -147,19 +148,19 @@ class Channel extends Component {
 
     const { channel, messageRows } = this.props
 
+    const topicClasses = classNames('topic', {
+      'is-topic-clipped': this.state.isTopicClipped,
+    })
+
     return (
       <div id='channel'>
         <div className='header'>
           <h2 className='name bold' onClick={this.props.goToFront}>{channel.name}</h2>
+
           <Maybe when={channel.topic}>
-            <p className='topic-wrapper'>
-              <Maybe when={this.state.isTopicExpanded}>
-                <span className='topic'>
-                  <Text>{channel.topic}</Text>
-                </span>
-              </Maybe>
-              <span className='topic-ellipsis' onClick={this.onTopicClick}>…</span>
-            </p>
+            <div className={topicClasses} onClick={this.onTopicClick}>
+              <Text>{channel.topic}</Text>
+            </div>
           </Maybe>
         </div>
 

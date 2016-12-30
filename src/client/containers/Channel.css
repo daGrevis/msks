@@ -15,20 +15,17 @@
   line-height: .5;
 }
 
-#channel > .header .topic-wrapper {
+#channel > .header .topic {
   margin: 0;
   margin-bottom: 5px;
   line-height: 1.2;
   font-size: 15px;
 }
 
-#channel > .header .topic {
-  padding-right: 5px;
-}
-
-#channel > .header .topic-ellipsis {
-  font-size: 24px;
-  line-height: 0;
+#channel > .header .topic.is-topic-clipped {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #channel .messages-wrapper {
