@@ -10,7 +10,7 @@ const r = require('./rethink')
 
 const validate = Promise.promisify(Joi.validate)
 
-const VERSION = '0.0.4'
+const VERSION = '0.0.5'
 
 const isMe = (client, nick) => client.nick === nick
 
@@ -66,21 +66,34 @@ function updateTopic(channel, topic) {
   r.table('channels').get(channel).update({ topic }).run()
 }
 
+function saveMessage(message, i = 1) {
+  r.table('messages').insert(message).run()
+    .catch(err => {
+      console.error(err)
+
+      const delay = 1000 * i
+
+      console.log(`retrying to save message ${JSON.stringify(message)} in ${delay} ms`)
+      setTimeout(
+        () => saveMessage(message, i + 1),
+        delay
+      )
+    })
+}
+
 function onMessage(from, to, text, kind='message') {
+  const now = new Date()
+
   // Apparently & is a valid prefix.
   const isPrivate = !_.startsWith(to, '#') && !_.startsWith(to, '&')
-  const timestamp = new Date()
+  const timestamp = now
 
   const message = {
     from, to, text, kind, timestamp,
   }
 
   validate(message, schemas.Message).then(message => {
-    r.table('messages').insert(message).run()
-      .then(() => {})
-      .catch(err => {
-        console.error('error while saving message', err)
-      })
+    saveMessage(message)
 
     const recipient = isPrivate ? from : to
 
@@ -93,8 +106,8 @@ function onMessage(from, to, text, kind='message') {
     }
 
     if (text === '!uptime') {
-      const bootUptime = new Date() - bootTime
-      const connectionUptime = new Date() - connectionTime
+      const bootUptime = now - bootTime
+      const connectionUptime = now - connectionTime
 
       client.say(recipient,
         `${humanizeDelta(bootUptime)} (${humanizeDelta(connectionUptime)})`
