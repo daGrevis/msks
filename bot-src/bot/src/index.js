@@ -1,4 +1,5 @@
 const Promise = require('bluebird')
+const fs = require('fs')
 const _ = require('lodash')
 const Joi = require('joi')
 const irc = require('irc')
@@ -10,7 +11,7 @@ const r = require('./rethink')
 
 const validate = Promise.promisify(Joi.validate)
 
-const VERSION = '0.0.5'
+const REPO_URL = `https://github.com/daGrevis/msks-bot`
 
 const isMe = (client, nick) => client.nick === nick
 
@@ -81,6 +82,30 @@ function saveMessage(message, i = 1) {
     })
 }
 
+function getVersion() {
+  let output
+  try {
+    output = fs.readFileSync('VERSION', 'utf8')
+  } catch (err) {
+    return
+  }
+
+  const [rev, tag, subject, date] = output.split('\n')
+
+  return { rev, tag, subject, date }
+}
+
+function formatVersion(version) {
+  if (!version) {
+    return `msks-bot, ${REPO_URL}`
+  }
+
+  const { tag, rev, subject, date } = version
+  return (
+    `msks-bot ${tag}@${rev.slice(0, 7)}: "${subject}" of ${date}, ${REPO_URL}`
+  )
+}
+
 function onMessage(from, to, text, kind='message') {
   const now = new Date()
 
@@ -102,7 +127,7 @@ function onMessage(from, to, text, kind='message') {
     }
 
     if (text === '!version') {
-      client.say(recipient, `msks-bot v${VERSION}, https://github.com/daGrevis/msks-bot`)
+      client.say(recipient, formatVersion(version))
     }
 
     if (text === '!uptime') {
@@ -118,6 +143,8 @@ function onMessage(from, to, text, kind='message') {
 
 const bootTime = new Date()
 let connectionTime
+
+const version = getVersion()
 
 console.log('starting bot...')
 
