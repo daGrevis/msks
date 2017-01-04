@@ -3,8 +3,10 @@ import React, { Component } from 'react'
 import classNames from 'classnames'
 import { connect } from 'react-redux'
 
+import { mo } from '../utils'
 import {
-  isChannelLoadingSelector, getChannelSelector, getMessagesSelector, messageRowsSelector,
+  isChannelLoadingSelector, getChannelSelector, getMessagesSelector,
+  hasReachedBeginningSelector, isSubscribedToMessagesSelector,
 } from '../selectors'
 import { loadMessages, openChannel } from '../actions'
 import Maybe from '../components/Maybe'
@@ -25,33 +27,75 @@ const DayHeader = ({ text, isoTimestamp }) => {
   )
 }
 
-const getMessageRowKey = ({ type, payload }) => {
-  const keyerMapping = {
-    loader: ({ key }) => `loader.${key}`,
-    day: ({ isoTimestamp }) => isoTimestamp,
-    message: ({ message }) => message.id,
-  }
+const Messages = ({ messages, hasReachedBeginning, isSubscribedToMessages }) => {
+  const now = mo()
 
-  return keyerMapping[type](payload)
-}
+  let currentDay, dayText
 
-const MessageRow = ({ type, payload = {} }) => {
-  const componentMapping = {
-    loader: Loader,
-    day: DayHeader,
-    message: Message,
-  }
-
-  const component = componentMapping[type]
-  const props = payload
-
-  return React.createElement(component, props)
-}
-
-const Messages = ({ messageRows }) => {
   return (
     <div className='messages'>
-      {_.map(messageRows, props => <MessageRow {...props} key={getMessageRowKey(props)} />)}
+      {_.map(messages, (message, i) => {
+        const previousMessage = i > 0 ? messages[i - 1] : null
+
+        const timestamp = mo(message.timestamp)
+        const previousTimestamp = previousMessage ? mo(previousMessage.timestamp) : null
+
+        const isNewDay = (
+          !previousMessage
+          ? true
+          : previousTimestamp.date() !== timestamp.date()
+        )
+
+        if (isNewDay) {
+          currentDay = timestamp.startOf('day')
+
+          if (currentDay.isSame(now, 'day')) {
+            dayText = 'Today'
+          } else if (currentDay.isSame(now.subtract(1, 'd'), 'day')) {
+            dayText = 'Yesterday'
+          } else {
+            dayText = currentDay.format('dddd, MMMM Do')
+          }
+        }
+
+        const isFirst = isNewDay || (
+          previousMessage.from !== message.from
+          || (timestamp - previousTimestamp) >= 60000
+        )
+
+        const isLoadingTop = (
+          i === 0
+          && !hasReachedBeginning
+        )
+
+        const isLoadingBottom = (
+          messages.length && (messages.length - 1 === i)
+          && !isSubscribedToMessages
+        )
+
+        return (
+          <div key={message.id}>
+            <Maybe when={isLoadingTop}>
+              <Loader />
+            </Maybe>
+
+            <Maybe when={isNewDay}>
+              <DayHeader text={dayText} isoTimestamp={currentDay && currentDay.format()} />
+            </Maybe>
+
+            <Message
+              message={message}
+              isFirst={isFirst}
+              isoTimestamp={timestamp.format()}
+              timestampText={timestamp.format('HH:mm')}
+            />
+
+            <Maybe when={isLoadingBottom}>
+              <Loader />
+            </Maybe>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -146,7 +190,7 @@ class Channel extends Component {
       return null
     }
 
-    const { channel, messageRows } = this.props
+    const { channel } = this.props
 
     const topicClasses = classNames('topic', {
       'is-topic-clipped': this.state.isTopicClipped,
@@ -165,7 +209,7 @@ class Channel extends Component {
         </div>
 
         <div className='messages-wrapper' ref={this.onRef} onScroll={this.onScroll}>
-          <Messages messageRows={messageRows} />
+          <Messages {...this.props} />
         </div>
       </div>
     )
@@ -176,7 +220,8 @@ const mapStateToProps = (state, props) => ({
   isChannelLoading: isChannelLoadingSelector(state),
   channel: getChannelSelector()(state),
   messages: getMessagesSelector()(state),
-  messageRows: messageRowsSelector(state),
+  hasReachedBeginning: hasReachedBeginningSelector(state),
+  isSubscribedToMessages: isSubscribedToMessagesSelector(state),
 })
 
 const mapDispatchToProps = dispatch => ({

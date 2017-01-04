@@ -2,8 +2,6 @@ import _ from 'lodash'
 import fp from 'lodash/fp'
 import { createSelector } from 'reselect'
 
-import { mo } from './utils'
-
 const isEmbedSelector = fp.get('isEmbed')
 
 const locationSelector = fp.get('location')
@@ -68,89 +66,6 @@ const isSubscribedToMessagesSelector = createSelector(
   )
 )
 
-const messageRowsSelector = createSelector(
-  getMessagesSelector(), hasReachedBeginningSelector, isSubscribedToMessagesSelector,
-  (messages, hasReachedBeginning, isSubscribedToMessages) => {
-    // TODO: Can this be expressed in a more declarative way without performance penalty?
-    let rows = []
-
-    if (hasReachedBeginning && messages.length === 0) {
-      return rows
-    }
-
-    if (!hasReachedBeginning) {
-      rows.push({
-        type: 'loader',
-        payload: { key: 'has-not-reached-beginning' },
-      })
-    }
-
-    let now = mo()
-
-    let currentDate
-    _.forEach(messages, (message, i) => {
-      let messageTimestamp = mo(message.timestamp)
-
-      let messageDate = messageTimestamp.date()
-      let isNewDay = !currentDate || messageDate !== currentDate
-
-      if (isNewDay) {
-        currentDate = messageDate
-
-        if (i !== 0 || hasReachedBeginning) {
-          let currentDay = messageTimestamp.startOf('day')
-
-          let text
-          if (currentDay.isSame(now, 'day')) {
-            text = 'Today'
-          } else if (currentDay.isSame(now.subtract(1, 'd'), 'day')) {
-            text = 'Yesterday'
-          } else {
-            text = currentDay.format('dddd, MMMM Do')
-          }
-
-          let isoTimestamp = currentDay.format()
-
-          rows.push({
-            type: 'day',
-            payload: { text, isoTimestamp },
-          })
-        }
-      }
-
-      let isFirst
-
-      if (isNewDay) {
-        isFirst = true
-      } else {
-        let messageBefore = messages[i - 1]
-
-        isFirst = (
-          messageBefore.from !== message.from
-          || messageTimestamp - mo(messageBefore.timestamp) >= 60000
-        )
-      }
-
-      let timestampText = messageTimestamp.format('HH:mm')
-      let isoTimestamp = messageTimestamp.format()
-
-      rows.push({
-        type: 'message',
-        payload: { message, timestampText, isoTimestamp, isFirst },
-      })
-    })
-
-    if (messages.length && !isSubscribedToMessages) {
-      rows.push({
-        type: 'loader',
-        payload: { key: 'is-not-subscribed-to-messages' },
-      })
-    }
-
-    return rows
-  }
-)
-
 export {
   isEmbedSelector,
   locationSelector,
@@ -164,5 +79,5 @@ export {
   isChannelLoadingSelector,
   isAppLoadingSelector,
   hasReachedBeginningSelector,
-  messageRowsSelector,
+  isSubscribedToMessagesSelector,
 }
