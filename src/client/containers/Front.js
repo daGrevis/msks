@@ -14,8 +14,8 @@ const Front = ({ sortedChannels: channels, openChannel }) => (
     </a>
 
     {_.map(channels, channel => (
-      <header key={channel.name} onClick={() => openChannel(channel.name)}>
-        <h2 className='bold'>{channel.name}</h2>
+      <header key={channel.name}>
+        <h2 className='bold' onClick={() => openChannel(channel.name)}>{channel.name}</h2>
       </header>
     ))}
   </div>
