@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 
 import { mo } from '../utils'
 import {
-  isChannelLoadingSelector, getChannelSelector, getMessagesSelector,
+  getChannelSelector, getMessagesSelector,
   hasReachedBeginningSelector, isSubscribedToMessagesSelector,
 } from '../selectors'
 import { loadMessages, openChannel } from '../actions'
@@ -29,11 +29,16 @@ const DayHeader = ({ text, isoTimestamp }) => {
 
 const Messages = ({ messages, hasReachedBeginning, isSubscribedToMessages }) => {
   const now = mo()
+  const messageLength = messages.length
 
   let currentDay, dayText
 
   return (
     <div className='messages'>
+      <Maybe when={messageLength === 0}>
+        <Loader />
+      </Maybe>
+
       {_.map(messages, (message, i) => {
         const previousMessage = i > 0 ? messages[i - 1] : null
 
@@ -69,7 +74,7 @@ const Messages = ({ messages, hasReachedBeginning, isSubscribedToMessages }) => 
         )
 
         const isLoadingBottom = (
-          messages.length && (messages.length - 1 === i)
+          messageLength && (messageLength - 1 === i)
           && !isSubscribedToMessages
         )
 
@@ -186,10 +191,6 @@ class Channel extends Component {
   }
 
   render() {
-    if (this.props.isChannelLoading) {
-      return null
-    }
-
     const { channel } = this.props
 
     const topicClasses = classNames('topic', {
@@ -217,7 +218,6 @@ class Channel extends Component {
 }
 
 const mapStateToProps = (state, props) => ({
-  isChannelLoading: isChannelLoadingSelector(state),
   channel: getChannelSelector()(state),
   messages: getMessagesSelector()(state),
   hasReachedBeginning: hasReachedBeginningSelector(state),
