@@ -10,24 +10,25 @@ let io = socketio(server)
 
 const getInitialMessagesPromise = channelName => (
   r.table('messages')
-  .orderBy({ index: r.desc('timestamp') })
-  .filter({ to: channelName })
-  .limit(100)
+    .between([channelName, r.minval], [channelName, r.maxval], { index: 'toAndTimestamp' })
+    .orderBy({ index: r.desc('toAndTimestamp') })
+    .limit(100)
 )
 
 const getMessagesBeforePromise = (channelName, timestamp) => (
   r.table('messages')
+    .between(r.minval, r.ISO8601(timestamp), { index: 'timestamp' })
     .orderBy({ index: r.desc('timestamp') })
     .filter({ to: channelName })
-    .filter(r.row('timestamp').le(r.ISO8601(timestamp)))
     .limit(101)
 )
 
 const getMessagesAfterPromise = (channelName, timestamp) => (
+  // TODO: Add limit and retry requests on client.
   r.table('messages')
+    .between(r.ISO8601(timestamp), r.maxval, { index: 'timestamp' })
     .orderBy({ index: r.desc('timestamp') })
     .filter({ to: channelName })
-    .filter(r.row('timestamp').ge(r.ISO8601(timestamp)))
 )
 
 const subscribeToChannels = () => client => {
@@ -80,9 +81,9 @@ const subscribeToMessages = ({ channelName = null, timestamp = null }) => client
   }
 
   r.table('messages')
+    .between(r.ISO8601(timestamp), r.maxval, { index: 'timestamp' })
     .orderBy({ index: r.desc('timestamp') })
     .filter({ to: channelName })
-    .filter(r.row('timestamp').gt(r.ISO8601(timestamp)))
     .changes({ includeInitial: true })
     .run()
     .then(feed => {
