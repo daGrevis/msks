@@ -1,4 +1,4 @@
-# msks-web & msks-server
+# msks-client & msks-server
 
 [Meeseeks](https://www.youtube.com/watch?v=qUYvIAP3qQk) displays IRC messages in web browser. Demo at [developers.lv](https://developers.lv/).
 
