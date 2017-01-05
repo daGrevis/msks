@@ -17,18 +17,16 @@ const getInitialMessagesPromise = channelName => (
 
 const getMessagesBeforePromise = (channelName, timestamp) => (
   r.table('messages')
-    .between(r.minval, r.ISO8601(timestamp), { index: 'timestamp' })
-    .orderBy({ index: r.desc('timestamp') })
-    .filter({ to: channelName })
+    .between([channelName, r.minval], [channelName, r.ISO8601(timestamp)], { index: 'toAndTimestamp' })
+    .orderBy({ index: r.desc('toAndTimestamp') })
     .limit(101)
 )
 
 const getMessagesAfterPromise = (channelName, timestamp) => (
   // TODO: Add limit and retry requests on client.
   r.table('messages')
-    .between(r.ISO8601(timestamp), r.maxval, { index: 'timestamp' })
-    .orderBy({ index: r.desc('timestamp') })
-    .filter({ to: channelName })
+    .between([channelName, r.ISO8601(timestamp)], [channelName, r.maxval], { index: 'toAndTimestamp' })
+    .orderBy({ index: r.desc('toAndTimestamp') })
 )
 
 const subscribeToChannels = () => client => {
@@ -81,9 +79,8 @@ const subscribeToMessages = ({ channelName = null, timestamp = null }) => client
   }
 
   r.table('messages')
-    .between(r.ISO8601(timestamp), r.maxval, { index: 'timestamp' })
-    .orderBy({ index: r.desc('timestamp') })
-    .filter({ to: channelName })
+    .between([channelName, r.ISO8601(timestamp)], [channelName, r.maxval], { index: 'toAndTimestamp' })
+    .orderBy({ index: r.desc('toAndTimestamp') })
     .changes({ includeInitial: true })
     .run()
     .then(feed => {
