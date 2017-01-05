@@ -26,6 +26,10 @@ const addMessage = m => fp.update(
       return [m]
     }
 
+    if (fp.includes(m.id)(fp.map('id', messages))) {
+      return messages
+    }
+
     const t = mo(m.timestamp)
     if (t >= mo(fp.last(messages)['timestamp'])) {
       return fp.concat(messages, m)
@@ -39,7 +43,7 @@ const addMessage = m => fp.update(
 )
 
 const addMessages = newMessages => fp.update(
-  ['messages', fp.first(newMessages).to],
+  ['messages', (fp.first(newMessages) || {}).to],
   messages => {
     if (messages === undefined || messages.length === 0) {
       return newMessages
