@@ -34,6 +34,11 @@ const subscribeToChannels = () => client => {
   r.table('channels').changes({ includeInitial: true }).run()
     .then(feed => {
       feed.each((err, change) => {
+        if (err) {
+          console.error('error from channels feed', err)
+          return
+        }
+
         client.emit('action', {
           type: 'client/CHANNEL_CHANGE',
           payload: change,
