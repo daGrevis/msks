@@ -1,5 +1,6 @@
 const initialState = {
   isEmbed: false,
+  isVisible: true,
 
   location: null,
 
@@ -44,6 +45,8 @@ const initialState = {
   hasReachedBeginning: {
     // '#developerslv': true,
   },
+
+  unread: 0,
 
   notifications: [
     // {

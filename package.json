@@ -7,6 +7,7 @@
   "dependencies": {
     "big-integer": "^1.6.17",
     "classnames": "^2.2.5",
+    "favico.js": "^0.3.10",
     "frozen-moment": "^0.4.0",
     "history": "^4.4.1",
     "js-md5": "^0.4.1",

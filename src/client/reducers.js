@@ -8,6 +8,8 @@ const appUpdater = createUpdater({
     fp.set('isEmbed', !!channelName),
     fp.set('channelName', channelName)
   ),
+
+  SET_VISIBILITY: ({ payload }) => fp.set('isVisible', payload),
 })
 
 const historyUpdater = createUpdater({
@@ -83,6 +85,9 @@ const messagesUpdater = createUpdater({
     addMessages(messages),
     fp.set(['hasReachedBeginning', channelName], messages.length === 1 || messages.length < 100)
   )(state),
+
+  UPDATE_UNREAD: () => fp.update('unread', count => count + 1),
+  RESET_UNREAD: () => fp.set('unread', 0),
 })
 
 const notificationUpdater = createUpdater({

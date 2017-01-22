@@ -5,8 +5,11 @@ import {
   updateChannel, setChannelName,
   subscribeToMessages, loadMessagesFromServer,
   addMessages, addMessage,
+  updateUnread, resetUnread, setFavicoBadge,
 } from './actions'
-import { getLastMessageTimestampSelector, isEmbedSelector } from './selectors'
+import {
+  getLastMessageTimestampSelector, isEmbedSelector, channelNameSelector,
+} from './selectors'
 
 const channelChangeEpic = action$ =>
   action$.ofType('client/CHANNEL_CHANGE')
@@ -38,6 +41,24 @@ const messageChangeEpic = action$ =>
   action$.ofType('client/MESSAGE_CHANGE')
     .map(({ payload }) => addMessage(payload.new_val))
 
+const updateUnreadEpic = (action$, store) =>
+  action$.ofType('client/MESSAGE_CHANGE')
+    .filter(({ payload }) => {
+      const state = store.getState()
+      const message = payload.new_val
+      return !state.isVisible && message.to === channelNameSelector(state)
+    })
+    .map(updateUnread)
+
+const resetUnreadEpic = action$ =>
+  action$.ofType('SET_VISIBILITY')
+    .filter(({ payload: isVisible }) => isVisible)
+    .map(resetUnread)
+
+const setFavicoBadgeEpic = action$ =>
+  action$.ofType('UPDATE_UNREAD', 'RESET_UNREAD')
+    .map(setFavicoBadge)
+
 const openChannelEpic = (action$, store) =>
   action$.ofType('OPEN_CHANNEL')
     .filter(() => !isEmbedSelector(store.getState()))
@@ -59,6 +80,9 @@ const rootEpic = combineEpics(
   addMessagesEpic,
   subscribeToMessagesEpic,
   messageChangeEpic,
+  updateUnreadEpic,
+  setFavicoBadgeEpic,
+  resetUnreadEpic,
   openChannelEpic,
   titleEpic
 )

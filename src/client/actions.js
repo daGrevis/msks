@@ -1,8 +1,15 @@
 import _ from 'lodash'
 import { createAction } from 'redux-actions'
 import uuid from 'uuid'
+import Favico from 'favico.js'
+
+const favicon = new Favico({
+  animation: 'none',
+})
 
 const initApp = createAction('INIT_APP')
+
+const setVisibility = createAction('SET_VISIBILITY')
 
 const navigated = createAction('NAVIGATED')
 
@@ -24,6 +31,14 @@ const subscribeToMessages = createAction('server/SUBSCRIBE_TO_MESSAGES')
 
 const unsubscribeFromAllMessages = createAction('UNSUBSCRIBE_FROM_ALL_MESSAGES')
 
+const updateUnread = createAction('UPDATE_UNREAD')
+const resetUnread = createAction('RESET_UNREAD')
+
+const setFavicoBadge = () => (dispatch, getState) => {
+  dispatch(createAction('SET_FAVICO_BADGE')())
+  favicon.badge(getState().unread)
+}
+
 const addNotification = message => dispatch => {
   dispatch({ type: 'ADD_NOTIFICATION', payload: {
     message,
@@ -35,6 +50,7 @@ const removeNotification = createAction('REMOVE_NOTIFICATION')
 
 export {
   initApp,
+  setVisibility,
   navigated,
   openChannel,
   setChannelName,
@@ -46,6 +62,9 @@ export {
   addMessages,
   subscribeToMessages,
   unsubscribeFromAllMessages,
+  updateUnread,
+  resetUnread,
+  setFavicoBadge,
   addNotification,
   removeNotification,
 }

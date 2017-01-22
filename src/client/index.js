@@ -16,7 +16,7 @@ import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
 import {
-  initApp, navigated,
+  initApp, setVisibility, navigated,
   setChannelName, subscribeToChannels, unsubscribeFromAllMessages,
   loadMessagesFromServer, addNotification,
 } from './actions'
@@ -107,7 +107,13 @@ const onReady = () =>
     document.getElementById('root')
   )
 
+const onVisibilityChange = () => {
+  const isVisible = !document.hidden
+  dispatch(setVisibility(isVisible))
+}
+
 document.addEventListener('DOMContentLoaded', onReady)
+document.addEventListener('visibilitychange', onVisibilityChange)
 
 window._ = _
 window.fp = fp
