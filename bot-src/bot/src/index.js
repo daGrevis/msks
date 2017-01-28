@@ -103,7 +103,7 @@ function formatVersion(version) {
 
   const { tag, rev, subject, date } = version
   return (
-    `msks-bot ${tag}@${rev.slice(0, 7)}: "${subject}" of ${date}, ${REPO_URL}`
+    `msks-bot ${tag ? tag + '@' : ''}${rev.slice(0, 7)}: "${subject}" of ${date}, ${REPO_URL}`
   )
 }
 
