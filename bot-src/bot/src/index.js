@@ -2,7 +2,7 @@ const Promise = require('bluebird')
 const fs = require('fs')
 const _ = require('lodash')
 const Joi = require('joi')
-const irc = require('irc')
+const ircFramework = require('irc-framework')
 
 const { humanizeDelta } = require('./utils')
 const config = require('./config')
@@ -13,7 +13,7 @@ const validate = Promise.promisify(Joi.validate)
 
 const REPO_URL = `https://github.com/daGrevis/msks-bot`
 
-const isMe = (client, nick) => client.nick === nick
+const isMe = (client, nick) => client.user.nick === nick
 
 function createChannel(name) {
   const channel = { name }
@@ -41,24 +41,25 @@ function leaveNetwork(nick) {
   r.table('active_users').filter({ nick }).delete().run()
 }
 
-function updateNick(nickOld, nickNew) {
+function updateNick(nickOld, newNick) {
   // Done like this to avoid need of handling updates when listening to changefeed.
-  r.table('active_users').filter({ nick: nickOld }).delete({ returnChanges: true }).run()
+  r.table('active_users').filter({ nick: nick }).delete({ returnChanges: true }).run()
     .then(({ changes }) => {
       const channels = _.map(changes, 'old_val.channel')
       _.forEach(channels, channel => {
-        joinChannel(nickNew, channel)
+        joinChannel(newNick, channel)
       })
     })
 }
 
-function updateChannelActiveUsers(channel, nicks) {
-  const activeUsers = _.map(_.keys(nicks), nick => ({ nick, channel }))
-
-  // TODO: I'm pretty here's a race condition with parallel joins/leaves.
-  r.table('active_users').filter({ channel }).delete().run()
+function updateChannelActiveUsers(channel, activeUsers) {
+  Promise.all(_.map(activeUsers, user => validate(user, schemas.ActiveUser)))
     .then(() => {
-      r.table('active_users').insert(activeUsers).run()
+      // TODO: I'm pretty here's a race condition with parallel joins/leaves.
+      r.table('active_users').filter({ channel }).delete().run()
+        .then(() => {
+          r.table('active_users').insert(activeUsers).run()
+        })
     })
 }
 
@@ -148,23 +149,20 @@ const version = getVersion()
 
 console.log('starting bot...')
 
-const client = new irc.Client(
-  config.ircServer, config.ircNick,
-  {
-    sasl: config.ircSasl,
-    nick: config.ircNick,
-    userName: config.ircUserName,
-    password: config.ircPassword,
-    realName: config.ircRealName,
-  }
-)
+const client = new ircFramework.Client()
 
-client.on('error', err => {
-  console.error('error:', err)
-})
-
-client.on('netError', err => {
-  console.error('network error:', err)
+client.connect({
+  host: config.ircHost,
+  port: config.ircPort,
+  nick: config.ircNick,
+  username: config.ircUsername,
+  password: config.ircPassword,
+  tls: config.ircTls,
+  gecos: config.ircGecos,
+  auto_reconnect: true,
+  auto_reconnect_wait: 1000,
+  auto_reconnect_max_retries: 1000,
+  version: formatVersion(version),
 })
 
 client.on('registered', () => {
@@ -178,7 +176,7 @@ client.on('registered', () => {
   })
 })
 
-client.on('join', (channel, nick) => {
+client.on('join', ({ nick, channel }) => {
   if (isMe(client, nick)) {
     console.log(`joined ${channel}!`)
     createChannel(channel)
@@ -187,42 +185,37 @@ client.on('join', (channel, nick) => {
   joinChannel(nick, channel)
 })
 
-client.on('part', (channel, nick) => {
+client.on('part', ({ nick, channel }) => {
   leaveChannel(nick, channel)
 })
 
-client.on('kick', (channel, nick) => {
-  leaveChannel(nick, channel)
+client.on('kick', ({ kicked, channel }) => {
+  leaveChannel(kicked, channel)
 })
 
-client.on('kill', nick => {
+client.on('quit', ({ nick }) => {
   leaveNetwork(nick)
 })
 
-client.on('quit', nick => {
-  leaveNetwork(nick)
+client.on('nick', ({ nick, new_nick: newNick }) => {
+  updateNick(nick, newNick)
 })
 
-client.on('nick', (nickOld, nickNew) => {
-  updateNick(nickOld, nickNew)
+client.on('userlist', ({ channel, users }) => {
+  const activeUsers = _.map(users, ({ nick }) => ({ nick, channel }))
+  updateChannelActiveUsers(channel, activeUsers)
 })
 
-client.on('names', (channel, nicks) => {
-  updateChannelActiveUsers(channel, nicks)
-})
-
-client.on('topic', (channel, topic) => {
+client.on('topic', ({ channel, topic }) => {
   updateTopic(channel, topic)
 })
 
-client.on('message', (from, to, text) => {
-  onMessage(from, to, text)
+client.on('privmsg', ({ nick, target, message }) => {
+  onMessage(nick, target, message)
 })
 
-client.on('selfMessage', (to, text) => {
-  onMessage(config.ircNick, to, text)
+client.on('action', ({ nick, target, message }) => {
+  onMessage(nick, target, message, 'action')
 })
 
-client.on('action', (from, to, text) => {
-  onMessage(from, to, text, 'action')
-})
+module.exports = client

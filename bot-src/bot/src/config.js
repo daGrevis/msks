@@ -1,6 +1,6 @@
 const fp = require('lodash/fp')
 
-const obfuscateConfig = fp.set('ircPassword', '***')
+const obfuscateConfig = fp.update('ircPassword', s => s === '' ? '' : '***')
 
 try {
   const config = require('../config.json')

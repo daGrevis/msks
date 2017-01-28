@@ -1,10 +1,11 @@
 {
   "rethinkHost": "localhost",
-  "ircServer": "chat.freenode.net",
-  "ircSasl": false,
+  "ircHost": "chat.freenode.net",
+  "ircPort": 6667,
+  "ircTls": false,
   "ircNick": "msks",
-  "ircUserName": "msks",
+  "ircUsername": "msks",
   "ircPassword": "",
-  "ircRealName": "Mr. Meeseeks",
+  "ircGecos": "Mr. Meeseeks",
   "ircChannels": ["#freenode"]
 }
