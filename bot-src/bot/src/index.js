@@ -41,7 +41,7 @@ function leaveNetwork(nick) {
   r.table('active_users').filter({ nick }).delete().run()
 }
 
-function updateNick(nickOld, newNick) {
+function updateNick(nick, newNick) {
   // Done like this to avoid need of handling updates when listening to changefeed.
   r.table('active_users').filter({ nick: nick }).delete({ returnChanges: true }).run()
     .then(({ changes }) => {
