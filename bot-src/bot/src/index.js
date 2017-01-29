@@ -121,23 +121,28 @@ function onMessage(from, to, text, kind='message') {
   validate(message, schemas.Message).then(message => {
     saveMessage(message)
 
-    const recipient = isPrivate ? from : to
+    let response
 
     if (text === '!ping') {
-      client.say(recipient, 'pong')
+      response = 'pong'
     }
 
     if (text === '!version') {
-      client.say(recipient, formatVersion(version))
+      response = formatVersion(version)
     }
 
     if (text === '!uptime') {
       const bootUptime = now - bootTime
       const connectionUptime = now - connectionTime
 
-      client.say(recipient,
-        `${humanizeDelta(bootUptime)} (${humanizeDelta(connectionUptime)})`
-      )
+      response = `${humanizeDelta(bootUptime)} (${humanizeDelta(connectionUptime)})`
+    }
+
+    if (response) {
+      const recipient = isPrivate ? from : to
+
+      client.say(recipient, response)
+      onMessage(client.user.nick, recipient, response)
     }
   })
 }
