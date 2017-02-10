@@ -1,7 +1,7 @@
 #channel {
   display: flex;
-  height: 100vh;
   flex-direction: column;
+  height: 100vh;
 }
 
 #channel > .header {
@@ -12,14 +12,15 @@
 }
 
 #channel > .header .name {
-  line-height: .5;
+  line-height: 0;
+  margin-top: 25px;
 }
 
 #channel > .header .topic {
   margin: 0;
   margin-bottom: 5px;
   line-height: 1.2;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 #channel > .header .topic.is-topic-clipped {
@@ -40,13 +41,14 @@
 }
 
 #channel .messages {
-  padding: 10px;
   margin: auto 0;
   width: 100%;
+  padding: 10px;
+  padding-bottom: 15px;
 }
 
 #channel .messages .day-header {
-  padding: 30px 0;
+  padding: 20px 0;
   text-align: center;
 }
 #channel .messages .day-header .text {
@@ -62,4 +64,84 @@
   position: relative;
   bottom: 8px;
   z-index: -1;
+}
+
+#channel .message .timestamp {
+  color: #cacaca;
+  font-size: 12px;
+}
+
+#channel .message .nick {
+  font-size: 16px;
+}
+
+#channel .message .text {
+  font-size: 15px;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#channel .message .text.action {
+  font-style: italic;
+}
+
+@media screen and (max-width: 419px) {
+  #channel .message.is-first {
+    margin-top: 2px;
+  }
+
+  #channel .message .meta {
+    display: flex;
+    flex-direction: row-reverse;
+    /* End is start, everything is reversed... yelp!! */
+    justify-content: flex-end;
+    line-height: 1.25;
+  }
+
+  #channel .message.is-not-first .meta {
+    display: none;
+  }
+
+  #channel .message .meta .timestamp {
+    padding-top: 5px;
+  }
+  #channel .message .meta .nick {
+    padding-right: 5px
+  }
+}
+
+@media screen and (min-width: 420px) {
+  #channel .message {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  #channel .message.is-first {
+    margin-top: 2px;
+  }
+
+  #channel .message .meta {
+    width: 120px;
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: space-between;
+    margin-right: 15px;
+  }
+
+  #channel .message.is-not-first .meta {
+    visibility: hidden;
+  }
+
+  #channel .message .meta .timestamp {
+    padding-top: 4px;
+    margin-right: 10px;
+  }
+  #channel .message .meta .nick {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #channel .message .text {
+    padding-top: 2px;
+  }
 }

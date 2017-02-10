@@ -20,5 +20,9 @@ export default props => {
     }
   })
 
-  return <span>{textNodes}</span>
+  return (
+    textNodes.length === 1
+    ? textNodes[0]
+    : <span>{textNodes}</span>
+  )
 }

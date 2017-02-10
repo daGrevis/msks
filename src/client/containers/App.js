@@ -6,7 +6,6 @@ import classNames from 'classnames'
 
 import { isAppLoadingSelector, channelNameSelector } from '../selectors'
 import { removeNotification } from '../actions'
-import Maybe from '../components/Maybe'
 import Loader from '../components/Loader'
 import Front from './Front'
 import Channel from './Channel'
@@ -18,17 +17,16 @@ function App({ isAppLoading, channelName, notifications, removeNotification }) {
     fp.set('onClick', () => removeNotification(notif.key))(notif)
   ))(notifications)
 
+  const Screen = channelName ? Channel : Front
+
   const classes = classNames({
     'is-loading': isAppLoading,
   })
   return (
     <div id='app' className={classes}>
-      <Maybe when={isAppLoading}>
-        <Loader />
-      </Maybe>
-      <Maybe when={!isAppLoading}>
-        {channelName ? <Channel /> : <Front />}
-      </Maybe>
+      {isAppLoading ? <Loader /> : null}
+
+      {!isAppLoading ? <Screen /> : null}
 
       <NotificationStack
         notifications={notifsWithClickEv}

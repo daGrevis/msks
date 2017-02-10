@@ -3,32 +3,26 @@ import React from 'react'
 import classNames from 'classnames'
 import { onlyUpdateForKeys } from 'recompose'
 
-import Maybe from './Maybe'
 import Text from './Text'
 import { getColor } from '../colors'
 
-import './Message.css'
+const Message = onlyUpdateForKeys(['id'])(props => {
+  const { message, isFirst, isoTimestamp, timestampText } = props
 
-const Message = onlyUpdateForKeys(['id'])(({ message, isFirst, isoTimestamp, timestampText }) => {
   const messageClasses = classNames('message', {
     'is-first': isFirst,
     'is-not-first': !isFirst,
   })
-  const textClasses = classNames('message', {
+  const textClasses = classNames({
     'text': true,
     'action': message.kind === 'action',
   })
   return (
     <div className={messageClasses}>
-      <Maybe when={isFirst}>
-        <div>
-          <span className='nick bold' style={{ color: getColor(message.from) }}>{message.from}</span>
-          &nbsp;
-          <span className='timestamp' title={isoTimestamp}>
-            {timestampText}
-          </span>
-        </div>
-      </Maybe>
+      <div className='meta'>
+        <span className='timestamp' title={isoTimestamp}>{timestampText}</span>
+        <span className='nick bold' style={{ color: getColor(message.from) }}>{message.from + ' '}</span>
+      </div>
 
       <div className={textClasses}>
         <Text>{message.text}</Text>
