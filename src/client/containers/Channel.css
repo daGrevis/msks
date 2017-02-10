@@ -121,7 +121,7 @@
   }
 
   #channel .message .meta {
-    width: 120px;
+    width: 150px;
     display: flex;
     flex: 0 0 auto;
     justify-content: space-between;

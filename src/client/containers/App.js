@@ -24,9 +24,7 @@ function App({ isAppLoading, channelName, notifications, removeNotification }) {
   })
   return (
     <div id='app' className={classes}>
-      {isAppLoading ? <Loader /> : null}
-
-      {!isAppLoading ? <Screen /> : null}
+      {isAppLoading ? <Loader /> : <Screen />}
 
       <NotificationStack
         notifications={notifsWithClickEv}
