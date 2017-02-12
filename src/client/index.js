@@ -17,7 +17,7 @@ import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
 import {
   initApp, setVisibility, navigated,
-  openChannel, setChannelName, subscribeToChannels, unsubscribeFromAllMessages,
+  openChannel, setChannelName, subscribeToChannels, subscribeToUsers, unsubscribeFromAllMessages,
   loadMessagesFromServer, addNotification,
 } from './actions'
 import { openedChannelsSelector, getLastMessageTimestampSelector } from './selectors'
@@ -89,6 +89,9 @@ socket.on('reconnect', () => {
     const after = getLastMessageTimestampSelector(channelName)(state)
     dispatch(loadMessagesFromServer({
       channelName, after,
+    }))
+    dispatch(subscribeToUsers({
+      channelName,
     }))
   })
 })
