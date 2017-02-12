@@ -49,7 +49,7 @@ const usersSelector = createSelector(
 
 const sortedUsersSelector = createSelector(
   usersSelector,
-  fp.sortBy(fp.identity)
+  fp.sortBy(fp.toUpper)
 )
 
 const userCountSelector = createSelector(
