@@ -2,18 +2,29 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  border-right: 1px solid #cacaca;
 }
 
 #channel > .header {
   padding: 0 10px;
   padding-bottom: 5px;
   border-bottom: 1px solid #cacaca;
-  cursor: pointer;
+}
+
+#channel > .header .hamburger {
+  position: absolute;
+  right: -10px;
+  top: -5px;
+  transform: scale(.6);
 }
 
 #channel > .header .name {
   line-height: 0;
   margin-top: 25px;
+  cursor: pointer;
+}
+#channel > .header .name.is-embed {
+  cursor: auto;
 }
 
 #channel > .header .topic {
@@ -21,6 +32,7 @@
   margin-bottom: 5px;
   line-height: 1.2;
   font-size: 14px;
+  cursor: pointer;
 }
 
 #channel > .header .topic.is-topic-clipped {
@@ -143,5 +155,56 @@
   }
   #channel .message .text {
     padding-top: 2px;
+  }
+}
+
+.slideout-menu {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 200px;
+  min-height: 100vh;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  z-index: 0;
+  display: none;
+}
+
+.slideout-menu-left {
+  left: 0;
+}
+
+.slideout-menu-right {
+  right: 0;
+}
+
+.slideout-panel {
+  position: relative;
+  z-index: 1;
+  will-change: transform;
+  background: white;
+  min-height: 100vh;
+}
+
+.slideout-open,
+.slideout-open body,
+.slideout-open .slideout-panel {
+  overflow: hidden;
+}
+
+.slideout-open .slideout-menu {
+  display: block;
+}
+
+@media screen and (min-width: 780px) {
+  .slideout-panel {
+    margin-right: 200px;
+  }
+  .slideout-menu {
+    display: block;
+  }
+
+  #channel > .header .hamburger {
+    display: none;
   }
 }

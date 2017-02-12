@@ -21,7 +21,11 @@ const Message = onlyUpdateForKeys(['id'])(props => {
     <div className={messageClasses}>
       <div className='meta'>
         <span className='timestamp' title={isoTimestamp}>{timestampText}</span>
-        <span className='nick bold' style={{ color: getColor(message.from) }}>{message.from + ' '}</span>
+        <span
+          className='nick bold'
+          style={{ color: getColor(message.from) }}
+          title={message.from}
+        >{message.from}</span>
       </div>
 
       <div className={textClasses}>

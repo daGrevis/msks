@@ -40,9 +40,26 @@ const getLastMessageTimestampSelector = (channelName = null) => createSelector(
   messages => fp.last(messages).timestamp
 )
 
+const usersSelector = createSelector(
+  fp.get('users'), channelNameSelector,
+  (users, channelName) => (
+    users[channelName]
+  )
+)
+
+const sortedUsersSelector = createSelector(
+  usersSelector,
+  fp.sortBy(fp.identity)
+)
+
+const userCountSelector = createSelector(
+  usersSelector,
+  fp.size
+)
+
 const isChannelLoadingSelector = createSelector(
-  getChannelSelector(),
-  channel => !channel
+  getChannelSelector(), usersSelector,
+  (channel, users) => channel === undefined || users === undefined
 )
 
 const isAppLoadingSelector = createSelector(
@@ -76,6 +93,9 @@ export {
   getChannelSelector,
   getMessagesSelector,
   getLastMessageTimestampSelector,
+  usersSelector,
+  sortedUsersSelector,
+  userCountSelector,
   isChannelLoadingSelector,
   isAppLoadingSelector,
   hasReachedBeginningSelector,

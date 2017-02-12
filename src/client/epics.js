@@ -2,10 +2,8 @@ import { combineEpics } from 'redux-observable'
 
 import { navigate } from './history'
 import {
-  updateChannel, setChannelName,
-  subscribeToMessages, loadMessagesFromServer,
-  addMessages, addMessage,
-  updateUnread, resetUnread, setFavicoBadge,
+  noop, updateChannel, subscribeToMessages, loadMessagesFromServer, addMessages, addMessage,
+  subscribeToUsers, updateUnread, resetUnread, setFavicoBadge,
 } from './actions'
 import {
   getLastMessageTimestampSelector, isEmbedSelector, channelNameSelector,
@@ -62,17 +60,35 @@ const setFavicoBadgeEpic = action$ =>
 const openChannelEpic = (action$, store) =>
   action$.ofType('OPEN_CHANNEL')
     .filter(() => !isEmbedSelector(store.getState()))
-    .map(({ payload: channelName }) => {
-      navigate(`/${channelName || ''}`)
-      return setChannelName(channelName)
+    .do(({ payload: channelName }) => {
+      navigate(channelName)
     })
+    .map(noop)
 
-const titleEpic = action$ =>
-  action$.ofType('SET_CHANNEL_NAME')
-    .map(({ payload: channelName }) => {
-      document.title = channelName ? `${channelName} · msks` : 'msks'
-      return { type: 'SET_DOCUMENT_TITLE' }
+const closeChannelEpic = (action$, store) =>
+  action$.ofType('CLOSE_CHANNEL')
+    .filter(() => !isEmbedSelector(store.getState()))
+    .do(({ payload: channelName }) => {
+      navigate('')
     })
+    .map(noop)
+
+const titleEpic = (action$, store) =>
+  action$.ofType('OPEN_CHANNEL', 'CLOSE_CHANNEL')
+    .do(() => {
+      const channelName = channelNameSelector(store.getState())
+      document.title = channelName ? `${channelName} · msks` : 'msks'
+    })
+    .map(noop)
+
+const subscribeToUsersEpic = action$ =>
+  action$.ofType('OPEN_CHANNEL')
+    .distinct(({ payload: channelName }) => (
+      channelName
+    ))
+    .map(({ payload: channelName }) => (
+      subscribeToUsers({ channelName })
+    ))
 
 const rootEpic = combineEpics(
   channelChangeEpic,
@@ -80,10 +96,12 @@ const rootEpic = combineEpics(
   addMessagesEpic,
   subscribeToMessagesEpic,
   messageChangeEpic,
+  subscribeToUsersEpic,
   updateUnreadEpic,
   setFavicoBadgeEpic,
   resetUnreadEpic,
   openChannelEpic,
+  closeChannelEpic,
   titleEpic
 )
 

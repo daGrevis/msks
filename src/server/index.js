@@ -8,6 +8,11 @@ console.log('starting server...')
 let server = http.createServer()
 let io = socketio(server)
 
+const getInitialUsersPromise = channelName => (
+  r.table('active_users')
+    .getAll(channelName, { index: 'channel' })
+)
+
 const getInitialMessagesPromise = channelName => (
   r.table('messages')
     .between([channelName, r.minval], [channelName, r.maxval], { index: 'toAndTimestamp' })
@@ -48,6 +53,7 @@ const subscribeToChannels = () => client => {
 
 const loadMessages = ({ channelName = null, before = null, after = null }) => client => {
   if (!channelName) {
+    console.error('LOADED_MESSAGES: channelName missing!')
     return
   }
 
@@ -75,6 +81,7 @@ const loadMessages = ({ channelName = null, before = null, after = null }) => cl
 
 const subscribeToMessages = ({ channelName = null, timestamp = null }) => client => {
   if (!channelName || !timestamp) {
+    console.error('SUBSCRIBE_TO_MESSAGES: channelName or timestamp missing!')
     return
   }
 
@@ -93,10 +100,41 @@ const subscribeToMessages = ({ channelName = null, timestamp = null }) => client
     })
 }
 
+const subscribeToUsers = ({ channelName = null }) => client => {
+  if (!channelName) {
+    console.error('SUBSCRIBE_TO_USERS: channelName missing!')
+    return
+  }
+
+  getInitialUsersPromise(channelName).then(users => {
+    client.emit('action', {
+      type: 'client/INITIAL_USERS',
+      payload: {
+        channelName,
+        users: fp.map('nick', users),
+      },
+    })
+
+    r.table('active_users')
+      .getAll(channelName, { index: 'channel' })
+      .changes()
+      .run()
+      .then(feed => {
+        feed.each((err, change) => {
+          client.emit('action', {
+            type: 'client/USER_CHANGE',
+            payload: change,
+          })
+        })
+      })
+  })
+}
+
 const ACTIONS = {
   'server/SUBSCRIBE_TO_CHANNELS': subscribeToChannels,
   'server/LOAD_MESSAGES': loadMessages,
   'server/SUBSCRIBE_TO_MESSAGES': subscribeToMessages,
+  'server/SUBSCRIBE_TO_USERS': subscribeToUsers,
 }
 
 io.on('connection', client => {

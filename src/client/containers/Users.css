@@ -1,0 +1,20 @@
+#users {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+#users h3 {
+  line-height: 2;
+}
+
+#users ol {
+  list-style: none;
+  padding: 0;
+}
+
+#users .nick {
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

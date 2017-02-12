@@ -25,7 +25,7 @@ export default connect(
   state => ({
     sortedChannels: sortedChannelsSelector(state),
   }),
-  dispatch => ({
-    openChannel: x => dispatch(openChannel(x)),
-  })
+  {
+    openChannel,
+  }
 )(Front)

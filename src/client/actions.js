@@ -7,6 +7,8 @@ const favicon = new Favico({
   animation: 'none',
 })
 
+const noop = createAction('NOOP')
+
 const initApp = createAction('INIT_APP')
 
 const setVisibility = createAction('SET_VISIBILITY')
@@ -14,7 +16,7 @@ const setVisibility = createAction('SET_VISIBILITY')
 const navigated = createAction('NAVIGATED')
 
 const openChannel = createAction('OPEN_CHANNEL')
-
+const closeChannel = createAction('CLOSE_CHANNEL')
 const setChannelName = createAction('SET_CHANNEL_NAME')
 
 const subscribeToChannels = createAction('server/SUBSCRIBE_TO_CHANNELS')
@@ -30,6 +32,8 @@ const addMessages = createAction('ADD_MESSAGES')
 const subscribeToMessages = createAction('server/SUBSCRIBE_TO_MESSAGES')
 
 const unsubscribeFromAllMessages = createAction('UNSUBSCRIBE_FROM_ALL_MESSAGES')
+
+const subscribeToUsers = createAction('server/SUBSCRIBE_TO_USERS')
 
 const updateUnread = createAction('UPDATE_UNREAD')
 const resetUnread = createAction('RESET_UNREAD')
@@ -49,10 +53,12 @@ const addNotification = message => dispatch => {
 const removeNotification = createAction('REMOVE_NOTIFICATION')
 
 export {
+  noop,
   initApp,
   setVisibility,
   navigated,
   openChannel,
+  closeChannel,
   setChannelName,
   subscribeToChannels,
   updateChannel,
@@ -62,6 +68,7 @@ export {
   addMessages,
   subscribeToMessages,
   unsubscribeFromAllMessages,
+  subscribeToUsers,
   updateUnread,
   resetUnread,
   setFavicoBadge,

@@ -17,7 +17,10 @@ const historyUpdater = createUpdater({
 })
 
 const channelUpdater = createUpdater({
+  OPEN_CHANNEL: ({ payload }) => fp.set('channelName', payload),
+  CLOSE_CHANNEL: () => fp.set('channelName', null),
   SET_CHANNEL_NAME: ({ payload }) => fp.set('channelName', payload),
+
   UPDATE_CHANNEL: ({ payload }) => fp.set(['channels', payload.name], payload),
 })
 
@@ -76,9 +79,21 @@ const addMessages = newMessages => fp.update(
   }
 )
 
+const usersUpdater = createUpdater({
+  'client/INITIAL_USERS': ({ payload: { channelName, users }}) => fp.set(['users', channelName], users),
+  'client/USER_CHANGE': ({ payload: { new_val, old_val }}) => fp.update(
+    ['users', (old_val || new_val).channel],
+    users => (
+      new_val
+      ? fp.concat(users, new_val.nick)
+      : fp.reject(nick => nick === old_val.nick, users)
+    )
+  ),
+})
+
 const messagesUpdater = createUpdater({
   'server/SUBSCRIBE_TO_MESSAGES': ({ payload }) => fp.set(['isSubscribedToMessages', payload.channelName], true),
-  'UNSUBSCRIBE_FROM_ALL_MESSAGES': () => fp.set('isSubscribedToMessages', {}),
+  UNSUBSCRIBE_FROM_ALL_MESSAGES: () => fp.set('isSubscribedToMessages', {}),
 
   ADD_MESSAGE: ({ payload }) => addMessage(payload),
   ADD_MESSAGES: ({ payload: { channelName, messages }}) => state => fp.pipe(
@@ -100,6 +115,7 @@ const rootReducer = (state, action) => pipeUpdaters(
   historyUpdater,
   channelUpdater,
   messagesUpdater,
+  usersUpdater,
   notificationUpdater,
 )(action)(state)
 

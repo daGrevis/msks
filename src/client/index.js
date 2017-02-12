@@ -17,7 +17,7 @@ import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
 import {
   initApp, setVisibility, navigated,
-  setChannelName, subscribeToChannels, unsubscribeFromAllMessages,
+  openChannel, setChannelName, subscribeToChannels, unsubscribeFromAllMessages,
   loadMessagesFromServer, addNotification,
 } from './actions'
 import { openedChannelsSelector, getLastMessageTimestampSelector } from './selectors'
@@ -31,6 +31,8 @@ import viewportUnitsBuggyfill from 'viewport-units-buggyfill'
 viewportUnitsBuggyfill.init()
 
 import 'loaders.css/loaders.min.css'
+import 'hamburgers/dist/hamburgers.min.css'
+
 import './index.css'
 
 const EMBED_CHANNEL = process.env.REACT_APP_EMBED_CHANNEL
@@ -41,9 +43,12 @@ const loggerMiddleware = createLogger({
   duration: true,
   timestamp: false,
   collapsed: true,
-  titleFormatter: (action, time, took) => {
-    return `${action.type} (in ${took.toFixed(2)} ms)`
-  },
+  titleFormatter: (action, time, took) => (
+    `${action.type} (in ${took.toFixed(2)} ms)`
+  ),
+  predicate: (getState, action) => (
+    action.type !== 'NOOP'
+  )
 })
 
 const epicMiddleware = createEpicMiddleware(rootEpic)
@@ -90,10 +95,18 @@ socket.on('reconnect', () => {
 
 const currentLocation = history.location
 dispatch(navigated(currentLocation))
-dispatch(setChannelName(EMBED_CHANNEL ? EMBED_CHANNEL : currentLocation.hash))
+
+if (EMBED_CHANNEL) {
+  dispatch(openChannel(EMBED_CHANNEL))
+} else {
+  if (currentLocation.hash) {
+    dispatch(openChannel(currentLocation.hash))
+  }
+}
 
 history.listen(loc => {
   dispatch(navigated(loc))
+
   dispatch(setChannelName(loc.hash))
 })
 

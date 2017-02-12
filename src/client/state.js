@@ -17,6 +17,13 @@ const initialState = {
     // },
   },
 
+  users: {
+    // '#developerslv': [
+    //   'msks',
+    //   'daGrevis',
+    // ],
+  },
+
   messages: {
     // '##javascript': [
     //   {
