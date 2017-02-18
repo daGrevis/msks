@@ -10,10 +10,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^3.4.6",
-    "irc-framework": "^2.5.3",
-    "joi": "^9.0.4",
-    "lodash": "^4.15.0",
-    "rethinkdbdash": "^2.3.23"
+    "bluebird": "^3.4.7",
+    "irc-framework": "^2.6.0",
+    "joi": "^10.2.2",
+    "lodash": "^4.17.4",
+    "rethinkdbdash": "^2.3.28"
   }
 }

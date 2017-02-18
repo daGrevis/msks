@@ -2,7 +2,7 @@
 
 IRC chatbot that sits in one or many channels and sends all it can find to RethinkDB.
 
-Also supports simple commands like `!version` and `!uptime`.
+Also supports simple commands like `!ping`, `!version` and `!uptime`.
 
 ### What is the Purpose?
 
@@ -13,8 +13,7 @@ Data gathering for web client that can display real-time messages and full histo
 Install environment:
 
 ```sh
-nvm use v6
-npm install
+yarn install
 ```
 
 Start RethinkDB:
@@ -26,5 +25,5 @@ rethinkdb
 Start bot:
 
 ```sh
-npm start
+yarn run start
 ```
