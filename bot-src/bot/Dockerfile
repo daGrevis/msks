@@ -5,7 +5,8 @@ WORKDIR /usr/src/app
 
 COPY . /usr/src/app
 
-RUN apk add --no-cache --virtual curl git && \
+RUN apk add --no-cache --virtual curl && \
+  apk add --no-cache --virtual git && \
   mkdir -p /opt && \
   curl -sL https://yarnpkg.com/latest.tar.gz | tar xz -C /opt && \
   mv /opt/dist /opt/yarn && \
@@ -17,4 +18,4 @@ RUN apk add --no-cache --virtual curl git && \
 
 RUN yarn install
 
-CMD [ "npm", "start" ]
+CMD ["yarn", "run", "start"]
