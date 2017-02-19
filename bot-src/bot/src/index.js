@@ -64,7 +64,10 @@ function onMessage(from, to, text, kind = 'message') {
   validate(message, schemas.Message).then(() => {
     queries.saveMessage(message)
 
-    respondToMessage(message, now)
+    const isSilentInChannel = _.includes(config.silentChannels, message.to)
+    if (!isSilentInChannel) {
+      respondToMessage(message, now)
+    }
   })
 }
 

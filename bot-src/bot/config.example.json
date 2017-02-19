@@ -7,5 +7,6 @@
   "ircUsername": "msks",
   "ircPassword": "",
   "ircGecos": "Mr. Meeseeks",
-  "ircChannels": ["#freenode"]
+  "ircChannels": ["#freenode"],
+  "silentChannels": []
 }
