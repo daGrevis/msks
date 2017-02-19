@@ -1,160 +1,72 @@
 const Promise = require('bluebird')
-const fs = require('fs')
 const _ = require('lodash')
-const Joi = require('joi')
 const ircFramework = require('irc-framework')
 
 const { humanizeDelta } = require('./utils')
 const config = require('./config')
+const { validate } = require('./schemas')
 const schemas = require('./schemas')
-const r = require('./rethink')
-
-const validate = Promise.promisify(Joi.validate)
-
-const REPO_URL = `https://github.com/daGrevis/msks-bot`
+const queries = require('./queries')
+const { formattedVersion } = require('./version')
 
 const isMe = (client, nick) => client.user.nick === nick
 
-function createChannel(name) {
-  const channel = { name }
-
-  validate(channel, schemas.Channel).then(channel => {
-    // This creates the channel or silently fails when it exists already.
-    r.table('channels').insert(channel).run()
-      .catch(_.noop)
-  })
-}
-
-function joinChannel(nick, channel) {
-  const activeUser = { nick, channel }
-
-  validate(activeUser, schemas.ActiveUser).then(() => {
-    r.table('active_users').insert(activeUser).run()
-  })
-}
-
-function leaveChannel(nick, channel) {
-  r.table('active_users').filter({ nick, channel }).delete().run()
-}
-
-function leaveNetwork(nick) {
-  r.table('active_users').filter({ nick }).delete().run()
-}
-
-function updateNick(nick, newNick) {
-  // Done like this to avoid need of handling updates when listening to changefeed.
-  r.table('active_users').filter({ nick: nick }).delete({ returnChanges: true }).run()
-    .then(({ changes }) => {
-      const channels = _.map(changes, 'old_val.channel')
-      _.forEach(channels, channel => {
-        joinChannel(newNick, channel)
-      })
-    })
-}
-
-function updateChannelActiveUsers(channel, activeUsers) {
-  Promise.all(_.map(activeUsers, user => validate(user, schemas.ActiveUser)))
-    .then(() => {
-      // TODO: I'm pretty here's a race condition with parallel joins/leaves.
-      r.table('active_users').filter({ channel }).delete().run()
-        .then(() => {
-          r.table('active_users').insert(activeUsers).run()
-        })
-    })
-}
-
-function updateTopic(channel, topic) {
-  // TODO: Race condition when this runs before channel exists.
-  r.table('channels').get(channel).update({ topic }).run()
-}
-
-function saveMessage(message, i = 1) {
-  r.table('messages').insert(message).run()
-    .catch(err => {
-      console.error(err)
-
-      const delay = 1000 * i
-
-      console.log(`retrying to save message ${JSON.stringify(message)} in ${delay} ms`)
-      setTimeout(
-        () => saveMessage(message, i + 1),
-        delay
-      )
-    })
-}
-
-function getVersion() {
-  let output
-  try {
-    output = fs.readFileSync('VERSION', 'utf8')
-  } catch (err) {
-    return
-  }
-
-  const [rev, tag, subject, date] = output.split('\n')
-
-  return { rev, tag, subject, date }
-}
-
-function formatVersion(version) {
-  if (!version) {
-    return `msks-bot, ${REPO_URL}`
-  }
-
-  const { tag, rev, subject, date } = version
-  return (
-    `msks-bot ${tag ? tag + '@' : ''}${rev.slice(0, 7)}: "${subject}" of ${date}, ${REPO_URL}`
-  )
-}
-
-function onMessage(from, to, text, kind='message') {
-  const now = new Date()
-
-  // Apparently & is a valid prefix.
-  const isPrivate = !_.startsWith(to, '#') && !_.startsWith(to, '&')
-  const timestamp = now
-
-  const message = {
-    from, to, text, kind, timestamp,
-  }
-
-  validate(message, schemas.Message).then(message => {
-    saveMessage(message)
-
-    let response
-
-    if (text === '!ping') {
-      response = 'pong'
-    }
-
-    if (text === '!version') {
-      response = formatVersion(version)
-    }
-
-    if (text === '!uptime') {
-      const bootUptime = now - bootTime
-      const connectionUptime = now - connectionTime
-
-      response = `${humanizeDelta(bootUptime)} (${humanizeDelta(connectionUptime)})`
-    }
-
-    if (response) {
-      const recipient = isPrivate ? from : to
-
-      client.say(recipient, response)
-      onMessage(client.user.nick, recipient, response)
-    }
-  })
-}
+console.log('starting bot...')
 
 const bootTime = new Date()
 let connectionTime
 
-const version = getVersion()
-
-console.log('starting bot...')
-
 const client = new ircFramework.Client()
+
+function isPM(message) {
+  // Apparently & is a valid prefix for channels.
+  const isPrivate = (
+    !_.startsWith(message.to, '#')
+    && !_.startsWith(message.to, '&')
+  )
+
+  return isPrivate
+}
+
+function respondToMessage(message, now) {
+  let response
+
+  if (message.text === '!ping') {
+    response = 'pong'
+  } else if (message.text === '!version') {
+    response = formattedVersion
+  } else if (message.text === '!uptime') {
+    const bootUptime = now - bootTime
+    const connectionUptime = now - connectionTime
+
+    response = `${humanizeDelta(bootUptime)} (${humanizeDelta(connectionUptime)})`
+  }
+
+  if (response) {
+    const recipient = isPM(message) ? message.from : message.to
+
+    client.say(recipient, response)
+    onMessage(client.user.nick, recipient, response)
+  }
+}
+
+function onMessage(from, to, text, kind = 'message') {
+  const now = new Date()
+
+  const message = {
+    from,
+    to,
+    text,
+    kind,
+    timestamp: now,
+  }
+
+  validate(message, schemas.Message).then(() => {
+    queries.saveMessage(message)
+
+    respondToMessage(message, now)
+  })
+}
 
 client.connect({
   host: config.ircHost,
@@ -167,7 +79,7 @@ client.connect({
   auto_reconnect: true,
   auto_reconnect_wait: 1000,
   auto_reconnect_max_retries: 1000,
-  version: formatVersion(version),
+  version: formattedVersion,
 })
 
 client.on('registered', () => {
@@ -181,38 +93,54 @@ client.on('registered', () => {
   })
 })
 
-client.on('join', ({ nick, channel }) => {
+client.on('join', ({ nick, channel: channelName }) => {
   if (isMe(client, nick)) {
-    console.log(`joined ${channel}!`)
-    createChannel(channel)
+    console.log(`joined ${channelName}!`)
+
+    const channel = { name: channelName }
+    validate(channel, schemas.Channel).then(() => {
+      queries.createChannel(channel)
+    })
   }
 
-  joinChannel(nick, channel)
+  const activeUser = { nick, channel: channelName }
+  validate(activeUser, schemas.ActiveUser).then(() => {
+    queries.joinChannel(activeUser)
+  })
 })
 
 client.on('part', ({ nick, channel }) => {
-  leaveChannel(nick, channel)
+  const activeUser = { nick, channel }
+  validate(activeUser, schemas.ActiveUser).then(() => {
+    queries.leaveChannel(activeUser)
+  })
 })
 
 client.on('kick', ({ kicked, channel }) => {
-  leaveChannel(kicked, channel)
+  const activeUser = { nick: kicked, channel }
+  validate(activeUser, schemas.ActiveUser).then(() => {
+    queries.leaveChannel(activeUser)
+  })
 })
 
 client.on('quit', ({ nick }) => {
-  leaveNetwork(nick)
+  queries.leaveNetwork(nick)
 })
 
 client.on('nick', ({ nick, new_nick: newNick }) => {
-  updateNick(nick, newNick)
+  queries.updateNick(nick, newNick)
 })
 
 client.on('userlist', ({ channel, users }) => {
   const activeUsers = _.map(users, ({ nick }) => ({ nick, channel }))
-  updateChannelActiveUsers(channel, activeUsers)
+  Promise.all(_.map(activeUsers, user => validate(user, schemas.ActiveUser)))
+    .then(() => {
+      queries.updateChannelActiveUsers(channel, activeUsers)
+    })
 })
 
 client.on('topic', ({ channel, topic }) => {
-  updateTopic(channel, topic)
+  queries.updateTopic(channel, topic)
 })
 
 client.on('privmsg', ({ nick, target, message }) => {
