@@ -4,8 +4,6 @@ const ircFramework = require('irc-framework')
 
 const { humanizeDelta } = require('./utils')
 const config = require('./config')
-const { validate } = require('./schemas')
-const schemas = require('./schemas')
 const queries = require('./queries')
 const { formattedVersion } = require('./version')
 
@@ -61,14 +59,13 @@ function onMessage(from, to, text, kind = 'message') {
     timestamp: now,
   }
 
-  validate(message, schemas.Message).then(() => {
-    queries.saveMessage(message)
-
-    const isSilentInChannel = _.includes(config.silentChannels, message.to)
-    if (!isSilentInChannel) {
-      respondToMessage(message, now)
-    }
-  })
+  queries.saveMessage(message)
+    .then(() => {
+      const isSilentInChannel = _.includes(config.silentChannels, message.to)
+      if (!isSilentInChannel) {
+        respondToMessage(message, now)
+      }
+    })
 }
 
 client.connect({
@@ -101,29 +98,25 @@ client.on('join', ({ nick, channel: channelName }) => {
     console.log(`joined ${channelName}!`)
 
     const channel = { name: channelName }
-    validate(channel, schemas.Channel).then(() => {
-      queries.createChannel(channel)
-    })
+
+    queries.createChannel(channel)
   }
 
   const activeUser = { nick, channel: channelName }
-  validate(activeUser, schemas.ActiveUser).then(() => {
-    queries.joinChannel(activeUser)
-  })
+
+  queries.joinChannel(activeUser)
 })
 
 client.on('part', ({ nick, channel }) => {
   const activeUser = { nick, channel }
-  validate(activeUser, schemas.ActiveUser).then(() => {
-    queries.leaveChannel(activeUser)
-  })
+
+  queries.leaveChannel(activeUser)
 })
 
 client.on('kick', ({ kicked, channel }) => {
   const activeUser = { nick: kicked, channel }
-  validate(activeUser, schemas.ActiveUser).then(() => {
-    queries.leaveChannel(activeUser)
-  })
+
+  queries.leaveChannel(activeUser)
 })
 
 client.on('quit', ({ nick }) => {
@@ -136,10 +129,8 @@ client.on('nick', ({ nick, new_nick: newNick }) => {
 
 client.on('userlist', ({ channel, users }) => {
   const activeUsers = _.map(users, ({ nick }) => ({ nick, channel }))
-  Promise.all(_.map(activeUsers, user => validate(user, schemas.ActiveUser)))
-    .then(() => {
-      queries.updateChannelActiveUsers(channel, activeUsers)
-    })
+
+  queries.updateChannelActiveUsers(channel, activeUsers)
 })
 
 client.on('topic', ({ channel, topic }) => {

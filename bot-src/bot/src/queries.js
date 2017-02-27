@@ -3,54 +3,56 @@ const _ = require('lodash')
 const fp = require('lodash/fp')
 
 const r = require('./rethink')
+const { validate } = require('./schemas')
+const schemas = require('./schemas')
 const retry = require('./retry')
 
-const createChannel = channel =>
+const createChannel = async function(channel) {
+  await validate(channel, schemas.Channel)
   // Creates the channel or silently fails when it exists already.
-  r.table('channels').insert(channel).run()
-    .catch(_.noop)
+  await r.table('channels').insert(channel).run().catch(_.noop)
+}
 
-const joinChannel = activeUser =>
-  r.table('active_users').insert(activeUser).run()
+const joinChannel = async function(activeUser) {
+  await validate(activeUser, schemas.ActiveUser)
+  await r.table('active_users').insert(activeUser).run()
+}
 
-const leaveChannel = activeUser =>
-  r.table('active_users').filter(activeUser).delete().run()
+const leaveChannel = async function(activeUser) {
+  await validate(activeUser, schemas.ActiveUser)
+  await r.table('active_users').filter(activeUser).delete().run()
+}
 
-const leaveNetwork = nick =>
-  r.table('active_users').filter({ nick }).delete().run()
+const leaveNetwork = async function(nick) {
+  await r.table('active_users').filter({ nick }).delete().run()
+}
 
-const updateNick = (nick, newNick) => new Promise((resolve, reject) => {
-  // Done like this to avoid the need of handling updates when listening to changefeed.
-  r.table('active_users').filter({ nick }).delete({ returnChanges: true }).run()
-    .catch(reject)
-    .then(({ changes }) => {
-      const activeUsers = _.map(changes, ({ old_val }) => ({
-        channel: old_val.channel,
-        nick: newNick,
-      }))
-      r.table('active_users').insert(activeUsers).run()
-        .catch(reject)
-        .then(resolve)
-    })
-})
+const updateNick = async function(nick, newNick) {
+  const { changes } = await r.table('active_users')
+    .filter({ nick }).delete({ returnChanges: true }).run()
 
-const updateChannelActiveUsers = (channel, activeUsers) => new Promise((resolve, reject) => {
-  // TODO: I'm pretty here's a race condition with parallel joins/leaves.
-  r.table('active_users').filter({ channel }).delete().run()
-    .catch(reject)
-    .then(() => {
-      r.table('active_users').insert(activeUsers).run()
-        .catch(reject)
-        .then(resolve)
-    })
-})
+  const activeUsers = _.map(changes, ({ old_val }) => ({
+    channel: old_val.channel,
+    nick: newNick,
+  }))
+  await r.table('active_users').insert(activeUsers).run()
+}
 
-const updateTopic = (channel, topic) =>
+const updateChannelActiveUsers = async function(channel, activeUsers) {
+  await Promise.all(_.map(activeUsers, user => validate(user, schemas.ActiveUser)))
+  await r.table('active_users').filter({ channel }).delete().run()
+  await r.table('active_users').insert(activeUsers).run()
+}
+
+const updateTopic = async function(channel, topic) {
   // TODO: Race condition when this runs before channel exists.
-  r.table('channels').get(channel).update({ topic }).run()
+  await r.table('channels').get(channel).update({ topic }).run()
+}
 
-const saveMessage = message =>
-  r.table('messages').insert(message).run()
+const saveMessage = async function(message) {
+  await validate(message, schemas.Message)
+  await r.table('messages').insert(message).run()
+}
 
 const queries = fp.mapValues(retry, {
   createChannel,
