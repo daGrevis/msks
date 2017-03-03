@@ -8,9 +8,12 @@ const Channel = Joi.object().keys({
   topic: Joi.string(),
 })
 
-const ActiveUser = Joi.object().keys({
-  nick: Joi.string().required(),
+const User = Joi.object().keys({
+  id: Joi.array().required().items(Joi.ref('channel'), Joi.ref('nick')),
   channel: Joi.string().required(),
+  nick: Joi.string().required(),
+  isOp: Joi.boolean(),
+  isVoiced: Joi.boolean(),
 })
 
 const Message = Joi.object().keys({
@@ -25,6 +28,6 @@ module.exports = {
   validate,
 
   Channel,
-  ActiveUser,
+  User,
   Message,
 }

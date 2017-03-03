@@ -100,23 +100,23 @@ client.on('join', ({ nick, channel: channelName }) => {
     const channel = { name: channelName }
 
     queries.createChannel(channel)
+  } else {
+    const user = {
+      id: [channelName, nick],
+      channel: channelName,
+      nick,
+    }
+
+    queries.joinChannel(user)
   }
-
-  const activeUser = { nick, channel: channelName }
-
-  queries.joinChannel(activeUser)
 })
 
-client.on('part', ({ nick, channel }) => {
-  const activeUser = { nick, channel }
-
-  queries.leaveChannel(activeUser)
+client.on('part', ({ channel, nick }) => {
+  queries.leaveChannel(channel, nick)
 })
 
-client.on('kick', ({ kicked, channel }) => {
-  const activeUser = { nick: kicked, channel }
-
-  queries.leaveChannel(activeUser)
+client.on('kick', ({ channel, kicked }) => {
+  queries.leaveChannel(channel, kicked)
 })
 
 client.on('quit', ({ nick }) => {
@@ -127,10 +127,38 @@ client.on('nick', ({ nick, new_nick: newNick }) => {
   queries.updateNick(nick, newNick)
 })
 
-client.on('userlist', ({ channel, users }) => {
-  const activeUsers = _.map(users, ({ nick }) => ({ nick, channel }))
+client.on('userlist', ({ channel, users: ircUsers }) => {
+  const users = _.map(ircUsers, ({ nick, modes }) => ({
+    id: [channel, nick],
+    isOp: _.includes(modes, 'o'),
+    isVoiced: _.includes(modes, 'v'),
+    channel,
+    nick,
+  }))
 
-  queries.updateChannelActiveUsers(channel, activeUsers)
+  queries.updateUsers(channel, users)
+})
+
+client.on('mode', ({ target: channel, modes }) => {
+  _.forEach(modes, ({ mode, param }) => {
+    if (_.includes(['+o', '-o'], mode)) {
+      queries.updateUser({
+        id: [channel, param],
+        channel,
+        nick: param,
+        isOp: mode[0] === '+',
+      })
+    }
+
+    if (_.includes(['+v', '-v'], mode)) {
+      queries.updateUser({
+        id: [channel, param],
+        channel,
+        nick: param,
+        isVoiced: mode[0] === '+',
+      })
+    }
+  })
 })
 
 client.on('topic', ({ channel, topic }) => {

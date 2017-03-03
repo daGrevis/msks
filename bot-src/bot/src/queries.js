@@ -13,35 +13,43 @@ const createChannel = async function(channel) {
   await r.table('channels').insert(channel).run().catch(_.noop)
 }
 
-const joinChannel = async function(activeUser) {
-  await validate(activeUser, schemas.ActiveUser)
-  await r.table('active_users').insert(activeUser).run()
+const joinChannel = async function(user) {
+  await validate(user, schemas.User)
+  await r.table('users').insert(user, { conflict: 'replace' }).run()
 }
 
-const leaveChannel = async function(activeUser) {
-  await validate(activeUser, schemas.ActiveUser)
-  await r.table('active_users').filter(activeUser).delete().run()
+const leaveChannel = async function(channel, nick) {
+  await r.table('users').get([channel, nick]).delete().run()
 }
 
 const leaveNetwork = async function(nick) {
-  await r.table('active_users').filter({ nick }).delete().run()
+  await r.table('users').getAll(nick, { index: 'nick' }).delete().run()
 }
 
 const updateNick = async function(nick, newNick) {
-  const { changes } = await r.table('active_users')
-    .filter({ nick }).delete({ returnChanges: true }).run()
+  const { changes } = await r.table('users').getAll(nick, { index: 'nick' })
+    .delete({ returnChanges: true }).run()
 
-  const activeUsers = _.map(changes, ({ old_val }) => ({
+  const users = _.map(changes, ({ old_val }) => ({
+    id: [old_val.channel, newNick],
     channel: old_val.channel,
     nick: newNick,
   }))
-  await r.table('active_users').insert(activeUsers).run()
+  await Promise.all(_.map(users, user => validate(user, schemas.User)))
+
+  await r.table('users').insert(users, { conflict: 'replace' }).run()
 }
 
-const updateChannelActiveUsers = async function(channel, activeUsers) {
-  await Promise.all(_.map(activeUsers, user => validate(user, schemas.ActiveUser)))
-  await r.table('active_users').filter({ channel }).delete().run()
-  await r.table('active_users').insert(activeUsers).run()
+const updateUsers = async function(channel, users) {
+  await Promise.all(_.map(users, user => validate(user, schemas.User)))
+
+  await r.table('users').getAll(channel, { index: 'channel' }).delete().run()
+  await r.table('users').insert(users, { conflict: 'replace' }).run()
+}
+
+const updateUser = async function(user) {
+  await validate(user, schemas.User)
+  await r.table('users').get(user.id).update(user).run()
 }
 
 const updateTopic = async function(channel, topic) {
@@ -60,7 +68,8 @@ const queries = fp.mapValues(retry, {
   leaveChannel,
   leaveNetwork,
   updateNick,
-  updateChannelActiveUsers,
+  updateUsers,
+  updateUser,
   updateTopic,
   saveMessage,
 })

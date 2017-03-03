@@ -9,9 +9,9 @@ const r = rethinkdb({ host: config.rethinkHost, silent: true })
 const queries = [
   r.tableCreate('channels', { primaryKey: 'name' }),
 
-  r.tableCreate('active_users'),
-  r.table('active_users').indexCreate('nick'),
-  r.table('active_users').indexCreate('channel'),
+  r.tableCreate('users', { durability: 'soft' }),
+  r.table('users').indexCreate('channel'),
+  r.table('users').indexCreate('nick'),
 
   r.tableCreate('messages'),
   r.table('messages').indexCreate('to'),
