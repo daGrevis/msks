@@ -18,10 +18,20 @@ const initialState = {
   },
 
   users: {
-    // '#developerslv': [
-    //   'msks',
-    //   'daGrevis',
-    // ],
+    // '#developerslv': {
+    //   'msks': {
+    //     'id': ['#developerslv', 'msks'],
+    //     'channel': '#developerslv',
+    //     'nick': 'msks',
+    //     'isVoiced': true,
+    //   },
+    //   'daGrevis': {
+    //     'id': ['#developerslv', 'daGrevis'],
+    //     'channel': '#developerslv',
+    //     'nick': 'daGrevis',
+    //     'isOp': true,
+    //   },
+    // },
   },
 
   messages: {

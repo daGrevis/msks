@@ -18,3 +18,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+#users .prefix {
+  font-size: 14px;
+}

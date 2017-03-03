@@ -29,6 +29,9 @@ const subscribeToMessagesEpic = (action$, store) =>
     .filter(({ payload }) => !payload.before)
     .map(({ payload: { channelName } }) => {
       const timestamp = getLastMessageTimestampSelector(channelName)(store.getState())
+      if (!timestamp) {
+        return noop()
+      }
       return subscribeToMessages({
         channelName,
         timestamp,

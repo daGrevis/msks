@@ -37,24 +37,29 @@ const getMessagesSelector = (channelName = null) => createSelector(
 
 const getLastMessageTimestampSelector = (channelName = null) => createSelector(
   getMessagesSelector(channelName),
-  messages => fp.last(messages).timestamp
+  messages => fp.get('timestamp', fp.last(messages))
 )
 
 const usersSelector = createSelector(
-  fp.get('users'), channelNameSelector,
-  (users, channelName) => (
-    users[channelName]
-  )
-)
-
-const sortedUsersSelector = createSelector(
-  usersSelector,
-  fp.sortBy(fp.toUpper)
+  channelNameSelector, fp.get('users'),
+  fp.get
 )
 
 const userCountSelector = createSelector(
   usersSelector,
   fp.size
+)
+
+const groupedUsersSelector = createSelector(
+  usersSelector,
+  fp.pipe(
+    fp.groupBy(({ isOp, isVoiced }) => {
+      if (isOp) return 'op'
+      if (isVoiced) return 'voiced'
+      return 'normal'
+    }),
+    fp.mapValues(fp.sortBy(fp.toUpper))
+  )
 )
 
 const isChannelLoadingSelector = createSelector(
@@ -94,8 +99,8 @@ export {
   getMessagesSelector,
   getLastMessageTimestampSelector,
   usersSelector,
-  sortedUsersSelector,
   userCountSelector,
+  groupedUsersSelector,
   isChannelLoadingSelector,
   isAppLoadingSelector,
   hasReachedBeginningSelector,

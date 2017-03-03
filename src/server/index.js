@@ -9,7 +9,7 @@ let server = http.createServer()
 let io = socketio(server)
 
 const getInitialUsersPromise = channelName => (
-  r.table('active_users')
+  r.table('users')
     .getAll(channelName, { index: 'channel' })
 )
 
@@ -111,11 +111,11 @@ const subscribeToUsers = ({ channelName = null }) => client => {
       type: 'client/INITIAL_USERS',
       payload: {
         channelName,
-        users: fp.map('nick', users),
+        users,
       },
     })
 
-    r.table('active_users')
+    r.table('users')
       .getAll(channelName, { index: 'channel' })
       .changes()
       .run()

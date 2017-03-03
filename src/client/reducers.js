@@ -80,14 +80,14 @@ const addMessages = newMessages => fp.update(
 )
 
 const usersUpdater = createUpdater({
-  'client/INITIAL_USERS': ({ payload: { channelName, users }}) => fp.set(['users', channelName], users),
-  'client/USER_CHANGE': ({ payload: { new_val, old_val }}) => fp.update(
-    ['users', (old_val || new_val).channel],
-    users => (
-      new_val
-      ? fp.concat(users, new_val.nick)
-      : fp.reject(nick => nick === old_val.nick, users)
-    )
+  'client/INITIAL_USERS': ({ payload: { channelName, users }}) => fp.set(
+    ['users', channelName],
+    fp.keyBy('nick', users)
+  ),
+
+  'client/USER_CHANGE': ({ payload: { new_val, old_val }}) => fp.set(
+    ['users', (new_val || old_val).channel, (new_val || old_val).nick],
+    (new_val || old_val)
   ),
 })
 
