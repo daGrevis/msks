@@ -85,9 +85,10 @@ const usersUpdater = createUpdater({
     fp.keyBy('nick', users)
   ),
 
-  'client/USER_CHANGE': ({ payload: { new_val, old_val }}) => fp.set(
-    ['users', (new_val || old_val).channel, (new_val || old_val).nick],
-    (new_val || old_val)
+  'client/USER_CHANGE': ({ payload: { new_val, old_val }}) => (
+    new_val
+    ? fp.set(['users', new_val.channel, new_val.nick], new_val)
+    : fp.unset(['users', old_val.channel, old_val.nick])
   ),
 })
 
