@@ -58,7 +58,7 @@ const groupedUsersSelector = createSelector(
       if (isVoiced) return 'voiced'
       return 'normal'
     }),
-    fp.mapValues(fp.sortBy(fp.toUpper))
+    fp.mapValues(fp.sortBy(user => fp.toUpper(user.nick)))
   )
 )
 
