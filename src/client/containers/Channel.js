@@ -133,6 +133,7 @@ class Channel extends Component {
   }
 
   onHamburgerClick = () => {
+    this.setState({ isSlideoutOpen: !this.state.isSlideoutOpen })
     this.slideout.toggle()
   }
 
