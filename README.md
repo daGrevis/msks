@@ -11,19 +11,19 @@ Make sure RethinkDB and [msks-bot](https://github.com/daGrevis/msks-bot) are run
 Install environment:
 
 ```sh
-npm install
+yarn install
 ```
 
 Start server:
 
 ```sh
-npm run start:server
+yarn run start:server
 ```
 
 Start client:
 
 ```sh
-npm run start:client
+yarn run start:client
 ```
 
 Go to [`localhost:3000`](http://localhost:3000/).
