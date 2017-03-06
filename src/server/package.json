@@ -1,11 +1,15 @@
 {
   "private": true,
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
   "dependencies": {
-    "lodash": "^4.17.2",
-    "rethinkdbdash": "^2.3.23",
-    "socket.io": "^1.5.0"
+    "lodash": "^4.17.4",
+    "rethinkdbdash": "^2.3.28",
+    "socket.io": "^1.7.3"
   },
   "scripts": {
-    "start": "node ."
+    "start": "node .",
+    "start-nodemon": "nodemon ."
   }
 }

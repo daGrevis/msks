@@ -1,7 +1,6 @@
 {
   "private": true,
   "devDependencies": {
-    "nodemon": "^1.11.0",
     "react-scripts": "^0.9.3"
   },
   "dependencies": {
@@ -37,7 +36,7 @@
   "scripts": {
     "start": "echo \"Execute: 'npm run start:server' and 'npm run start:client' separately\" && exit 1",
     "start:client": "react-scripts start",
-    "start:server": "nodemon src/server",
+    "start:server": "npm run --prefix src/server start-nodemon",
     "build": "react-scripts build",
     "deploy-msks": "REACT_APP_BASE_PATH=/msks/ npm run build && ssh root@dagrev.is 'rm -rf ~/msks/build/*'; scp -r build/* root@dagrev.is:~/msks/build/",
     "deploy-developerslv": "REACT_APP_EMBED_CHANNEL='#developerslv' REACT_APP_BASE_PATH=/developerslv/ REACT_APP_SOCKETIO_URL='//' REACT_APP_SOCKETIO_PATH='/msks-server/socket.io' npm run build && ssh root@dagrev.is 'rm -rf ~/developerslv/build/*'; scp -r build/* root@dagrev.is:~/developerslv/build/",

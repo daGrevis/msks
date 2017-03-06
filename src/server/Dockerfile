@@ -1,9 +1,9 @@
-FROM node:7-alpine
+FROM node:7.6-alpine
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY . /usr/src/app
-RUN npm install
+RUN yarn install
 
-CMD [ "npm", "start" ]
+CMD [ "yarn", "run", "start" ]

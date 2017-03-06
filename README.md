@@ -8,16 +8,12 @@ Messages are stored in RethinkDB by [msks-bot](https://github.com/daGrevis/msks-
 
 Make sure RethinkDB and [msks-bot](https://github.com/daGrevis/msks-bot) are running.
 
+### Client
+
 Install environment:
 
 ```sh
 yarn install
-```
-
-Start server:
-
-```sh
-yarn run start:server
 ```
 
 Start client:
@@ -27,3 +23,19 @@ yarn run start:client
 ```
 
 Go to [`localhost:3000`](http://localhost:3000/).
+
+### Server
+
+Install environment:
+
+```sh
+cd src/server
+yarn install
+cd -
+```
+
+Start server:
+
+```sh
+yarn run start:server
+```
