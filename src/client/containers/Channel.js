@@ -51,6 +51,7 @@ class Channel extends Component {
       panel: document.getElementById('slideout-panel'),
       menu: document.getElementById('slideout-menu'),
       padding: 200,
+      sensitivity: 60,
       side: 'right',
     })
 
