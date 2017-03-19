@@ -17,11 +17,26 @@ const User = Joi.object().keys({
 })
 
 const Message = Joi.object().keys({
+  kind: Joi.any().valid([
+    'message',
+    'notice',
+    'action',
+    'join',
+    'quit',
+    'part',
+    'kick',
+    'nick',
+    'topic',
+    'mode',
+  ]),
+  timestamp: Joi.date().required(),
   from: Joi.string().required(),
   to: Joi.string().required(),
   text: Joi.string().required().allow(''),
-  kind: Joi.any().valid(['message', 'action']),
-  timestamp: Joi.date().required(),
+
+  kicked: Joi.string().when('kind', { is: 'kick', then: Joi.required() }),
+  newNick: Joi.string().when('kind', { is: 'nick', then: Joi.required() }),
+  param: Joi.string().when('kind', { is: 'mode', then: Joi.required() }),
 })
 
 module.exports = {

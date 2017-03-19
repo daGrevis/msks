@@ -11,7 +11,6 @@ const isMe = (client, nick) => client.user.nick === nick
 
 console.log('starting bot...')
 
-const bootTime = new Date()
 let connectionTime
 
 const client = new ircFramework.Client()
@@ -24,48 +23,6 @@ function isPM(message) {
   )
 
   return isPrivate
-}
-
-function respondToMessage(message, now) {
-  let response
-
-  if (message.text === '!ping') {
-    response = 'pong'
-  } else if (message.text === '!version') {
-    response = formattedVersion
-  } else if (message.text === '!uptime') {
-    const bootUptime = now - bootTime
-    const connectionUptime = now - connectionTime
-
-    response = `${humanizeDelta(bootUptime)} (${humanizeDelta(connectionUptime)})`
-  }
-
-  if (response) {
-    const recipient = isPM(message) ? message.from : message.to
-
-    client.say(recipient, response)
-    onMessage(client.user.nick, recipient, response)
-  }
-}
-
-function onMessage(from, to, text, kind = 'message') {
-  const now = new Date()
-
-  const message = {
-    from,
-    to,
-    text,
-    kind,
-    timestamp: now,
-  }
-
-  queries.saveMessage(message)
-    .then(() => {
-      const isSilentInChannel = _.includes(config.silentChannels, message.to)
-      if (!isSilentInChannel) {
-        respondToMessage(message, now)
-      }
-    })
 }
 
 client.connect({
@@ -82,6 +39,11 @@ client.connect({
   version: formattedVersion,
 })
 
+client.on('close', () => {
+  console.log('client.close called!')
+  process.exit(1)
+})
+
 client.on('registered', () => {
   connectionTime = new Date()
 
@@ -93,38 +55,86 @@ client.on('registered', () => {
   })
 })
 
-client.on('join', ({ nick, channel: channelName }) => {
-  if (isMe(client, nick)) {
-    console.log(`joined ${channelName}!`)
+client.on('join', payload => {
+  queries.saveMessage({
+    kind: 'join',
+    timestamp: new Date(),
+    from: payload.nick,
+    to: payload.channel,
+    text: '',
+  }).then(() => {
+    if (isMe(client, payload.nick)) {
+      console.log(`joined ${payload.channel}!`)
 
-    const channel = { name: channelName }
-
-    queries.createChannel(channel)
-  } else {
-    const user = {
-      id: [channelName, nick],
-      channel: channelName,
-      nick,
+      queries.createChannel({ name: payload.channel })
+    } else {
+      queries.joinChannel({
+        id: [payload.channel, payload.nick],
+        channel: payload.channel,
+        nick: payload.nick,
+      })
     }
-
-    queries.joinChannel(user)
-  }
+  })
 })
 
-client.on('part', ({ channel, nick }) => {
-  queries.leaveChannel(channel, nick)
+client.on('quit', payload => {
+  const now = new Date()
+
+  queries.leaveNetwork(payload.nick).then(channels => {
+    _.forEach(channels, channel => {
+      queries.saveMessage({
+        kind: 'quit',
+        timestamp: now,
+        from: payload.nick,
+        to: channel,
+        text: payload.message,
+      })
+    })
+  })
 })
 
-client.on('kick', ({ channel, kicked }) => {
-  queries.leaveChannel(channel, kicked)
+client.on('part', payload => {
+  queries.saveMessage({
+    kind: 'part',
+    timestamp: new Date(),
+    from: payload.nick,
+    to: payload.channel,
+    text: payload.message,
+  }).then(() => {
+    queries.leaveChannel(payload.channel, payload.nick)
+  })
 })
 
-client.on('quit', ({ nick }) => {
-  queries.leaveNetwork(nick)
+client.on('kick', payload => {
+  const reason = payload.message === payload.kicked ? '' : payload.message
+
+  queries.saveMessage({
+    kind: 'kick',
+    timestamp: new Date(),
+    from: payload.nick,
+    to: payload.channel,
+    text: reason,
+    kicked: payload.kicked,
+  }).then(() => {
+    queries.leaveChannel(payload.channel, payload.kicked)
+  })
 })
 
 client.on('nick', ({ nick, new_nick: newNick }) => {
-  queries.updateNick(nick, newNick)
+  const now = new Date()
+
+  queries.updateNick(nick, newNick).then(newUsers => {
+    _.forEach(newUsers, ({ channel }) => {
+      queries.saveMessage({
+        kind: 'nick',
+        timestamp: now,
+        from: nick,
+        to: channel,
+        text: '',
+        newNick,
+      })
+    })
+  })
 })
 
 client.on('userlist', ({ channel, users: ircUsers }) => {
@@ -139,9 +149,14 @@ client.on('userlist', ({ channel, users: ircUsers }) => {
   queries.updateUsers(channel, users)
 })
 
-client.on('mode', ({ target: channel, modes }) => {
+client.on('mode', ({ nick, target: channel, modes }) => {
+  const now = new Date()
+
   _.forEach(modes, ({ mode, param }) => {
-    if (_.includes(['+o', '-o'], mode)) {
+    const isOp = _.includes(['+o', '-o'], mode)
+    const isVoiced = _.includes(['+v', '-v'], mode)
+
+    if (isOp) {
       queries.updateUser({
         id: [channel, param],
         channel,
@@ -150,7 +165,7 @@ client.on('mode', ({ target: channel, modes }) => {
       })
     }
 
-    if (_.includes(['+v', '-v'], mode)) {
+    if (isVoiced) {
       queries.updateUser({
         id: [channel, param],
         channel,
@@ -158,19 +173,102 @@ client.on('mode', ({ target: channel, modes }) => {
         isVoiced: mode[0] === '+',
       })
     }
+
+    if (isOp || isVoiced) {
+      queries.saveMessage({
+        kind: 'mode',
+        timestamp: now,
+        from: nick,
+        to: channel,
+        text: mode,
+        param,
+      })
+    }
   })
 })
 
-client.on('topic', ({ channel, topic }) => {
+client.on('topic', ({ channel, topic, nick }) => {
   queries.updateTopic(channel, topic)
+
+  if (nick) {
+    queries.saveMessage({
+      kind: 'topic',
+      timestamp: new Date(),
+      from: nick,
+      to: channel,
+      text: topic,
+    })
+  }
 })
 
-client.on('privmsg', ({ nick, target, message }) => {
-  onMessage(nick, target, message)
+client.on('privmsg', payload => {
+  const now = new Date()
+
+  const message = {
+    kind: 'message',
+    timestamp: now,
+    from: payload.nick,
+    to: payload.target,
+    text: payload.message,
+  }
+
+  queries.saveMessage(message).then(() => {
+    const isSilent = _.includes(config.silentChannels, message.to)
+    if (isSilent) {
+      return
+    }
+
+    const now = new Date()
+
+    let response
+    switch (message.text) {
+      case '!ping':
+        response = 'pong'
+        break
+
+      case '!version':
+        response = formattedVersion
+        break
+
+      case '!uptime':
+        response = humanizeDelta(now - connectionTime)
+        break
+    }
+
+    if (response) {
+      const recipient = isPM(message) ? message.from : message.to
+
+      client.say(recipient, response)
+
+      queries.saveMessage({
+        kind: 'message',
+        timestamp: now,
+        from: client.user.nick,
+        to: recipient,
+        text: response,
+      })
+    }
+  })
 })
 
-client.on('action', ({ nick, target, message }) => {
-  onMessage(nick, target, message, 'action')
+client.on('action', payload => {
+  queries.saveMessage({
+    kind: 'action',
+    timestamp: new Date(),
+    from: payload.nick,
+    to: payload.target,
+    text: payload.message,
+  })
+})
+
+client.on('notice', payload => {
+  queries.saveMessage({
+    kind: 'notice',
+    timestamp: new Date(),
+    from: payload.nick,
+    to: payload.target,
+    text: payload.message,
+  })
 })
 
 module.exports = client

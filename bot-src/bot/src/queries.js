@@ -23,21 +23,26 @@ const leaveChannel = async function(channel, nick) {
 }
 
 const leaveNetwork = async function(nick) {
-  await r.table('users').getAll(nick, { index: 'nick' }).delete().run()
+  const { changes } = await r.table('users').getAll(nick, { index: 'nick' })
+    .delete({ returnChanges: true }).run()
+
+  return _.map(changes, 'old_val.channel')
 }
 
 const updateNick = async function(nick, newNick) {
   const { changes } = await r.table('users').getAll(nick, { index: 'nick' })
     .delete({ returnChanges: true }).run()
 
-  const users = _.map(changes, ({ old_val }) => ({
+  const newUsers = _.map(changes, ({ old_val }) => ({
     id: [old_val.channel, newNick],
     channel: old_val.channel,
     nick: newNick,
   }))
-  await Promise.all(_.map(users, user => validate(user, schemas.User)))
+  await Promise.all(_.map(newUsers, user => validate(user, schemas.User)))
 
-  await r.table('users').insert(users, { conflict: 'replace' }).run()
+  await r.table('users').insert(newUsers, { conflict: 'replace' }).run()
+
+  return newUsers
 }
 
 const updateUsers = async function(channel, users) {

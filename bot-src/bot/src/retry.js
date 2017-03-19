@@ -33,7 +33,7 @@ const retry = (fn, opts = {}) => {
   return new Promise(function (resolve, reject) {
     let backoffTimeout
 
-    Promise.resolve(fn()).then(() => {
+    Promise.resolve(fn()).then(value => {
       const message = `Resolved ${displayName} (delayed by ${Math.round(opts._totalDelay)}ms)`
       if (opts._hasFailedBefore) {
         console.log(message)
@@ -41,7 +41,7 @@ const retry = (fn, opts = {}) => {
         console.log(message)
       }
 
-      resolve()
+      resolve(value)
     }).tap(function () {
       if (backoffTimeout) {
         clearTimeout(backoffTimeout)
