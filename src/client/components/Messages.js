@@ -50,9 +50,14 @@ const Messages = ({ messages, hasReachedBeginning, isSubscribedToMessages }) => 
           }
         }
 
-        const isFirst = isNewDay || (
-          previousMessage.from !== message.from
-          || (timestamp - previousTimestamp) >= 60000
+        const isFirst = (
+          isNewDay
+          || message.kind !== 'message'
+          || previousMessage.kind !== 'message'
+          || (
+            previousMessage.from !== message.from
+            || (timestamp - previousTimestamp) >= 60000
+          )
         )
 
         const isLoadingTop = (

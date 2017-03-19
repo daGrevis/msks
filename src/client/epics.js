@@ -47,7 +47,7 @@ const updateUnreadEpic = (action$, store) =>
     .filter(({ payload }) => {
       const state = store.getState()
       const message = payload.new_val
-      return !state.isVisible && message.to === channelNameSelector(state)
+      return !state.isVisible && message.kind === 'message' && message.to === channelNameSelector(state)
     })
     .map(updateUnread)
 

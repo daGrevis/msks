@@ -1,0 +1,108 @@
+#channel .message .timestamp {
+  color: #cacaca;
+  font-size: 12px;
+}
+
+#channel .message .nick {
+  font-size: 16px;
+}
+#channel .message .text {
+  font-size: 15px;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+#channel .message .text .nick {
+  font-size: 15px;
+}
+
+#channel .message.kind-join .text,
+#channel .message.kind-quit .text,
+#channel .message.kind-part .text,
+#channel .message.kind-kick .text,
+#channel .message.kind-nick .text,
+#channel .message.kind-topic .text {
+  font-size: 13px;
+}
+
+#channel .message.kind-action .text {
+  font-style: italic;
+}
+#channel .message.kind-action .text .nick {
+  font-style: normal;
+}
+
+#channel .message.kind-notice .text {
+  font-weight: bold;
+}
+
+#channel .message.kind-kick .text .kick-reason {
+  padding-left: 5px;
+  font-size: 15px;
+  font-style: italic;
+}
+
+#channel .message.kind-topic .text .topic {
+  font-size: 15px;
+  font-style: italic;
+}
+
+@media screen and (max-width: 419px) {
+  #channel .message.is-first {
+    margin-top: 2px;
+  }
+
+  #channel .message .meta {
+    display: flex;
+    flex-direction: row-reverse;
+    /* End is start, everything is reversed... yelp!! */
+    justify-content: flex-end;
+    line-height: 1.25;
+  }
+
+  #channel .message.is-not-first .meta {
+    display: none;
+  }
+
+  #channel .message .meta .timestamp {
+    padding-top: 5px;
+  }
+  #channel .message .meta .nick {
+    padding-right: 5px
+  }
+}
+
+@media screen and (min-width: 420px) {
+  #channel .message {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  #channel .message.is-first {
+    margin-top: 2px;
+  }
+
+  #channel .message .meta {
+    width: 150px;
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: space-between;
+    margin-right: 15px;
+  }
+
+  #channel .message.is-not-first .meta {
+    visibility: hidden;
+  }
+
+  #channel .message .meta .timestamp {
+    padding-top: 4px;
+    margin-right: 10px;
+  }
+  #channel .message .meta .nick {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #channel .message .text {
+    padding-top: 2px;
+  }
+}
