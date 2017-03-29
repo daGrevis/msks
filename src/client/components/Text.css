@@ -1,0 +1,57 @@
+.bold {
+  font-weight: bold;
+}
+.italic {
+  font-style: italic;
+}
+.underline {
+  text-decoration: underline;
+}
+
+.foreground-0 { color: white; }
+.background-0 { background: white; }
+
+.foreground-1 { color: black; }
+.background-1 { background: black; }
+
+.foreground-2 { color: blue; }
+.background-2 { background: blue; }
+
+.foreground-3 { color: green; }
+.background-3 { background: green; }
+
+.foreground-4 { color: red; }
+.background-4 { background: red; }
+
+.foreground-5 { color: brown; }
+.background-5 { background: brown; }
+
+.foreground-6 { color: purple; }
+.background-6 { background: purple; }
+
+.foreground-7 { color: orange; }
+.background-7 { background: orange; }
+
+.foreground-8 { color: yellow; }
+.background-8 { background: yellow; }
+
+.foreground-9 { color: lime; }
+.background-9 { background: lime; }
+
+.foreground-10 { color: teal; }
+.background-10 { background: teal; }
+
+.foreground-11 { color: cyan; }
+.background-11 { background: cyan; }
+
+.foreground-12 { color: royal; }
+.background-12 { background: royal; }
+
+.foreground-13 { color: pink; }
+.background-13 { background: pink; }
+
+.foreground-14 { color: grey; }
+.background-14 { background: grey; }
+
+.foreground-15 { color: silver; }
+.background-15 { background: silver; }

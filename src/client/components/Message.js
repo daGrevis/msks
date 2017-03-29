@@ -10,7 +10,7 @@ import { getColor } from '../colors'
 import './Message.css'
 
 const Nick = ({ children: nick }) =>
-  <span className='nick bold' style={{ color: getColor(nick) }} title={nick}>
+  <span className='nick strong' style={{ color: getColor(nick) }} title={nick}>
     {nick}
   </span>
 
@@ -49,7 +49,7 @@ const MessageText = ({ message }) => {
       text = <span><Nick>{message.from}</Nick> sets <strong>{message.text}</strong> on <Nick>{message.param}</Nick></span>
       break
     default:
-      console.debug('MessageText case for kind not handled:', message.kind)
+      console.log('MessageText case for kind not handled:', message.kind)
       text = ''
       break
   }

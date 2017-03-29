@@ -8,7 +8,7 @@ import Message from '../components/Message'
 const DayHeader = ({ text, isoTimestamp }) => {
   return (
     <div className='day-header'>
-      <span className='text bold' title={isoTimestamp}>
+      <span className='text strong' title={isoTimestamp}>
         {text}
       </span>
       <div className='divider' />

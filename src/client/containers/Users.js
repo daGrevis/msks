@@ -12,7 +12,7 @@ const UserList = ({ users, isOp, isVoiced }) =>
     {_.map(users, ({ nick }) => (
       <li
         key={nick}
-        className='nick bold'
+        className='nick strong'
         style={{ color: getColor(nick) }}
         title={nick}
       >
@@ -24,7 +24,7 @@ const UserList = ({ users, isOp, isVoiced }) =>
 
 const Users = ({ groupedUsers, userCount }) =>
   <div id='users'>
-    <h3 className='bold'>Users ({userCount})</h3>
+    <h3 className='strong'>Users ({userCount})</h3>
 
     <UserList users={groupedUsers['op']} isOp />
     <UserList users={groupedUsers['voiced']} isVoiced />

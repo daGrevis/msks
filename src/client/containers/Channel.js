@@ -155,7 +155,7 @@ class Channel extends Component {
     const hamburgerClasses = classNames('hamburger hamburger--squeeze', {
       'is-active': this.state.isSlideoutOpen,
     })
-    const nameClasses = classNames('name bold', {
+    const nameClasses = classNames('name strong', {
       'is-embed': isEmbed,
     })
     const topicClasses = classNames('topic', {

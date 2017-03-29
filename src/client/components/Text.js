@@ -1,22 +1,24 @@
-import React from 'react'
 import _ from 'lodash'
-import fp from 'lodash/fp'
+import React from 'react'
+import classNames from 'classnames'
+
+import { parse } from '../text'
+
+import './Text.css'
 
 export default props => {
   const { children: text } = props
 
-  if (!text) return null
-
-  // Anything starting with one or more word characters followed by :// is considered a link.
-  const linkPattern = /(\w+:\/\/\S+)/g
-
-  const parts = fp.filter(s => s !== '')(text.split(linkPattern))
-
-  const textNodes = _.map(parts, (part, i) => {
-    if (linkPattern.test(part)) {
-      return <a key={i} href={part} target='_blank'>{part}</a>
+  const fragments = parse(text)
+  const textNodes = _.map(fragments, ({ text, isLink, styles, foreground, background }, i) => {
+    const classes = classNames(styles, {
+      [`foreground-${foreground}`]: foreground,
+      [`background-${background}`]: background,
+    })
+    if (isLink) {
+      return <a key={i} href={text} target='_blank' className={classes}>{text}</a>
     } else {
-      return <span key={i}>{part}</span>
+      return <span key={i} className={classes}>{text}</span>
     }
   })
 

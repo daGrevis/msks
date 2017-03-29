@@ -20,6 +20,7 @@ import {
   openChannel, setChannelName, subscribeToChannels, subscribeToUsers, unsubscribeFromAllMessages,
   loadMessagesFromServer, addNotification,
 } from './actions'
+import selectors from './selectors'
 import { openedChannelsSelector, getLastMessageTimestampSelector } from './selectors'
 import App from './containers/App'
 
@@ -133,5 +134,6 @@ document.addEventListener('visibilitychange', onVisibilityChange)
 
 window._ = _
 window.fp = fp
-window.store = store
 window.mo = mo
+window.store = store
+window.selectors = selectors
