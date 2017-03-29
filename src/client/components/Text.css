@@ -14,44 +14,44 @@
 .foreground-1 { color: black; }
 .background-1 { background: black; }
 
-.foreground-2 { color: blue; }
-.background-2 { background: blue; }
+.foreground-2 { color: #001F3F; }
+.background-2 { background: #001F3F; }
 
-.foreground-3 { color: green; }
-.background-3 { background: green; }
+.foreground-3 { color: #2ECC40; }
+.background-3 { background: #2ECC40; }
 
-.foreground-4 { color: red; }
-.background-4 { background: red; }
+.foreground-4 { color: #FF4136; }
+.background-4 { background: #FF4136; }
 
-.foreground-5 { color: brown; }
-.background-5 { background: brown; }
+.foreground-5 { color: #85144B; }
+.background-5 { background: #85144B; }
 
-.foreground-6 { color: purple; }
-.background-6 { background: purple; }
+.foreground-6 { color: #B10DC9; }
+.background-6 { background: #B10DC9; }
 
-.foreground-7 { color: orange; }
-.background-7 { background: orange; }
+.foreground-7 { color: #FF851B; }
+.background-7 { background: #FF851B; }
 
-.foreground-8 { color: yellow; }
-.background-8 { background: yellow; }
+.foreground-8 { color: #FFDC00; }
+.background-8 { background: #FFDC00; }
 
-.foreground-9 { color: lime; }
-.background-9 { background: lime; }
+.foreground-9 { color: #01FF70; }
+.background-9 { background: #01FF70; }
 
-.foreground-10 { color: teal; }
-.background-10 { background: teal; }
+.foreground-10 { color: #39CCCC; }
+.background-10 { background: #39CCCC; }
 
-.foreground-11 { color: cyan; }
-.background-11 { background: cyan; }
+.foreground-11 { color: #7FDBFF; }
+.background-11 { background: #7FDBFF; }
 
-.foreground-12 { color: royal; }
-.background-12 { background: royal; }
+.foreground-12 { color: #0074D9; }
+.background-12 { background: #0074D9; }
 
-.foreground-13 { color: pink; }
-.background-13 { background: pink; }
+.foreground-13 { color: #F012BE; }
+.background-13 { background: #F012BE; }
 
-.foreground-14 { color: grey; }
-.background-14 { background: grey; }
+.foreground-14 { color: #AAAAAA; }
+.background-14 { background: #AAAAAA; }
 
-.foreground-15 { color: silver; }
-.background-15 { background: silver; }
+.foreground-15 { color: #DDDDDD; }
+.background-15 { background: #DDDDDD; }
