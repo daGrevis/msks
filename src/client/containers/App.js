@@ -6,7 +6,6 @@ import classNames from 'classnames'
 
 import { isAppLoadingSelector, channelNameSelector } from '../selectors'
 import { removeNotification } from '../actions'
-import Loader from '../components/Loader'
 import Users from './Users'
 import Front from './Front'
 import Channel from './Channel'
@@ -31,13 +30,13 @@ function App({ isAppLoading, channelName, notifications, removeNotification }) {
       </div>
 
       <div id='slideout-panel'>
-        {isAppLoading ? <Loader /> : <Screen />}
+        {!isAppLoading ? <Screen /> : null}
       </div>
 
       <NotificationStack
         notifications={notifsWithClickEv}
         onDismiss={notification => removeNotification(notification.key)}
-        dismissAfter={2500}
+        dismissAfter={6000000}
         action='Dismiss'
       />
     </div>

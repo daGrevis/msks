@@ -13,7 +13,7 @@ const sortedChannelsSelector = createSelector(
   fp.sortBy('name')
 )
 
-const openedChannelsSelector = createSelector(
+const openChannelsSelector = createSelector(
   channelsSelector, fp.get('messages'),
   (channels, messages) => fp.pipe(
     fp.map(channelName => channels[channelName]),
@@ -35,9 +35,9 @@ const getMessagesSelector = (channelName = null) => createSelector(
   )
 )
 
-const getLastMessageTimestampSelector = (channelName = null) => createSelector(
+const getLastMessageSelector = (channelName = null) => createSelector(
   getMessagesSelector(channelName),
-  messages => fp.get('timestamp', fp.last(messages))
+  messages => fp.last(messages)
 )
 
 const usersSelector = createSelector(
@@ -93,11 +93,11 @@ export {
   locationSelector,
   channelsSelector,
   sortedChannelsSelector,
-  openedChannelsSelector,
+  openChannelsSelector,
   channelNameSelector,
   getChannelSelector,
   getMessagesSelector,
-  getLastMessageTimestampSelector,
+  getLastMessageSelector,
   usersSelector,
   userCountSelector,
   groupedUsersSelector,

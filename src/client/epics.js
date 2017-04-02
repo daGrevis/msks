@@ -1,24 +1,14 @@
+import fp from 'lodash/fp'
 import { combineEpics } from 'redux-observable'
 
 import { navigate } from './history'
 import {
-  noop, updateChannel, subscribeToMessages, loadMessagesFromServer, addMessages, addMessage,
+  noop, subscribeToMessages, addMessages, addMessage,
   subscribeToUsers, updateUnread, resetUnread, setFavicoBadge,
 } from './actions'
 import {
-  getLastMessageTimestampSelector, isEmbedSelector, channelNameSelector,
+  getLastMessageSelector, isEmbedSelector, channelNameSelector,
 } from './selectors'
-
-const channelChangeEpic = action$ =>
-  action$.ofType('client/CHANNEL_CHANGE')
-    .map(({ payload }) => updateChannel(payload.new_val))
-
-const loadMessagesEpic = action$ =>
-  action$.ofType('LOAD_MESSAGES')
-    .distinct(({ payload: { channelName, before, after }}) => (
-      JSON.stringify([channelName, before, after])
-    ))
-    .map(({ payload }) => loadMessagesFromServer(payload))
 
 const addMessagesEpic = action$ =>
   action$.ofType('client/LOADED_MESSAGES')
@@ -28,13 +18,14 @@ const subscribeToMessagesEpic = (action$, store) =>
   action$.ofType('client/LOADED_MESSAGES')
     .filter(({ payload }) => !payload.before)
     .map(({ payload: { channelName } }) => {
-      const timestamp = getLastMessageTimestampSelector(channelName)(store.getState())
-      if (!timestamp) {
+      const lastMessage = getLastMessageSelector(channelName)(store.getState())
+      if (!lastMessage) {
         return noop()
       }
       return subscribeToMessages({
         channelName,
-        timestamp,
+        timestamp: lastMessage.timestamp,
+        messageId: lastMessage.id,
       })
     })
 
@@ -47,7 +38,11 @@ const updateUnreadEpic = (action$, store) =>
     .filter(({ payload }) => {
       const state = store.getState()
       const message = payload.new_val
-      return !state.isVisible && message.kind === 'message' && message.to === channelNameSelector(state)
+      return (
+        !state.isVisible
+        && message.to === channelNameSelector(state)
+        && !fp.includes(message.kind, ['join', 'quit', 'part', 'nick'])
+      )
     })
     .map(updateUnread)
 
@@ -94,8 +89,6 @@ const subscribeToUsersEpic = action$ =>
     ))
 
 const rootEpic = combineEpics(
-  channelChangeEpic,
-  loadMessagesEpic,
   addMessagesEpic,
   subscribeToMessagesEpic,
   messageChangeEpic,

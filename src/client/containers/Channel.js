@@ -25,6 +25,7 @@ class Channel extends Component {
   scrollTop = 0
 
   state = {
+    loadMessagesIds: [],
     isTopicClipped: true,
     isSlideoutOpen: false,
   }
@@ -41,17 +42,82 @@ class Channel extends Component {
     this.slideout.close()
   }, 200)
 
+  onRef = node => {
+    this.wrapperNode = node
+  }
+
+  onScroll = _.debounce(() => {
+    const { wrapperNode } = this
+    const { messages, channel } = this.props
+    const { loadMessagesIds } = this.state
+
+    if (wrapperNode.scrollTop > wrapperNode.clientHeight) {
+      return
+    }
+
+    if (!messages.length) {
+      return
+    }
+
+    const firstMessage = _.first(messages)
+
+    if (_.includes(loadMessagesIds, firstMessage.id)) {
+      return
+    }
+
+    this.setState(prevState => ({
+      loadMessagesIds: _.concat(prevState.loadMessagesIds, firstMessage.id),
+    }), () => {
+      this.props.loadMessages({
+        channelName: channel.name,
+        before: firstMessage ? firstMessage.timestamp : null,
+        messageId: firstMessage.id,
+      })
+    })
+  }, 100)
+
+  onHamburgerClick = () => {
+    this.setState({ isSlideoutOpen: !this.state.isSlideoutOpen })
+    this.slideout.toggle()
+  }
+
+  onNameClick = () => {
+    if (this.props.isEmbed) {
+      return
+    }
+
+    this.props.closeChannel()
+  }
+
+  onTopicClick = () => {
+    this.setState({ isTopicClipped: !this.state.isTopicClipped })
+  }
+
+  updateScroll = () => {
+    const { wrapperNode } = this
+
+    if (this.autoScroll) {
+      wrapperNode.scrollTop = wrapperNode.scrollHeight
+    } else if (this.persistScroll) {
+      wrapperNode.scrollTop = this.scrollTop + (wrapperNode.scrollHeight - this.scrollHeight)
+    }
+  }
+
   componentDidMount() {
-    this.props.loadMessages({ channelName: this.props.channel.name })
+    const { messages, channel } = this.props
+
+    if (messages.length === 0) {
+      this.props.loadMessages({ channelName: channel.name })
+    }
 
     this.autoScroll = true
-    this.scroll()
+    this.updateScroll()
 
     this.slideout = new Slideout({
       panel: document.getElementById('slideout-panel'),
       menu: document.getElementById('slideout-menu'),
       padding: 200,
-      sensitivity: 60,
+      sensitivity: 100,
       side: 'right',
     })
 
@@ -78,75 +144,25 @@ class Channel extends Component {
     }
 
     this.autoScroll = (
-      wrapperNode.scrollHeight - wrapperNode.scrollTop
-      <= wrapperNode.clientHeight + 10
+      wrapperNode.scrollTop + wrapperNode.clientHeight
+      === wrapperNode.scrollHeight
     )
 
-    if (!this.autoScroll) {
-      this.persistScroll = (
-        !_.isEmpty(nextProps.messages)
-        && _.first(nextProps.messages) !== _.first(this.props.messages)
-      )
+    const isAddedTop = (
+      this.props.messages.length
+      && _.first(this.props.messages).id !== _.first(nextProps.messages).id
+    )
 
-      if (this.persistScroll) {
-        this.scrollHeight = wrapperNode.scrollHeight
-        this.scrollTop = wrapperNode.scrollTop
-      }
+    this.persistScroll = !this.autoScroll && isAddedTop
+
+    if (this.persistScroll) {
+      this.scrollHeight = wrapperNode.scrollHeight
+      this.scrollTop = wrapperNode.scrollTop
     }
   }
 
   componentDidUpdate() {
-    this.props.loadMessages({ channelName: this.props.channel.name })
-
-    this.scroll()
-  }
-
-  scroll() {
-    const { wrapperNode } = this
-
-    if (wrapperNode) {
-      if (this.autoScroll) {
-        setTimeout(() => {
-          wrapperNode.scrollTop = wrapperNode.scrollHeight
-        })
-      } else if (this.persistScroll) {
-        wrapperNode.scrollTop = this.scrollTop + (wrapperNode.scrollHeight - this.scrollHeight)
-      }
-    }
-  }
-
-  onRef = node => {
-    this.wrapperNode = node
-  }
-
-  onScroll = ev => {
-    const { target: wrapperNode } = ev
-
-    const threshold = document.documentElement.clientHeight
-    if (wrapperNode.scrollTop <= threshold) {
-      const messageFirst = _.first(this.props.messages)
-      this.props.loadMessages({
-        channelName: this.props.channel.name,
-        before: messageFirst ? messageFirst.timestamp : null
-      })
-    }
-  }
-
-  onHamburgerClick = () => {
-    this.setState({ isSlideoutOpen: !this.state.isSlideoutOpen })
-    this.slideout.toggle()
-  }
-
-  onNameClick = () => {
-    if (this.props.isEmbed) {
-      return
-    }
-
-    this.props.closeChannel()
-  }
-
-  onTopicClick = () => {
-    this.setState({ isTopicClipped: !this.state.isTopicClipped })
+    this.updateScroll()
   }
 
   render() {

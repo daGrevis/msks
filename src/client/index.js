@@ -16,12 +16,11 @@ import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
 import {
-  initApp, setVisibility, navigated,
-  openChannel, setChannelName, subscribeToChannels, subscribeToUsers, unsubscribeFromAllMessages,
-  loadMessagesFromServer, addNotification,
+  initApp, setVisibility, navigated, openChannel, setChannelName,
+  subscribeToChannels, unsubscribeFromAllMessages, addNotification, reconnect,
 } from './actions'
-import selectors from './selectors'
-import { openedChannelsSelector, getLastMessageTimestampSelector } from './selectors'
+import * as actions from './actions'
+import * as selectors from './selectors'
 import App from './containers/App'
 
 import { history } from  './history'
@@ -82,19 +81,7 @@ socket.on('disconnect', () => {
 })
 
 socket.on('reconnect', () => {
-  const state = getState()
-
-  dispatch(subscribeToChannels())
-
-  _.forEach(openedChannelsSelector(state), ({ name: channelName }) => {
-    const after = getLastMessageTimestampSelector(channelName)(state)
-    dispatch(loadMessagesFromServer({
-      channelName, after,
-    }))
-    dispatch(subscribeToUsers({
-      channelName,
-    }))
-  })
+  dispatch(reconnect())
 })
 
 const currentLocation = history.location
@@ -136,4 +123,7 @@ window._ = _
 window.fp = fp
 window.mo = mo
 window.store = store
+window.dispatch = dispatch
+window.actions = actions
+window.getState = getState
 window.selectors = selectors

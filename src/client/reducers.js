@@ -21,76 +21,50 @@ const channelUpdater = createUpdater({
   CLOSE_CHANNEL: () => fp.set('channelName', null),
   SET_CHANNEL_NAME: ({ payload }) => fp.set('channelName', payload),
 
-  UPDATE_CHANNEL: ({ payload }) => fp.set(['channels', payload.name], payload),
+  'client/INITIAL_CHANNELS': ({ payload: { channels }}) => fp.set(
+    'channels',
+    fp.keyBy('name', channels)
+  ),
+  'client/CHANNEL_CHANGE': ({ payload: { new_val, old_val } }) => (
+    new_val
+    ? fp.set(['channels', new_val.name], new_val)
+    : fp.unset(['channels', old_val.name])
+  ),
 })
 
 const addMessage = m => fp.update(
   ['messages', m.to],
   messages => {
-    if (messages === undefined || messages.length === 0) {
+    if (!messages || !messages.length) {
       return [m]
     }
 
-    if (fp.includes(m.id)(fp.map('id', messages))) {
-      return messages
-    }
-
-    const t = mo(m.timestamp)
-    if (t >= mo(fp.last(messages)['timestamp'])) {
+    if (mo(m.timestamp) >= mo(fp.last(messages)['timestamp'])) {
       return fp.concat(messages, m)
     }
-    if (t < mo(fp.first(messages)['timestamp'])) {
-      return fp.concat(m, messages)
-    }
 
-    return fp.sortBy('timestamp')(fp.concat(messages, m))
+    return fp.concat(m, messages)
   }
 )
 
-const addMessages = newMessages => fp.update(
-  ['messages', (fp.first(newMessages) || {}).to],
-  messages => {
-    if (messages === undefined || messages.length === 0) {
+const addMessages = newMessages => state => {
+  if (!newMessages.length) {
+    return state
+  }
+
+  const firstMessage = fp.first(newMessages)
+  return fp.update(['messages', firstMessage.to], messages => {
+    if (!messages || !messages.length) {
       return newMessages
     }
 
-    const messageIds = fp.map('id', messages)
-    newMessages = fp.reject(m => fp.includes(m.id, messageIds))(newMessages)
-
-    if (newMessages.length === 0) {
-      return messages
-    }
-
-    if (
-      mo(fp.last(newMessages)['timestamp'])
-      <= mo(fp.first(messages)['timestamp'])
-    ) {
-      return fp.concat(newMessages, messages)
-    }
-
-    if (
-      mo(fp.first(newMessages)['timestamp'])
-      >= mo(fp.last(messages)['timestamp'])
-    ) {
+    if (mo(firstMessage.timestamp) >= mo(fp.last(messages)['timestamp'])) {
       return fp.concat(messages, newMessages)
     }
 
-    return fp.sortBy('timestamp')(fp.concat(messages, newMessages))
-  }
-)
-
-const usersUpdater = createUpdater({
-  'client/INITIAL_USERS': ({ payload: { channelName, users }}) => fp.set(
-    ['users', channelName],
-    fp.keyBy('nick', users)
-  ),
-
-  'client/USER_CHANGE': ({ payload: { new_val, old_val }}) => (
-    new_val
-    ? fp.set(['users', new_val.channel, new_val.nick], new_val)
-    : fp.unset(['users', old_val.channel, old_val.nick])
-  ),
-})
+    return fp.concat(newMessages, messages)
+  }, state)
+}
 
 const messagesUpdater = createUpdater({
   'server/SUBSCRIBE_TO_MESSAGES': ({ payload }) => fp.set(['isSubscribedToMessages', payload.channelName], true),
@@ -99,9 +73,23 @@ const messagesUpdater = createUpdater({
   ADD_MESSAGE: ({ payload }) => addMessage(payload),
   ADD_MESSAGES: ({ payload: { channelName, messages }}) => state => fp.pipe(
     addMessages(messages),
-    fp.set(['hasReachedBeginning', channelName], messages.length === 1 || messages.length < 100)
+    fp.set(['hasReachedBeginning', channelName], !messages.length)
   )(state),
+})
 
+const usersUpdater = createUpdater({
+  'client/INITIAL_USERS': ({ payload: { channelName, users }}) => fp.set(
+    ['users', channelName],
+    fp.keyBy('nick', users)
+  ),
+  'client/USER_CHANGE': ({ payload: { new_val, old_val }}) => (
+    new_val
+    ? fp.set(['users', new_val.channel, new_val.nick], new_val)
+    : fp.unset(['users', old_val.channel, old_val.nick])
+  ),
+})
+
+const faviconUpdater = createUpdater({
   UPDATE_UNREAD: () => fp.update('unread', count => count + 1),
   RESET_UNREAD: () => fp.set('unread', 0),
 })
@@ -117,7 +105,8 @@ const rootReducer = (state, action) => pipeUpdaters(
   channelUpdater,
   messagesUpdater,
   usersUpdater,
-  notificationUpdater,
+  faviconUpdater,
+  notificationUpdater
 )(action)(state)
 
 export {

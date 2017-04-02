@@ -74,7 +74,7 @@ const Messages = ({ messages, hasReachedBeginning, isSubscribedToMessages }) => 
           <div key={message.id}>
             {isLoadingTop ? <Loader /> : null}
 
-            {isNewDay ? <DayHeader text={dayText} isoTimestamp={currentDay && currentDay.format()} /> : null}
+            {!isLoadingTop && isNewDay ? <DayHeader text={dayText} isoTimestamp={currentDay && currentDay.format()} /> : null}
 
             <Message
               message={message}

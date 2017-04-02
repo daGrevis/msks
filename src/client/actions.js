@@ -3,6 +3,8 @@ import { createAction } from 'redux-actions'
 import uuid from 'uuid'
 import Favico from 'favico.js'
 
+import { openChannelsSelector, getLastMessageSelector } from './selectors'
+
 const favicon = new Favico({
   animation: 'none',
 })
@@ -21,10 +23,7 @@ const setChannelName = createAction('SET_CHANNEL_NAME')
 
 const subscribeToChannels = createAction('server/SUBSCRIBE_TO_CHANNELS')
 
-const updateChannel = createAction('UPDATE_CHANNEL')
-
-const loadMessages = createAction('LOAD_MESSAGES')
-const loadMessagesFromServer = createAction('server/LOAD_MESSAGES')
+const loadMessages = createAction('server/LOAD_MESSAGES')
 
 const addMessage = createAction('ADD_MESSAGE')
 const addMessages = createAction('ADD_MESSAGES')
@@ -39,7 +38,6 @@ const updateUnread = createAction('UPDATE_UNREAD')
 const resetUnread = createAction('RESET_UNREAD')
 
 const setFavicoBadge = () => (dispatch, getState) => {
-  dispatch(createAction('SET_FAVICO_BADGE')())
   favicon.badge(getState().unread)
 }
 
@@ -52,6 +50,28 @@ const addNotification = message => dispatch => {
 
 const removeNotification = createAction('REMOVE_NOTIFICATION')
 
+const reconnect = () => (dispatch, getState) => {
+  const state = getState()
+
+  dispatch(subscribeToChannels())
+
+  const openChannels = openChannelsSelector(state)
+  _.forEach(openChannels, ({ name: channelName }) => {
+    const lastMessage = getLastMessageSelector(channelName)(state)
+
+    dispatch(
+      loadMessages({
+        channelName,
+        after: lastMessage.timestamp,
+        messageId: lastMessage.id,
+      })
+    )
+    dispatch(
+      subscribeToUsers({ channelName })
+    )
+  })
+}
+
 export {
   noop,
   initApp,
@@ -61,9 +81,7 @@ export {
   closeChannel,
   setChannelName,
   subscribeToChannels,
-  updateChannel,
   loadMessages,
-  loadMessagesFromServer,
   addMessage,
   addMessages,
   subscribeToMessages,
@@ -74,4 +92,5 @@ export {
   setFavicoBadge,
   addNotification,
   removeNotification,
+  reconnect,
 }
