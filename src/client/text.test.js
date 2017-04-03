@@ -186,11 +186,15 @@ describe('parser', () => {
 
   it('resets colors & styles', () => {
     const s = (
-      BOLD_CHAR + ITALIC_CHAR + COLOR_CHAR + 4 + 'x' + RESET_CHAR + 'y'
+      BOLD_CHAR + ITALIC_CHAR + UNDERLINE_CHAR
+      + COLOR_CHAR + 4
+      + 'x'
+      + RESET_CHAR
+      + 'y'
     )
     expect(parse(s))
       .toEqual([
-        { text: 'x', foreground: 4, styles: ['bold', 'italic'] },
+        { text: 'x', foreground: 4, styles: ['bold', 'italic', 'underline'] },
         { text: 'y' },
       ])
   })

@@ -158,7 +158,7 @@ const fragmentize = tokens => fp.reduce((prev, token) => {
         ...prev,
         bold: undefined,
         italic: undefined,
-        undefined: undefined,
+        underline: undefined,
         foreground: undefined,
         background: undefined,
       }
