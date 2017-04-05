@@ -143,10 +143,11 @@ class Channel extends Component {
       return
     }
 
-    this.autoScroll = (
-      wrapperNode.scrollTop + wrapperNode.clientHeight
-      === wrapperNode.scrollHeight
+    const scrollBottom = (
+      wrapperNode.scrollHeight - (wrapperNode.scrollTop + wrapperNode.clientHeight)
     )
+
+    this.autoScroll = scrollBottom < 20
 
     const isAddedTop = (
       this.props.messages.length
