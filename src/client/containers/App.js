@@ -9,6 +9,7 @@ import { removeNotification } from '../actions'
 import Users from './Users'
 import Front from './Front'
 import Channel from './Channel'
+import Loader from '../components/Loader'
 
 import './App.css'
 
@@ -30,7 +31,7 @@ function App({ isAppLoading, channelName, notifications, removeNotification }) {
       </div>
 
       <div id='slideout-panel'>
-        {!isAppLoading ? <Screen /> : null}
+        {!isAppLoading ? <Screen /> : <Loader />}
       </div>
 
       <NotificationStack
