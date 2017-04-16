@@ -2,9 +2,19 @@
 # yarn lockfile v1
 
 
+bluebird-queue@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/bluebird-queue/-/bluebird-queue-0.0.8.tgz#e5808b8ee55f135fe5654c3007b3dd5a292b4052"
+  dependencies:
+    bluebird "^2.9.24"
+
 "bluebird@>= 3.0.1", bluebird@^3.4.7:
   version "3.4.7"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.4.7.tgz#f72d760be09b7f76d08ed8fae98b289a8d05fab3"
+
+bluebird@^2.9.24:
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-2.11.0.tgz#534b9033c022c9579c56ba3b3e5a5caafbb650e1"
 
 d@^0.1.1, d@~0.1.1:
   version "0.1.1"
@@ -106,6 +116,10 @@ lodash@^4.17.4:
 middleware-handler@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/middleware-handler/-/middleware-handler-0.2.0.tgz#bf02af7e6b577c0230609b2ae58df0e446f3fd02"
+
+promise-queue@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/promise-queue/-/promise-queue-2.2.3.tgz#8534d76bf4673c3baa3a82bba01bd295cc30f14f"
 
 rethinkdbdash@^2.3.28:
   version "2.3.28"

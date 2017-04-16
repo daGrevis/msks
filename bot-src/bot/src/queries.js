@@ -58,7 +58,6 @@ const updateUser = async function(user) {
 }
 
 const updateTopic = async function(channel, topic) {
-  // TODO: Race condition when this runs before channel exists.
   await r.table('channels').get(channel).update({ topic }).run()
 }
 
