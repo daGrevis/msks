@@ -214,7 +214,7 @@ const onMessage = async (payload) => {
 
     await queries.saveMessage({
       kind: 'message',
-      timestamp: now,
+      timestamp: new Date(),
       from: client.user.nick,
       to: recipient,
       text: response,
