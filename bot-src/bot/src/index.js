@@ -12,6 +12,7 @@ Queue.configure(Promise)
 const eventQueue = new Queue(1, Infinity)
 
 const eventMap = {
+  debug: events.onDebug,
   close: events.onClose,
   registered: events.onRegistered,
   join: events.onJoin,

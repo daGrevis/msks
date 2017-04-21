@@ -1,5 +1,6 @@
 {
   "rethinkHost": "localhost",
+  "ircDebug": false,
   "ircHost": "chat.freenode.net",
   "ircPort": 6667,
   "ircTls": false,

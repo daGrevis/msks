@@ -16,6 +16,14 @@ const isPM = message => (
   && !_.startsWith(message.to, '&')
 )
 
+const onDebug = async (s) => {
+  if (!config.ircDebug) {
+    return
+  }
+
+  console.log(s)
+}
+
 const onClose = async () => {
   console.log('client.close called!')
   process.exit(1)
@@ -243,6 +251,7 @@ const onNotice = async (payload) => {
 }
 
 module.exports = {
+  onDebug,
   onClose,
   onRegistered,
   onJoin,
