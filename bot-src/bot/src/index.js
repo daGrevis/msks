@@ -5,8 +5,6 @@ const Queue = require('promise-queue')
 const client = require('./ircClient')
 const events = require('./events')
 
-console.log('starting bot...')
-
 Queue.configure(Promise)
 
 const eventQueue = new Queue(1, Infinity)
@@ -14,6 +12,8 @@ const eventQueue = new Queue(1, Infinity)
 const eventMap = {
   debug: events.onDebug,
   close: events.onClose,
+  connecting: events.onConnecting,
+  reconnecting: events.onReconnecting,
   registered: events.onRegistered,
   join: events.onJoin,
   quit: events.onQuit,
@@ -33,3 +33,6 @@ _.forEach(eventMap, (fn, name) => {
     eventQueue.add(() => fn(payload))
   })
 })
+
+console.log('starting bot...')
+client.connect()

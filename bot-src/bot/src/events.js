@@ -24,9 +24,18 @@ const onDebug = async (s) => {
   console.log(s)
 }
 
-const onClose = async () => {
-  console.log('client.close called!')
-  process.exit(1)
+const onClose = async (err) => {
+  console.log('connection to server closed!')
+}
+
+const onConnecting = async () => {
+  console.log('connecting to server...')
+}
+
+const onReconnecting = async (payload) => {
+  const { attempt, max_retries } = payload
+
+  console.log(`reconnecting to server (${attempt}/${max_retries})...`)
 }
 
 const onRegistered = async () => {
@@ -253,6 +262,8 @@ const onNotice = async (payload) => {
 module.exports = {
   onDebug,
   onClose,
+  onConnecting,
+  onReconnecting,
   onRegistered,
   onJoin,
   onQuit,
