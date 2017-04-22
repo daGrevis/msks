@@ -1,5 +1,6 @@
 const fp = require('lodash/fp')
 
+const config = require('./config')
 const { client, ctx } = require('./irc')
 const { humanizeDelta } = require('./utils')
 const { versionText } = require('./version')
@@ -8,8 +9,8 @@ const onPing = async () => {
   return 'pong'
 }
 
-const onEcho = async (payload) => {
-  return payload
+const onEcho = async ({ params }) => {
+  return params
 }
 
 const onUptime = async () => {
@@ -20,11 +21,21 @@ const onVersion = async () => {
   return versionText
 }
 
+const onReload = async ({ message }) => {
+  if (!fp.includes(message.from, config.admins)) {
+    return
+  }
+
+  console.log(`reloading bot...`)
+  process.exit(0)
+}
+
 const commandMap = {
   ping: onPing,
   echo: onEcho,
   uptime: onUptime,
   version: onVersion,
+  reload: onReload,
 }
 
 const matchCommand = message => {
@@ -44,10 +55,10 @@ const matchCommand = message => {
     text = text.replace(commandPattern, '')
   }
 
-  const splits = text.split(' ')
+  const separatorPos = text.indexOf(' ')
 
-  const commandName = splits[0]
-  const commandPayload = fp.drop(1, splits).join(' ')
+  const commandName = separatorPos === -1 ? text : text.slice(0, separatorPos)
+  const commandParams = separatorPos === -1 ? '' : text.slice(separatorPos + 1)
 
   const command = commandMap[commandName]
 
@@ -61,7 +72,10 @@ const matchCommand = message => {
     return
   }
 
-  return async () => await command(commandPayload)
+  return async () => await command({
+    params: commandParams,
+    message,
+  })
 }
 
 module.exports = {

@@ -9,5 +9,6 @@
   "ircPassword": "",
   "ircGecos": "Mr. Meeseeks",
   "ircChannels": ["#freenode"],
-  "silentChannels": []
+  "silentChannels": [],
+  "admins": ["daGrevis"]
 }
