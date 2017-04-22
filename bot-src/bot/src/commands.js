@@ -1,6 +1,7 @@
 const fp = require('lodash/fp')
 
 const config = require('./config')
+const queries = require('./queries')
 const { client, ctx } = require('./irc')
 const { humanizeDelta } = require('./utils')
 const { versionText } = require('./version')
@@ -27,6 +28,20 @@ const onReload = async ({ message }) => {
   }
 
   console.log(`reloading bot...`)
+
+  const now = new Date()
+
+  const channels = await queries.leaveNetwork(client.user.nick)
+  for (const channel of channels) {
+    await queries.saveMessage({
+      kind: 'quit',
+      timestamp: now,
+      from: client.user.nick,
+      to: channel,
+      text: '',
+    })
+  }
+
   process.exit(0)
 }
 

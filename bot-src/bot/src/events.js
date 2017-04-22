@@ -72,7 +72,7 @@ const onQuit = async (payload) => {
   const now = new Date()
 
   const channels = await queries.leaveNetwork(payload.nick)
-  _.forEach(channels, async (channel) => {
+  for (const channel of channels) {
     await queries.saveMessage({
       kind: 'quit',
       timestamp: now,
@@ -80,7 +80,7 @@ const onQuit = async (payload) => {
       to: channel,
       text: payload.message,
     })
-  })
+  }
 }
 
 const onPart = async (payload) => {
