@@ -1,7 +1,7 @@
 const ircFramework = require('irc-framework')
 
 const config = require('./config')
-const { formattedVersion } = require('./version')
+const { versionText } = require('./version')
 
 const client = new ircFramework.Client({
   host: config.ircHost,
@@ -15,7 +15,14 @@ const client = new ircFramework.Client({
   // Tries to reconnect for at least 5 hours.
   auto_reconnect_wait: 2000 + Math.round(Math.random() * 2000),
   auto_reconnect_max_retries: 9000,
-  version: formattedVersion,
+  version: versionText,
 })
 
-module.exports = client
+let ctx = {
+  connectionTime: null,
+}
+
+module.exports = {
+  client,
+  ctx,
+}

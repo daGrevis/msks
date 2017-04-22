@@ -2,7 +2,7 @@ const _ = require('lodash')
 const Promise = require('bluebird')
 const Queue = require('promise-queue')
 
-const client = require('./ircClient')
+const { client } = require('./irc')
 const events = require('./events')
 
 Queue.configure(Promise)

@@ -1,14 +1,11 @@
 const _ = require('lodash')
 
-const client = require('./ircClient')
 const config = require('./config')
 const queries = require('./queries')
-const { formattedVersion } = require('./version')
-const { humanizeDelta } = require('./utils')
+const { client, ctx } = require('./irc')
+const { matchCommand } = require('./commands')
 
-let connectionTime
-
-const isMe = (client, nick) => client.user.nick === nick
+const isMe = nick => client.user.nick === nick
 
 const isPM = message => (
   // Apparently & is a valid prefix for channel.
@@ -39,7 +36,7 @@ const onReconnecting = async (payload) => {
 }
 
 const onRegistered = async () => {
-  connectionTime = new Date()
+  ctx.connectionTime = new Date()
 
   console.log('connected to server!')
 
@@ -58,7 +55,7 @@ const onJoin = async (payload) => {
     text: '',
   })
 
-  if (isMe(client, payload.nick)) {
+  if (isMe(payload.nick)) {
     console.log(`joined ${payload.channel}!`)
 
     await queries.createChannel({ name: payload.channel })
@@ -209,34 +206,29 @@ const onMessage = async (payload) => {
     return
   }
 
-  let response
-  switch (message.text) {
-    case '!ping':
-      response = 'pong'
-      break
+  const command = matchCommand(message)
 
-    case '!version':
-      response = formattedVersion
-      break
-
-    case '!uptime':
-      response = humanizeDelta(now - connectionTime)
-      break
+  if (!command) {
+    return
   }
 
-  if (response) {
-    const recipient = isPM(message) ? message.from : message.to
+  const response = await command()
 
-    client.say(recipient, response)
-
-    await queries.saveMessage({
-      kind: 'message',
-      timestamp: new Date(),
-      from: client.user.nick,
-      to: recipient,
-      text: response,
-    })
+  if (!response) {
+    return
   }
+
+  const recipient = isPM(message) ? message.from : message.to
+
+  client.say(recipient, response)
+
+  await queries.saveMessage({
+    kind: 'message',
+    timestamp: new Date(),
+    from: client.user.nick,
+    to: recipient,
+    text: response,
+  })
 }
 
 const onAction = async (payload) => {

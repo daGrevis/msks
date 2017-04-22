@@ -28,9 +28,9 @@ function formatVersion(version) {
 }
 
 const version = getVersion()
-const formattedVersion = formatVersion(version)
+const versionText = formatVersion(version)
 
 module.exports = {
   version,
-  formattedVersion,
+  versionText,
 }
