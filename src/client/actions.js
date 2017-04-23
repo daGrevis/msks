@@ -1,9 +1,10 @@
 import _ from 'lodash'
+import fp from 'lodash/fp'
 import { createAction } from 'redux-actions'
 import uuid from 'uuid'
 import Favico from 'favico.js'
 
-import { openChannelsSelector, getLastMessageSelector } from './selectors'
+import { openChannelsSelector, allMessagesSelector } from './selectors'
 
 const favicon = new Favico({
   animation: 'none',
@@ -11,14 +12,18 @@ const favicon = new Favico({
 
 const noop = createAction('NOOP')
 
-const initApp = createAction('INIT_APP')
+const setEmbed = createAction('SET_EMBED')
 
 const setVisibility = createAction('SET_VISIBILITY')
 
 const navigated = createAction('NAVIGATED')
 
-const openChannel = createAction('OPEN_CHANNEL')
-const closeChannel = createAction('CLOSE_CHANNEL')
+const setTitle = title => dispatch => {
+  dispatch(createAction('SET_TITLE'))
+
+  document.title = title
+}
+
 const setChannelName = createAction('SET_CHANNEL_NAME')
 
 const subscribeToChannels = createAction('server/SUBSCRIBE_TO_CHANNELS')
@@ -57,7 +62,7 @@ const reconnect = () => (dispatch, getState) => {
 
   const openChannels = openChannelsSelector(state)
   _.forEach(openChannels, ({ name: channelName }) => {
-    const lastMessage = getLastMessageSelector(channelName)(state)
+    const lastMessage = fp.last(allMessagesSelector(state)[channelName])
 
     dispatch(
       loadMessages({
@@ -74,11 +79,10 @@ const reconnect = () => (dispatch, getState) => {
 
 export {
   noop,
-  initApp,
+  setEmbed,
   setVisibility,
   navigated,
-  openChannel,
-  closeChannel,
+  setTitle,
   setChannelName,
   subscribeToChannels,
   loadMessages,

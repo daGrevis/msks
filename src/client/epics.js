@@ -1,14 +1,11 @@
 import fp from 'lodash/fp'
 import { combineEpics } from 'redux-observable'
 
-import { navigate } from './history'
 import {
   noop, subscribeToMessages, addMessages, addMessage,
-  subscribeToUsers, updateUnread, resetUnread, setFavicoBadge,
+  updateUnread, resetUnread, setFavicoBadge,
 } from './actions'
-import {
-  getLastMessageSelector, isEmbedSelector, channelNameSelector,
-} from './selectors'
+import { allMessagesSelector, channelNameSelector } from './selectors'
 
 const addMessagesEpic = action$ =>
   action$.ofType('client/LOADED_MESSAGES')
@@ -18,7 +15,8 @@ const subscribeToMessagesEpic = (action$, store) =>
   action$.ofType('client/LOADED_MESSAGES')
     .filter(({ payload }) => !payload.before)
     .map(({ payload: { channelName } }) => {
-      const lastMessage = getLastMessageSelector(channelName)(store.getState())
+      const state = store.getState()
+      const lastMessage = fp.last(allMessagesSelector(state)[channelName])
       if (!lastMessage) {
         return noop()
       }
@@ -55,50 +53,13 @@ const setFavicoBadgeEpic = action$ =>
   action$.ofType('UPDATE_UNREAD', 'RESET_UNREAD')
     .map(setFavicoBadge)
 
-const openChannelEpic = (action$, store) =>
-  action$.ofType('OPEN_CHANNEL')
-    .filter(() => !isEmbedSelector(store.getState()))
-    .do(({ payload: channelName }) => {
-      navigate(channelName)
-    })
-    .map(noop)
-
-const closeChannelEpic = (action$, store) =>
-  action$.ofType('CLOSE_CHANNEL')
-    .filter(() => !isEmbedSelector(store.getState()))
-    .do(({ payload: channelName }) => {
-      navigate('')
-    })
-    .map(noop)
-
-const titleEpic = (action$, store) =>
-  action$.ofType('OPEN_CHANNEL', 'CLOSE_CHANNEL')
-    .do(() => {
-      const channelName = channelNameSelector(store.getState())
-      document.title = channelName ? `${channelName} · msks` : 'msks'
-    })
-    .map(noop)
-
-const subscribeToUsersEpic = action$ =>
-  action$.ofType('OPEN_CHANNEL')
-    .distinct(({ payload: channelName }) => (
-      channelName
-    ))
-    .map(({ payload: channelName }) => (
-      subscribeToUsers({ channelName })
-    ))
-
 const rootEpic = combineEpics(
   addMessagesEpic,
   subscribeToMessagesEpic,
   messageChangeEpic,
-  subscribeToUsersEpic,
   updateUnreadEpic,
   setFavicoBadgeEpic,
-  resetUnreadEpic,
-  openChannelEpic,
-  closeChannelEpic,
-  titleEpic
+  resetUnreadEpic
 )
 
 export {

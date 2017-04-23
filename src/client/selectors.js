@@ -6,7 +6,7 @@ const isEmbedSelector = fp.get('isEmbed')
 
 const locationSelector = fp.get('location')
 
-const channelsSelector = fp.get('channels')
+const channelsSelector = state => state.channels || []
 
 const sortedChannelsSelector = createSelector(
   channelsSelector,
@@ -23,31 +23,23 @@ const openChannelsSelector = createSelector(
 
 const channelNameSelector = fp.get('channelName')
 
-const getChannelSelector = (channelName = null) => createSelector(
+const channelSelector = createSelector(
   channelsSelector, channelNameSelector,
-  (channels, name) => channels[channelName || name]
+  (channels, channelName) => channels[channelName]
 )
 
-const getMessagesSelector = (channelName = null) => createSelector(
-  fp.get('messages'), channelNameSelector,
-  (messages, name) => (
-    messages[channelName || name] || []
-  )
+const allMessagesSelector = state => state.messages || []
+
+const messagesSelector = createSelector(
+  allMessagesSelector, channelNameSelector,
+  (messages, channelName) => messages[channelName] || []
 )
 
-const getLastMessageSelector = (channelName = null) => createSelector(
-  getMessagesSelector(channelName),
-  messages => fp.last(messages)
-)
+const allUsersSelector = state => state.users || []
 
 const usersSelector = createSelector(
-  channelNameSelector, fp.get('users'),
-  fp.get
-)
-
-const userCountSelector = createSelector(
-  usersSelector,
-  fp.size
+  allUsersSelector, channelNameSelector,
+  (users, channelName) => users[channelName]
 )
 
 const groupedUsersSelector = createSelector(
@@ -63,8 +55,8 @@ const groupedUsersSelector = createSelector(
 )
 
 const isChannelLoadingSelector = createSelector(
-  getChannelSelector(), usersSelector,
-  (channel, users) => channel === undefined || users === undefined
+  channelSelector,
+  channel => !channel
 )
 
 const isAppLoadingSelector = createSelector(
@@ -81,13 +73,6 @@ const hasReachedBeginningSelector = createSelector(
   )
 )
 
-const isSubscribedToMessagesSelector = createSelector(
-  fp.get('isSubscribedToMessages'), channelNameSelector,
-  (isSubscribedToMessages, channelName) => (
-    isSubscribedToMessages[channelName]
-  )
-)
-
 export {
   isEmbedSelector,
   locationSelector,
@@ -95,14 +80,13 @@ export {
   sortedChannelsSelector,
   openChannelsSelector,
   channelNameSelector,
-  getChannelSelector,
-  getMessagesSelector,
-  getLastMessageSelector,
+  channelSelector,
+  allMessagesSelector,
+  messagesSelector,
+  allUsersSelector,
   usersSelector,
-  userCountSelector,
   groupedUsersSelector,
   isChannelLoadingSelector,
   isAppLoadingSelector,
   hasReachedBeginningSelector,
-  isSubscribedToMessagesSelector,
 }

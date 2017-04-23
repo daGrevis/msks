@@ -2,30 +2,40 @@ import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
 
+import { navigate } from '../history'
+import { setTitle } from '../actions'
 import { sortedChannelsSelector } from '../selectors'
-import { openChannel } from '../actions'
 
 import './Front.css'
 
-const Front = ({ sortedChannels: channels, openChannel }) => (
-  <div id='front'>
-    <a href='https://github.com/daGrevis/msks-web' target='_blank'>
-      <h1>msks</h1>
-    </a>
-
-    {_.map(channels, channel => (
-      <header key={channel.name}>
-        <h2 className='strong' onClick={() => openChannel(channel.name)}>{channel.name}</h2>
-      </header>
-    ))}
-  </div>
-)
-
-export default connect(
-  state => ({
-    sortedChannels: sortedChannelsSelector(state),
-  }),
-  {
-    openChannel,
+class Front extends React.Component {
+  componentWillMount() {
+    this.props.setTitle('msks')
   }
-)(Front)
+
+  render() {
+    return (
+      <div id='front'>
+        <a href='https://github.com/daGrevis/msks-web' target='_blank'>
+          <h1>msks</h1>
+        </a>
+
+        {_.map(this.props.sortedChannels, channel => (
+          <header key={channel.name}>
+            <h2 className='strong' onClick={() => navigate(channel.name)}>{channel.name}</h2>
+          </header>
+        ))}
+      </div>
+    )
+  }
+}
+
+const mapStateToProps = state => ({
+  sortedChannels: sortedChannelsSelector(state),
+})
+
+const mapDispatchToProps = {
+  setTitle,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Front)

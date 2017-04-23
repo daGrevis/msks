@@ -4,14 +4,16 @@ import classNames from 'classnames'
 import { connect } from 'react-redux'
 import Slideout from 'slideout'
 
+import { navigate } from '../history'
+import { setTitle, loadMessages, subscribeToUsers } from '../actions'
 import {
-  isEmbedSelector, getChannelSelector, getMessagesSelector,
-  hasReachedBeginningSelector, isSubscribedToMessagesSelector,
+  isEmbedSelector, messagesSelector, hasReachedBeginningSelector,
+  usersSelector, groupedUsersSelector,
 } from '../selectors'
-import { loadMessages, closeChannel } from '../actions'
 import Maybe from '../components/Maybe'
 import Text from '../components/Text'
 import Messages from '../components/Messages'
+import Users from './Users'
 
 import './Channel.css'
 
@@ -86,7 +88,7 @@ class Channel extends Component {
       return
     }
 
-    this.props.closeChannel()
+    navigate('')
   }
 
   onTopicClick = () => {
@@ -100,6 +102,14 @@ class Channel extends Component {
       wrapperNode.scrollTop = wrapperNode.scrollHeight
     } else if (this.persistScroll) {
       wrapperNode.scrollTop = this.scrollTop + (wrapperNode.scrollHeight - this.scrollHeight)
+    }
+  }
+
+  componentWillMount() {
+    this.props.setTitle(`${this.props.channel.name} · msks`)
+
+    if (!this.props.isSubscribedToUsers) {
+      this.props.subscribeToUsers({ channelName: this.props.channel.name })
     }
   }
 
@@ -167,7 +177,7 @@ class Channel extends Component {
   }
 
   render() {
-    const { isEmbed, channel } = this.props
+    const { isEmbed, channel, users, groupedUsers } = this.props
 
     const hamburgerClasses = classNames('hamburger hamburger--squeeze', {
       'is-active': this.state.isSlideoutOpen,
@@ -180,42 +190,57 @@ class Channel extends Component {
     })
 
     return (
-      <div id='channel'>
-        <div className='header'>
-          <div className={hamburgerClasses} onClick={this.onHamburgerClick}>
-            <div className='hamburger-box'>
-              <div className='hamburger-inner'></div>
-            </div>
-          </div>
-
-          <h2 className={nameClasses} onClick={this.onNameClick}>{channel.name}</h2>
-
-          <Maybe when={channel.topic}>
-            <div className={topicClasses} onClick={this.onTopicClick}>
-              <Text>{channel.topic}</Text>
-            </div>
-          </Maybe>
+      <div>
+        <div id='slideout-menu'>
+          <Users users={users} groupedUsers={groupedUsers} />
         </div>
 
-        <div className='messages-wrapper' ref={this.onRef} onScroll={this.onScroll}>
-          <Messages {...this.props} />
+        <div id='slideout-panel'>
+          <div id='channel'>
+            <div className='header'>
+              <div className={hamburgerClasses} onClick={this.onHamburgerClick}>
+                <div className='hamburger-box'>
+                  <div className='hamburger-inner'></div>
+                </div>
+              </div>
+
+              <h2 className={nameClasses} onClick={this.onNameClick}>{channel.name}</h2>
+
+              <Maybe when={channel.topic}>
+                <div className={topicClasses} onClick={this.onTopicClick}>
+                  <Text>{channel.topic}</Text>
+                </div>
+              </Maybe>
+            </div>
+
+            <div className='messages-wrapper' ref={this.onRef} onScroll={this.onScroll}>
+              <Messages {...this.props} />
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 }
 
-const mapStateToProps = (state, props) => ({
-  isEmbed: isEmbedSelector(state),
-  channel: getChannelSelector()(state),
-  messages: getMessagesSelector()(state),
-  hasReachedBeginning: hasReachedBeginningSelector(state),
-  isSubscribedToMessages: isSubscribedToMessagesSelector(state),
-})
+const mapStateToProps = (state) => {
+  const { channelName } = state
+  return {
+    isEmbed: isEmbedSelector(state),
+    channel: state.channels[channelName],
+    messages: messagesSelector(state),
+    hasReachedBeginning: hasReachedBeginningSelector(state),
+    isSubscribedToMessages: state.isSubscribedToMessages[channelName],
+    isSubscribedToUsers: state.isSubscribedToUsers[channelName],
+    users: usersSelector(state),
+    groupedUsers: groupedUsersSelector(state),
+  }
+}
 
 const mapDispatchToProps = {
+  setTitle,
   loadMessages,
-  closeChannel,
+  subscribeToUsers,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Channel)

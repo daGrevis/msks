@@ -4,10 +4,7 @@ import { createUpdater, pipeUpdaters } from 'redux-fp'
 import { mo } from './utils'
 
 const appUpdater = createUpdater({
-  INIT_APP: ({ payload: channelName }) => fp.pipe(
-    fp.set('isEmbed', !!channelName),
-    fp.set('channelName', channelName)
-  ),
+  SET_EMBED: () => fp.set('isEmbed', true),
 
   SET_VISIBILITY: ({ payload }) => fp.set('isVisible', payload),
 })
@@ -17,8 +14,6 @@ const historyUpdater = createUpdater({
 })
 
 const channelUpdater = createUpdater({
-  OPEN_CHANNEL: ({ payload }) => fp.set('channelName', payload),
-  CLOSE_CHANNEL: () => fp.set('channelName', null),
   SET_CHANNEL_NAME: ({ payload }) => fp.set('channelName', payload),
 
   'client/INITIAL_CHANNELS': ({ payload: { channels }}) => fp.set(
@@ -78,6 +73,9 @@ const messagesUpdater = createUpdater({
 })
 
 const usersUpdater = createUpdater({
+  'server/SUBSCRIBE_TO_USERS': ({ payload }) => fp.set(['isSubscribedToUsers', payload.channelName], true),
+  UNSUBSCRIBE_FROM_ALL_USERS: () => fp.set('isSubscribedToUsers', {}),
+
   'client/INITIAL_USERS': ({ payload: { channelName, users }}) => fp.set(
     ['users', channelName],
     fp.keyBy('nick', users)

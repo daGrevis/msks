@@ -1,8 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
-import { connect } from 'react-redux'
 
-import { groupedUsersSelector, userCountSelector } from '../selectors'
 import { getColor } from '../colors'
 
 import './Users.css'
@@ -22,18 +20,13 @@ const UserList = ({ users, isOp, isVoiced }) =>
     ))}
   </ol>
 
-const Users = ({ groupedUsers, userCount }) =>
+const Users = ({ users, groupedUsers }) =>
   <div id='users'>
-    <h3 className='strong'>Users ({userCount})</h3>
+    <h3 className='strong'>Users ({_.size(users)})</h3>
 
     <UserList users={groupedUsers['op']} isOp />
     <UserList users={groupedUsers['voiced']} isVoiced />
     <UserList users={groupedUsers['normal']} />
   </div>
 
-export default connect(
-  state => ({
-    groupedUsers: groupedUsersSelector(state),
-    userCount: userCountSelector(state),
-  })
-)(Users)
+export default Users

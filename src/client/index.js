@@ -2,6 +2,7 @@ import _ from 'lodash'
 import fp from 'lodash/fp'
 // eslint-disable-next-line no-unused-vars
 import Rx from 'rxjs'
+import Router from 'universal-router'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, applyMiddleware } from 'redux'
@@ -16,14 +17,16 @@ import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
 import {
-  initApp, setVisibility, navigated, openChannel, setChannelName,
-  subscribeToChannels, unsubscribeFromAllMessages, addNotification, reconnect,
+  setEmbed, reconnect, setVisibility, navigated,
+  setChannelName, subscribeToChannels, unsubscribeFromAllMessages,
 } from './actions'
 import * as actions from './actions'
 import * as selectors from './selectors'
 import App from './containers/App'
+import Channel from './containers/Channel'
+import Front from './containers/Front'
 
-import { history } from  './history'
+import { history, navigate, getPath } from  './history'
 import socket from './socket'
 
 import viewportUnitsBuggyfill from 'viewport-units-buggyfill'
@@ -66,10 +69,8 @@ const store = createStore(
 
 const { dispatch, getState } = store
 
-dispatch(initApp(EMBED_CHANNEL))
-
-window.onerror = () => {
-  dispatch(addNotification('Something broke!'))
+if (EMBED_CHANNEL) {
+  dispatch(setEmbed())
 }
 
 socket.on('error', err => {
@@ -84,32 +85,66 @@ socket.on('reconnect', () => {
   dispatch(reconnect())
 })
 
-const currentLocation = history.location
-dispatch(navigated(currentLocation))
-
-if (EMBED_CHANNEL) {
-  dispatch(openChannel(EMBED_CHANNEL))
-} else {
-  if (currentLocation.hash) {
-    dispatch(openChannel(currentLocation.hash))
-  }
-}
-
-history.listen(loc => {
-  dispatch(navigated(loc))
-
-  dispatch(setChannelName(loc.hash))
-})
-
 dispatch(subscribeToChannels())
 
-const onReady = () =>
-  ReactDOM.render(
-    <Provider store={store}>
-      <App />
-    </Provider>,
-    document.getElementById('root')
-  )
+const routes = EMBED_CHANNEL ? [
+  {
+    path: '/',
+    action: () => {
+      dispatch(setChannelName(EMBED_CHANNEL))
+      return <Channel />
+    },
+  },
+] : [
+  {
+    path: '/',
+    action: () => <Front />,
+  },
+  {
+    path: '/:channelName',
+    action: ({ params }) => {
+      dispatch(setChannelName(params.channelName))
+      return <Channel />
+    },
+  },
+]
+
+const router = new Router(routes, {
+  resolveRoute: (ctx, params) => {
+    if (_.isFunction(ctx.route.action)) {
+      return { ctx, component: ctx.route.action(ctx, params) }
+    }
+    return null
+  },
+})
+
+const onReady = () => {
+  const mountNode = document.getElementById('root')
+
+  const onRoute = loc => {
+    const path = getPath(loc)
+
+    router.resolve({ path })
+      .then(({ ctx: { params }, component }) => {
+        ReactDOM.render((
+          <Provider store={store}>
+            <App>{component}</App>
+          </Provider>
+        ), mountNode)
+
+        dispatch(
+          navigated({ loc, params })
+        )
+      })
+  }
+
+  const initialLoc = history.location
+  onRoute(initialLoc)
+
+  history.listen(currentLoc => {
+    onRoute(currentLoc)
+  })
+}
 
 const onVisibilityChange = () => {
   const isVisible = !document.hidden
@@ -127,3 +162,4 @@ window.dispatch = dispatch
 window.actions = actions
 window.getState = getState
 window.selectors = selectors
+window.navigate = navigate

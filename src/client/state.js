@@ -58,6 +58,9 @@ const initialState = {
   isSubscribedToMessages: {
     // '#developerslv': true,
   },
+  isSubscribedToUsers: {
+    // '#developerslv': true,
+  },
 
   hasReachedBeginning: {
     // '#developerslv': true,
