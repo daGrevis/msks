@@ -46,7 +46,7 @@
     "start:server": "npm run --prefix src/server start-nodemon",
     "build": "react-scripts build",
     "deploy-msks": "REACT_APP_BASE_PATH=/msks/ npm run build && ssh root@dagrev.is 'rm -rf ~/msks/build/*'; scp -r build/* root@dagrev.is:~/msks/build/",
-    "deploy-developerslv": "REACT_APP_EMBED_CHANNEL='#developerslv' REACT_APP_BASE_PATH=/developerslv/ REACT_APP_SOCKETIO_URL='//' REACT_APP_SOCKETIO_PATH='/msks-server/socket.io' npm run build && ssh root@dagrev.is 'rm -rf ~/developerslv/build/*'; scp -r build/* root@dagrev.is:~/developerslv/build/",
+    "deploy-developerslv": "REACT_APP_EMBED_CHANNEL='#developerslv' REACT_APP_BASE_PATH=/ REACT_APP_SOCKETIO_URL='//' REACT_APP_SOCKETIO_PATH='/msks-server/socket.io' npm run build && ssh root@dagrev.is 'rm -rf ~/developerslv/build/*'; scp -r build/* root@dagrev.is:~/developerslv/build/",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
