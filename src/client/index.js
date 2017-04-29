@@ -17,14 +17,14 @@ import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
 import {
-  setEmbed, reconnect, setVisibility, navigated,
-  setChannelName, subscribeToChannels, unsubscribeFromAllMessages,
+  setEmbed, navigated, setVisibility, setChannelName,
+  subscribeToChannels, unsubscribeFromAllMessages, reconnect,
 } from './actions'
 import * as actions from './actions'
 import * as selectors from './selectors'
-import App from './containers/App'
-import Channel from './containers/Channel'
-import Front from './containers/Front'
+import App from './components/App'
+import Channel from './components/Channel'
+import Front from './components/Front'
 
 import { history, navigate, getPath } from  './history'
 import socket from './socket'
@@ -92,31 +92,51 @@ const routes = EMBED_CHANNEL ? [
     path: '/',
     action: () => {
       dispatch(setChannelName(EMBED_CHANNEL))
-      return <Channel />
+      return {
+        component: <Channel />,
+      }
+    },
+  },
+  {
+    path: '/:messageId',
+    action: ({ params }) => {
+      dispatch(setChannelName(EMBED_CHANNEL))
+      return {
+        component: <Channel messageId={params.messageId} />,
+      }
     },
   },
 ] : [
   {
     path: '/',
-    action: () => <Front />,
+    action: () => ({
+      component: <Front />,
+    }),
   },
   {
     path: '/:channelName',
-    action: ({ params }) => {
+    action: async ({ next, params }) => {
       dispatch(setChannelName(params.channelName))
-      return <Channel />
+      return await next()
     },
+    children: [
+      {
+        path: '/',
+        action: () => ({
+          component: <Channel />,
+        }),
+      },
+      {
+        path: '/:messageId',
+        action: ({ params }) => ({
+          component: <Channel messageId={params.messageId} />,
+        }),
+      },
+    ],
   },
 ]
 
-const router = new Router(routes, {
-  resolveRoute: (ctx, params) => {
-    if (_.isFunction(ctx.route.action)) {
-      return { ctx, component: ctx.route.action(ctx, params) }
-    }
-    return null
-  },
-})
+const router = new Router(routes)
 
 const onReady = () => {
   const mountNode = document.getElementById('root')
@@ -125,7 +145,7 @@ const onReady = () => {
     const path = getPath(loc)
 
     router.resolve({ path })
-      .then(({ ctx: { params }, component }) => {
+      .then(({ component, params }) => {
         ReactDOM.render((
           <Provider store={store}>
             <App>{component}</App>
@@ -153,6 +173,10 @@ const onVisibilityChange = () => {
 
 document.addEventListener('DOMContentLoaded', onReady)
 document.addEventListener('visibilitychange', onVisibilityChange)
+
+store.subscribe(() => {
+  window.st = store.getState()
+})
 
 window._ = _
 window.fp = fp

@@ -6,7 +6,7 @@ import { navigate } from '../history'
 import { setTitle } from '../actions'
 import { sortedChannelsSelector } from '../selectors'
 
-import './Front.css'
+import '../styles/Front.css'
 
 class Front extends React.Component {
   componentWillMount() {

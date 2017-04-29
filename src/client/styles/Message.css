@@ -1,6 +1,19 @@
+#channel .message {
+  padding-left: 10px;
+  padding-right: 15px;
+}
+
+#channel .message.is-active {
+  background: #fffbd0;
+}
+#channel .message.is-active .timestamp {
+  font-weight: bold;
+}
+
 #channel .message .timestamp {
   color: #cacaca;
   font-size: 12px;
+  cursor: pointer;
 }
 
 #channel .message .nick {
@@ -46,9 +59,9 @@
   font-style: italic;
 }
 
-@media screen and (max-width: 419px) {
+@media screen and (max-width: 374px) {
   #channel .message.is-first {
-    margin-top: 2px;
+    margin-top: 5px;
   }
 
   #channel .message .meta {
@@ -71,7 +84,7 @@
   }
 }
 
-@media screen and (min-width: 420px) {
+@media screen and (min-width: 375px) {
   #channel .message {
     display: flex;
     justify-content: flex-start;
@@ -82,20 +95,16 @@
   }
 
   #channel .message .meta {
-    width: 150px;
+    width: 120px;
     display: flex;
     flex: 0 0 auto;
     justify-content: space-between;
-    margin-right: 15px;
-  }
-
-  #channel .message.is-not-first .meta {
-    visibility: hidden;
+    margin-right: 10px;
   }
 
   #channel .message .meta .timestamp {
     padding-top: 4px;
-    margin-right: 10px;
+    margin-right: 8px;
   }
   #channel .message .meta .nick {
     white-space: nowrap;

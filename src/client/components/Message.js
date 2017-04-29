@@ -1,13 +1,13 @@
 import _ from 'lodash'
-import fp from 'lodash/fp'
 import React from 'react'
 import classNames from 'classnames'
 import { onlyUpdateForKeys } from 'recompose'
 
 import Text from './Text'
 import { getColor } from '../colors'
+import { navigate } from '../history'
 
-import './Message.css'
+import '../styles/Message.css'
 
 const Nick = ({ children: nick }) =>
   <span className='nick strong' style={{ color: getColor(nick) }} title={nick}>
@@ -61,20 +61,41 @@ const MessageText = ({ message }) => {
   )
 }
 
-const Message = onlyUpdateForKeys(['id'])(props => {
-  const { message, isFirst, isoTimestamp, timestampText } = props
+const Message = onlyUpdateForKeys(['id', 'isActive'])(props => {
+  const { message, isFirst, isActive, isoTimestamp, timestampText } = props
 
   const messageClasses = classNames('message', `kind-${message.kind}`, {
     'is-first': isFirst,
     'is-not-first': !isFirst,
+    'is-active': isActive,
   })
 
-  const isNickVisible = fp.includes(message.kind, ['message', 'notice'])
+  const isNickVisible = message.kind === 'message' || message.kind === 'notice'
 
   return (
-    <div className={messageClasses}>
+    <div id={isActive ? message.id : null} className={messageClasses}>
       <div className='meta'>
-        <span className='timestamp' title={isoTimestamp}>{timestampText}</span>
+        <span
+          className='timestamp'
+          title={isoTimestamp}
+          onClick={() => {
+            if (props.isEmbed) {
+              if (!isActive) {
+                navigate(message.id)
+              } else {
+                navigate('')
+              }
+            } else {
+              if (!isActive) {
+                navigate(`${message.to}/${message.id}`)
+              } else {
+                navigate(message.to)
+              }
+            }
+          }}
+        >
+          {timestampText}
+        </span>
         {isNickVisible ? <Nick>{message.from}</Nick> : null}
       </div>
 

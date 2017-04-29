@@ -1,10 +1,11 @@
 #users {
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 #users h3 {
-  line-height: 2;
+  line-height: 2.5;
+  margin-bottom: -10px;
 }
 
 #users ol {

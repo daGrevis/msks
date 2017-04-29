@@ -1,10 +1,9 @@
-import _ from 'lodash'
 import fp from 'lodash/fp'
 import { createAction } from 'redux-actions'
 import uuid from 'uuid'
 import Favico from 'favico.js'
 
-import { openChannelsSelector, allMessagesSelector } from './selectors'
+import { allMessagesSelector } from './selectors'
 
 const favicon = new Favico({
   animation: 'none',
@@ -39,6 +38,8 @@ const unsubscribeFromAllMessages = createAction('UNSUBSCRIBE_FROM_ALL_MESSAGES')
 
 const subscribeToUsers = createAction('server/SUBSCRIBE_TO_USERS')
 
+const setScrollPosition = createAction('SET_SCROLL_POSITION')
+
 const updateUnread = createAction('UPDATE_UNREAD')
 const resetUnread = createAction('RESET_UNREAD')
 
@@ -60,21 +61,23 @@ const reconnect = () => (dispatch, getState) => {
 
   dispatch(subscribeToChannels())
 
-  const openChannels = openChannelsSelector(state)
-  _.forEach(openChannels, ({ name: channelName }) => {
+  const { channelName } = state
+
+  if (channelName) {
     const lastMessage = fp.last(allMessagesSelector(state)[channelName])
 
+    if (!lastMessage) {
+      return
+    }
+
     dispatch(
-      loadMessages({
+      subscribeToMessages({
         channelName,
-        after: lastMessage.timestamp,
+        timestamp: lastMessage.timestamp,
         messageId: lastMessage.id,
       })
     )
-    dispatch(
-      subscribeToUsers({ channelName })
-    )
-  })
+  }
 }
 
 export {
@@ -91,6 +94,7 @@ export {
   subscribeToMessages,
   unsubscribeFromAllMessages,
   subscribeToUsers,
+  setScrollPosition,
   updateUnread,
   resetUnread,
   setFavicoBadge,

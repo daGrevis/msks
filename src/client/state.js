@@ -66,6 +66,10 @@ const initialState = {
     // '#developerslv': true,
   },
 
+  scrollPositions: {
+    // '#developerslv': 123,
+  },
+
   unread: 0,
 
   notifications: [

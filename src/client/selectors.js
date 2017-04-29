@@ -42,6 +42,11 @@ const usersSelector = createSelector(
   (users, channelName) => users[channelName]
 )
 
+const userCountSelector = createSelector(
+  usersSelector,
+  fp.size
+)
+
 const groupedUsersSelector = createSelector(
   usersSelector,
   fp.pipe(
@@ -85,6 +90,7 @@ export {
   messagesSelector,
   allUsersSelector,
   usersSelector,
+  userCountSelector,
   groupedUsersSelector,
   isChannelLoadingSelector,
   isAppLoadingSelector,

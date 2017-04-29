@@ -1,0 +1,151 @@
+#channel {
+  height: 100vh;
+}
+
+#channel .content, #channel .sidebar {
+  transition: right .25s ease-in;
+  overflow: scroll;
+  height: 100%;
+}
+
+#channel .sidebar {
+  width: 160px;
+  border-left: 1px solid #cacaca;
+}
+
+#channel .content {
+  display: flex;
+  flex-direction: column;
+}
+
+#channel .header {
+  padding: 0 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #cacaca;
+}
+
+#channel .header .hamburger {
+  position: absolute;
+  right: -12px;
+  top: -8px;
+  transform: scale(.6);
+}
+
+#channel .header .name {
+  display: inline-block;
+  line-height: 0;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  cursor: pointer;
+}
+#channel .header .name.is-embed {
+  cursor: auto;
+}
+
+#channel .header .user-count {
+  position: relative;
+  bottom: 2px;
+  padding-left: 5px;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+#channel .header .topic {
+  margin: 0;
+  margin-bottom: 5px;
+  line-height: 1.2;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#channel .header .topic.is-topic-clipped {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#channel .messages-wrapper {
+  display: flex;
+  flex: 1 1 auto;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
+#channel .messages {
+  margin: auto 0;
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+#channel .messages .day-header {
+  padding: 15px 0;
+  text-align: center;
+}
+#channel .messages .day-header .text {
+  z-index: 3;
+  position: relative;
+  display: inline-block;
+  padding: 0 10px;
+  background: white;
+  color: #444;
+}
+
+#channel .messages .day-header .divider {
+  z-index: 2;
+  position: relative;
+  bottom: 8px;
+  height: 1px;
+  background: #ddd;
+}
+
+#channel .header .hamburger {
+  display: none;
+}
+
+@media screen and (max-width: 666px) {
+  #channel .header .hamburger {
+    display: block;
+  }
+
+  #channel .content {
+    z-index: 1;
+    position: relative;
+    top: 0;
+    right: 0;
+    background: white;
+    min-height: 100vh;
+  }
+  #channel .content.is-open {
+    right: 160px;
+  }
+
+  #channel .sidebar {
+    position: fixed;
+    top: 0;
+    right: -160px;
+    min-height: 100vh;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    z-index: 0;
+  }
+  #channel .sidebar.is-open {
+    right: 0;
+  }
+}
+
+@media screen and (min-width: 667px) {
+  #channel {
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: space-between;
+  }
+
+  #channel .content {
+    flex: 1;
+  }
+
+  #channel .sidebar {
+    flex: 0 0 160px;
+  }
+}

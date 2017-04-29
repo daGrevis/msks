@@ -2,34 +2,44 @@ import fp from 'lodash/fp'
 import { combineEpics } from 'redux-observable'
 
 import {
-  noop, subscribeToMessages, addMessages, addMessage,
+  noop, addMessages, addMessage, subscribeToMessages,
   updateUnread, resetUnread, setFavicoBadge,
 } from './actions'
-import { allMessagesSelector, channelNameSelector } from './selectors'
+import { channelNameSelector, allMessagesSelector } from './selectors'
 
 const addMessagesEpic = action$ =>
   action$.ofType('client/LOADED_MESSAGES')
+    .filter(({ payload }) => payload.messages.length)
     .map(({ payload }) => addMessages(payload))
+
+const messageChangeEpic = action$ =>
+  action$.ofType('client/MESSAGE_CHANGE')
+    .map(({ payload }) => addMessage(payload.new_val))
 
 const subscribeToMessagesEpic = (action$, store) =>
   action$.ofType('client/LOADED_MESSAGES')
-    .filter(({ payload }) => !payload.before)
-    .map(({ payload: { channelName } }) => {
+    .filter(({ payload: { isInitial, after, messages }}) =>
+      isInitial
+      || (after && !messages.length)
+    )
+    .map(({ payload: { channelName }}) => {
       const state = store.getState()
+
+      if (state.isSubscribedToMessages[channelName]) {
+        return noop()
+      }
+
       const lastMessage = fp.last(allMessagesSelector(state)[channelName])
       if (!lastMessage) {
         return noop()
       }
+
       return subscribeToMessages({
         channelName,
         timestamp: lastMessage.timestamp,
         messageId: lastMessage.id,
       })
     })
-
-const messageChangeEpic = action$ =>
-  action$.ofType('client/MESSAGE_CHANGE')
-    .map(({ payload }) => addMessage(payload.new_val))
 
 const updateUnreadEpic = (action$, store) =>
   action$.ofType('client/MESSAGE_CHANGE')

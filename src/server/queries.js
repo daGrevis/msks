@@ -1,3 +1,5 @@
+const fp = require('lodash/fp')
+
 const r = require('./rethink')
 
 const getInitialChannels = () => (
@@ -9,32 +11,60 @@ const getInitialUsers = channelName => (
   .getAll(channelName, { index: 'channel' })
 )
 
-const getInitialMessages = channelName => (
-  r.table('messages')
-  .between([channelName, r.minval], [channelName, r.maxval], { index: 'toAndTimestamp' })
-  .orderBy({ index: r.desc('toAndTimestamp') })
-  .limit(75)
-)
+const getInitialMessages = async (channelName) => {
+  const messages = await r.table('messages')
+    .between([channelName, r.minval], [channelName, r.maxval], { index: 'toAndTimestamp' })
+    .orderBy({ index: r.desc('toAndTimestamp') })
+    .limit(75)
 
-const getMessagesBefore = (channelName, timestamp, messageId) => (
-  r.table('messages')
-  .between(
-    [channelName, r.minval],
-    [channelName, r.ISO8601(timestamp)],
-    { index: 'toAndTimestamp' }
+  return fp.reverse(messages)
+}
+
+const getMessagesBefore = async (channelName, timestamp, messageId) => {
+  return await (
+    r.table('messages')
+    .between(
+      [channelName, r.minval],
+      [channelName, timestamp],
+      { index: 'toAndTimestamp' }
+    )
+    .orderBy({ index: r.desc('toAndTimestamp') })
+    .filter(r.row('id').ne(messageId))
+    .limit(75)
+    .orderBy(r.asc('timestamp'))
   )
-  .orderBy({ index: r.desc('toAndTimestamp') })
-  .filter(r.row('id').ne(messageId))
-  .limit(100)
-)
+}
 
-const getMessagesAfter = (channelName, timestamp, messageId) => (
-  // TODO: Add limit and retry requests on client.
-  r.table('messages')
-  .between([channelName, r.ISO8601(timestamp)], [channelName, r.maxval], { index: 'toAndTimestamp' })
-  .orderBy({ index: r.desc('toAndTimestamp') })
-  .filter(r.row('id').ne(messageId))
-)
+const getMessagesAfter = async (channelName, timestamp, messageId) => {
+  return await (
+    r.table('messages')
+    .between(
+      [channelName, timestamp],
+      [channelName, r.maxval],
+      { index: 'toAndTimestamp' }
+    )
+    .orderBy({ index: 'toAndTimestamp' })
+    .filter(r.row('id').ne(messageId))
+    .limit(75)
+  )
+}
+
+const getMessagesAround = async (channelName, messageId) => {
+  const message = await r.table('messages').get(messageId)
+
+  if (!message) {
+    return []
+  }
+
+  if (message.to !== channelName) {
+    return []
+  }
+
+  const messagesBefore = await getMessagesBefore(channelName, message.timestamp, message.id)
+  const messagesAfter = await getMessagesAfter(channelName, message.timestamp, message.id)
+
+  return fp.reduce(fp.concat, [], [messagesBefore, [message], messagesAfter])
+}
 
 module.exports = {
   getInitialChannels,
@@ -42,4 +72,5 @@ module.exports = {
   getInitialMessages,
   getMessagesBefore,
   getMessagesAfter,
+  getMessagesAround,
 }

@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import { isAppLoadingSelector } from '../selectors'
 import Loader from '../components/Loader'
 
-import './App.css'
+import '../styles/App.css'
 
 const App = ({ isAppLoading, children }) => {
   const classes = classNames({

@@ -4,7 +4,7 @@ import classNames from 'classnames'
 
 import { parse } from '../text'
 
-import './Text.css'
+import '../styles/Text.css'
 
 export default props => {
   const { children: text } = props

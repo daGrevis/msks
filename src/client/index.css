@@ -27,11 +27,3 @@ a {
   font-size: 14px;
   text-decoration: none;
 }
-
-.notification-bar {
-  background: rgba(0, 0, 0, .9) !important;
-  z-index: 10;
-}
-.notification-bar-action {
-  color: white !important;
-}

@@ -1,10 +1,9 @@
-const fp = require('lodash/fp')
 const r = require('./rethink')
 
-const { getInitialChannels, getInitialUsers, getInitialMessages, getMessagesBefore, getMessagesAfter} = require('./queries')
+const queries = require('./queries')
 
 const subscribeToChannels = () => ({ socket, context }) => (
-  getInitialChannels().then(channels => {
+  queries.getInitialChannels().then(channels => {
     socket.emit('action', {
       type: 'client/INITIAL_CHANNELS',
       payload: {
@@ -36,7 +35,7 @@ const subscribeToUsers = ({ channelName = null }) => ({ socket, context }) => {
     return
   }
 
-  getInitialUsers(channelName).then(users => {
+  queries.getInitialUsers(channelName).then(users => {
     socket.emit('action', {
       type: 'client/INITIAL_USERS',
       payload: {
@@ -63,7 +62,7 @@ const subscribeToUsers = ({ channelName = null }) => ({ socket, context }) => {
 }
 
 const subscribeToMessages = payload => ({ socket, context }) => {
-  const { channelName = null, timestamp = null, messageId = null } = payload
+  const { channelName, timestamp, messageId } = payload
 
   if (!channelName || !timestamp || !messageId) {
     console.error('SUBSCRIBE_TO_MESSAGES: channelName, timestamp or messageId missing!')
@@ -89,25 +88,29 @@ const subscribeToMessages = payload => ({ socket, context }) => {
 }
 
 const loadMessages = payload => ({ socket }) => {
-  const { channelName = null, before = null, after = null, messageId = null } = payload
+  const { channelName, before, after, messageId } = payload
 
   if (!channelName) {
-    console.error('LOADED_MESSAGES: channelName missing!')
+    console.error('LOAD_MESSAGES: channelName missing!')
     return
   }
 
   if ((before && !messageId) || (after && !messageId)) {
-    console.error('LOADED_MESSAGES: messageId missing!')
+    console.error('LOAD_MESSAGES: messageId missing!')
     return
   }
 
   let messagePromise
+  let isInitial = false
   if (before) {
-    messagePromise = getMessagesBefore(channelName, before, messageId)
+    messagePromise = queries.getMessagesBefore(channelName, r.ISO8601(before), messageId)
   } else if (after) {
-    messagePromise = getMessagesAfter(channelName, after, messageId)
+    messagePromise = queries.getMessagesAfter(channelName, r.ISO8601(after), messageId)
+  } else if (messageId) {
+    messagePromise = queries.getMessagesAround(channelName, messageId)
   } else {
-    messagePromise = getInitialMessages(channelName)
+    isInitial = true
+    messagePromise = queries.getInitialMessages(channelName)
   }
 
   messagePromise.then(messages => {
@@ -115,9 +118,10 @@ const loadMessages = payload => ({ socket }) => {
       type: 'client/LOADED_MESSAGES',
       payload: {
         channelName,
+        messages,
+        isInitial,
         before,
         after,
-        messages: fp.reverse(messages),
       }
     })
   })

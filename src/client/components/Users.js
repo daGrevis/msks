@@ -3,7 +3,7 @@ import React from 'react'
 
 import { getColor } from '../colors'
 
-import './Users.css'
+import '../styles/Users.css'
 
 const UserList = ({ users, isOp, isVoiced }) =>
   <ol>
@@ -20,9 +20,9 @@ const UserList = ({ users, isOp, isVoiced }) =>
     ))}
   </ol>
 
-const Users = ({ users, groupedUsers }) =>
+const Users = ({ groupedUsers }) =>
   <div id='users'>
-    <h3 className='strong'>Users ({_.size(users)})</h3>
+    <h3 className='strong'>Users</h3>
 
     <UserList users={groupedUsers['op']} isOp />
     <UserList users={groupedUsers['voiced']} isVoiced />

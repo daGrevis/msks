@@ -25,6 +25,11 @@ const channelUpdater = createUpdater({
     ? fp.set(['channels', new_val.name], new_val)
     : fp.unset(['channels', old_val.name])
   ),
+
+  'SET_SCROLL_POSITION': ({ payload: { channelName, position } }) => fp.set(
+    ['scrollPositions', channelName],
+    position
+  ),
 })
 
 const addMessage = m => fp.update(
@@ -66,10 +71,14 @@ const messagesUpdater = createUpdater({
   UNSUBSCRIBE_FROM_ALL_MESSAGES: () => fp.set('isSubscribedToMessages', {}),
 
   ADD_MESSAGE: ({ payload }) => addMessage(payload),
-  ADD_MESSAGES: ({ payload: { channelName, messages }}) => state => fp.pipe(
-    addMessages(messages),
-    fp.set(['hasReachedBeginning', channelName], !messages.length)
-  )(state),
+  ADD_MESSAGES: ({ payload: { channelName, messages }}) => (
+    addMessages(messages)
+  ),
+
+  'client/LOADED_MESSAGES': ({ payload: { channelName, messages, before } }) => fp.set(
+    ['hasReachedBeginning', channelName],
+    before && !messages.length
+  ),
 })
 
 const usersUpdater = createUpdater({

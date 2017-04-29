@@ -1615,10 +1615,6 @@ decamelize@^1.0.0, decamelize@^1.1.1, decamelize@^1.1.2:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
 
-decouple@0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/decouple/-/decouple-0.0.2.tgz#cb373640c37f987a5f6866724ccd424a80f9d9a2"
-
 deep-diff@0.3.4:
   version "0.3.4"
   resolved "https://registry.yarnpkg.com/deep-diff/-/deep-diff-0.3.4.tgz#aac5c39952236abe5f037a2349060ba01b00ae48"
@@ -1778,10 +1774,6 @@ ee-first@1.1.1:
 electron-to-chromium@^1.2.5:
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.2.5.tgz#d373727228843dfd8466c276089f13b40927a952"
-
-"emitter@git+https://github.com/Mango/emitter.git#0.0.7":
-  version "0.0.7"
-  resolved "git+https://github.com/Mango/emitter.git#41ab8a3956269c7ed468bde50203e15b3274152f"
 
 emoji-regex@^6.1.0:
   version "6.4.2"
@@ -2001,6 +1993,12 @@ eslint-module-utils@^2.0.0:
 eslint-plugin-flowtype@2.21.0:
   version "2.21.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-flowtype/-/eslint-plugin-flowtype-2.21.0.tgz#a47e85abcdd181d37a336054bd552149ae387d9c"
+  dependencies:
+    lodash "^4.15.0"
+
+eslint-plugin-flowtype@^2.32.1:
+  version "2.32.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-flowtype/-/eslint-plugin-flowtype-2.32.1.tgz#bbee185dedf97e5f63ec975cdcddd199bd2a2501"
   dependencies:
     lodash "^4.15.0"
 
@@ -5085,13 +5083,6 @@ slash@^1.0.0:
 slice-ansi@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/slice-ansi/-/slice-ansi-0.0.4.tgz#edbf8903f66f7ce2f8eafd6ceed65e264c831b35"
-
-"slideout@git+ssh://git@github.com/daGrevis/slideout.git#22bb159":
-  version "1.0.1"
-  resolved "git+ssh://git@github.com/daGrevis/slideout.git#22bb159"
-  dependencies:
-    decouple "0.0.2"
-    emitter "git+https://github.com/Mango/emitter.git#0.0.7"
 
 sntp@1.x.x:
   version "1.0.9"
