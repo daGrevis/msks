@@ -4,8 +4,14 @@
 
 #channel .content, #channel .sidebar {
   transition: right .25s ease-in;
-  overflow: scroll;
   height: 100%;
+}
+
+#channel .content {
+  overflow-y: hidden;
+}
+#channel .sidebar {
+  overflow-y: scroll;
 }
 
 #channel .sidebar {
