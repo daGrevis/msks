@@ -146,15 +146,15 @@ const onReady = () => {
 
     router.resolve({ path })
       .then(({ component, params }) => {
+        dispatch(
+          navigated({ loc, params })
+        )
+
         ReactDOM.render((
           <Provider store={store}>
             <App>{component}</App>
           </Provider>
         ), mountNode)
-
-        dispatch(
-          navigated({ loc, params })
-        )
       })
   }
 
