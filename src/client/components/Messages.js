@@ -143,10 +143,14 @@ class Messages extends React.Component {
     this.scrollHeight = this.wrapperNode.scrollHeight
     this.scrollTop = this.wrapperNode.scrollTop
 
-    const scrollBottom = (
-      this.wrapperNode.scrollHeight - (this.wrapperNode.scrollTop + this.wrapperNode.clientHeight)
+    this.shouldScrollToBottom = (
+      !this.props.messageId
+      && this.props.isSubscribedToMessages
+      && (
+        this.wrapperNode.scrollHeight
+        === (this.wrapperNode.scrollTop + this.wrapperNode.clientHeight)
+      )
     )
-    this.shouldScrollToBottom = !this.props.messageId && scrollBottom < 50
 
     this.shouldScrollToMessage = false
 
