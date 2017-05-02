@@ -22,9 +22,6 @@ class Channel extends Component {
     isSidebarOpen: false,
   }
 
-  onResize = _.throttle(() => {
-  }, 200)
-
   onHamburgerClick = () => {
     this.setState({ isSidebarOpen: !this.state.isSidebarOpen })
   }
@@ -47,12 +44,6 @@ class Channel extends Component {
     if (!this.props.isSubscribedToUsers) {
       this.props.subscribeToUsers({ channelName: this.props.channel.name })
     }
-
-    window.addEventListener('resize', this.onResize)
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.onResize)
   }
 
   render() {
