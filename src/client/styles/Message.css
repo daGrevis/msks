@@ -45,7 +45,7 @@
 }
 
 #channel .message.kind-notice .text {
-  font-weight: bold;
+  font-weight: 500;
 }
 
 #channel .message.kind-kick .text .kick-reason {
