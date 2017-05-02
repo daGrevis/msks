@@ -232,7 +232,9 @@ class Messages extends React.Component {
 
             return (
               <div key={message.id}>
-                {isNewDay ? <DayHeader text={dayText} isoTimestamp={currentDay && currentDay.format()} /> : null}
+                {isNewDay && (hasReachedBeginning || previousMessage)
+                    ? <DayHeader text={dayText} isoTimestamp={currentDay && currentDay.format()} />
+                    : null}
 
                 <Message
                   message={message}
