@@ -5,7 +5,7 @@ import { mo } from './utils'
 
 const appUpdater = createUpdater({
   SET_EMBED: () => fp.set('isEmbed', true),
-
+  SET_BROKEN: () => fp.set('isBroken', true),
   SET_VISIBILITY: ({ payload }) => fp.set('isVisible', payload),
 })
 

@@ -17,8 +17,8 @@ import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
 import {
-  setEmbed, navigated, setVisibility, setChannelName,
-  subscribeToChannels, unsubscribeFromAllMessages, reconnect,
+  setEmbed, setBroken, navigated, setVisibility, setChannelName,
+  subscribeToChannels, unsubscribeFromAllMessages,
 } from './actions'
 import * as actions from './actions'
 import * as selectors from './selectors'
@@ -69,6 +69,10 @@ const store = createStore(
 
 const { dispatch, getState } = store
 
+window.addEventListener('error', () => {
+  dispatch(setBroken())
+})
+
 if (EMBED_CHANNEL) {
   dispatch(setEmbed())
 }
@@ -79,10 +83,6 @@ socket.on('error', err => {
 
 socket.on('disconnect', () => {
   dispatch(unsubscribeFromAllMessages())
-})
-
-socket.on('reconnect', () => {
-  dispatch(reconnect())
 })
 
 dispatch(subscribeToChannels())
@@ -187,3 +187,4 @@ window.actions = actions
 window.getState = getState
 window.selectors = selectors
 window.navigate = navigate
+window.socket = socket

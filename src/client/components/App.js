@@ -7,8 +7,9 @@ import Loader from '../components/Loader'
 
 import '../styles/App.css'
 
-const App = ({ isAppLoading, children }) => {
+const App = ({ isBroken, isAppLoading, children }) => {
   const classes = classNames({
+    'is-broken': isBroken,
     'is-loading': isAppLoading,
   })
 
@@ -20,6 +21,7 @@ const App = ({ isAppLoading, children }) => {
 }
 
 const mapStateToProps = state => ({
+  isBroken: state.isBroken,
   isAppLoading: isAppLoadingSelector(state),
 })
 

@@ -1,5 +1,8 @@
 const initialState = {
   isEmbed: false,
+
+  isBroken: false,
+
   isVisible: true,
 
   location: null,

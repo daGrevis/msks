@@ -1,9 +1,6 @@
-import fp from 'lodash/fp'
 import { createAction } from 'redux-actions'
 import uuid from 'uuid'
 import Favico from 'favico.js'
-
-import { allMessagesSelector } from './selectors'
 
 const favicon = new Favico({
   animation: 'none',
@@ -12,6 +9,8 @@ const favicon = new Favico({
 const noop = createAction('NOOP')
 
 const setEmbed = createAction('SET_EMBED')
+
+const setBroken = createAction('SET_BROKEN')
 
 const setVisibility = createAction('SET_VISIBILITY')
 
@@ -56,33 +55,10 @@ const addNotification = message => dispatch => {
 
 const removeNotification = createAction('REMOVE_NOTIFICATION')
 
-const reconnect = () => (dispatch, getState) => {
-  const state = getState()
-
-  dispatch(subscribeToChannels())
-
-  const { channelName } = state
-
-  if (channelName) {
-    const lastMessage = fp.last(allMessagesSelector(state)[channelName])
-
-    if (!lastMessage) {
-      return
-    }
-
-    dispatch(
-      subscribeToMessages({
-        channelName,
-        timestamp: lastMessage.timestamp,
-        messageId: lastMessage.id,
-      })
-    )
-  }
-}
-
 export {
   noop,
   setEmbed,
+  setBroken,
   setVisibility,
   navigated,
   setTitle,
@@ -100,5 +76,4 @@ export {
   setFavicoBadge,
   addNotification,
   removeNotification,
-  reconnect,
 }
