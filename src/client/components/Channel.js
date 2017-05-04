@@ -4,11 +4,8 @@ import classNames from 'classnames'
 import { connect } from 'react-redux'
 
 import { navigate } from '../history'
-import { setTitle, setScrollPosition, loadMessages, subscribeToUsers } from '../actions'
-import {
-  isEmbedSelector, messagesSelector, hasReachedBeginningSelector,
-  usersSelector, userCountSelector, groupedUsersSelector,
-} from '../selectors'
+import { setTitle, subscribeToUsers } from '../actions'
+import { isEmbedSelector, userCountSelector, groupedUsersSelector } from '../selectors'
 import Maybe from '../components/Maybe'
 import Text from '../components/Text'
 import Messages from '../components/Messages'
@@ -47,7 +44,7 @@ class Channel extends Component {
   }
 
   render() {
-    const { isEmbed, channel, userCount, groupedUsers } = this.props
+    const { messageId, isEmbed, channel, userCount, groupedUsers } = this.props
 
     const sidebarClasses = classNames('sidebar', {
       'is-open': this.state.isSidebarOpen,
@@ -85,7 +82,7 @@ class Channel extends Component {
             </Maybe>
           </div>
 
-          <Messages {...this.props} />
+          <Messages messageId={messageId} />
         </div>
 
         <div className={sidebarClasses}>
@@ -98,25 +95,20 @@ class Channel extends Component {
 
 const mapStateToProps = (state, props) => {
   const { channelName } = state
+
   return {
+    messageId: props.messageId,
+
     isEmbed: isEmbedSelector(state),
-    channel: state.channels[channelName],
-    messages: messagesSelector(state),
-    scrollPosition: state.scrollPositions[channelName],
-    hasReachedBeginning: hasReachedBeginningSelector(state),
-    isSubscribedToMessages: state.isSubscribedToMessages[channelName],
     isSubscribedToUsers: state.isSubscribedToUsers[channelName],
-    users: usersSelector(state),
-    userCount: userCountSelector(state),
+    channel: state.channels[channelName],
     groupedUsers: groupedUsersSelector(state),
-    ...props,
+    userCount: userCountSelector(state),
   }
 }
 
 const mapDispatchToProps = {
   setTitle,
-  setScrollPosition,
-  loadMessages,
   subscribeToUsers,
 }
 

@@ -1,10 +1,13 @@
 import _ from 'lodash'
 import fp from 'lodash/fp'
 import React from 'react'
+import { connect } from 'react-redux'
 
 import { mo } from '../utils'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
+import { loadMessages, setScrollPosition } from '../actions'
+import { isEmbedSelector, messagesSelector, hasReachedBeginningSelector } from '../selectors'
 
 const DayHeader = ({ text, isoTimestamp }) => {
   return (
@@ -255,4 +258,24 @@ class Messages extends React.Component {
   }
 }
 
-export default Messages
+const mapStateToProps = (state, props) => {
+  const { channelName } = state
+
+  return {
+    messageId: props.messageId,
+
+    isEmbed: isEmbedSelector(state),
+    isSubscribedToMessages: state.isSubscribedToMessages[channelName],
+    channel: state.channels[channelName],
+    messages: messagesSelector(state),
+    scrollPosition: state.scrollPositions[channelName],
+    hasReachedBeginning: hasReachedBeginningSelector(state),
+  }
+}
+
+const mapDispatchToProps = {
+  loadMessages,
+  setScrollPosition,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Messages)
