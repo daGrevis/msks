@@ -44,7 +44,7 @@ const createToken = (type, payload) => {
 }
 
 const tokenizeLinks = token => {
-  const splits = fp.split(/(\w+:\/\/\S+)/, token.payload)
+  const splits = fp.split(/(\S+:\/\/\S+)/, token.payload)
 
   return fp.pipe([
     fp.chunk(2),
