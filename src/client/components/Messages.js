@@ -28,7 +28,6 @@ class Messages extends React.Component {
   shouldScrollToMessage = null
   shouldAdjustScrollPosition = null
   shouldRestoreScrollPosition = null
-  loadCache = {}
 
   onRef = node => {
     this.wrapperNode = node
@@ -49,11 +48,6 @@ class Messages extends React.Component {
     if (hasReachedTop) {
       const firstMessage = fp.first(this.props.messages)
 
-      if (this.loadCache[firstMessage.id]) {
-        return
-      }
-      this.loadCache[firstMessage.id] = true
-
       this.props.loadMessages({
         channelName: this.props.channel.name,
         before: firstMessage.timestamp,
@@ -63,11 +57,6 @@ class Messages extends React.Component {
 
     if (hasReachedBottom && !this.props.isSubscribedToMessages) {
       const lastMessage = fp.last(this.props.messages)
-
-      if (this.loadCache[lastMessage.id]) {
-        return
-      }
-      this.loadCache[lastMessage.id] = true
 
       this.props.loadMessages({
         channelName: this.props.channel.name,
@@ -266,6 +255,7 @@ const mapStateToProps = (state, props) => {
 
     isEmbed: isEmbedSelector(state),
     isSubscribedToMessages: state.isSubscribedToMessages[channelName],
+    loadCache: state.loadCache,
     channel: state.channels[channelName],
     messages: messagesSelector(state),
     scrollPosition: state.scrollPositions[channelName],
@@ -273,9 +263,24 @@ const mapStateToProps = (state, props) => {
   }
 }
 
-const mapDispatchToProps = {
-  loadMessages,
-  setScrollPosition,
+const mapDispatchToProps = dispatch => ({
+  dispatch,
+})
+
+const mergeProps = (stateProps, { dispatch }, ownProps) => {
+  return {
+    ...stateProps,
+    ...ownProps,
+
+    setScrollPosition: payload => dispatch(setScrollPosition(payload)),
+    loadMessages: payload => {
+      if (payload.messageId && stateProps.loadCache[payload.messageId]) {
+        return
+      }
+
+      dispatch(loadMessages(payload))
+    },
+  }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Messages)
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Messages)

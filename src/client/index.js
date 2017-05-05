@@ -17,8 +17,8 @@ import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
 import {
-  setEmbed, setBroken, navigated, setVisibility, setChannelName,
-  subscribeToChannels, unsubscribeFromAllMessages,
+  setEmbed, setBroken, setVisibility, navigated,
+  socketConnected, socketDisconnected, setChannelName,
 } from './actions'
 import * as actions from './actions'
 import * as selectors from './selectors'
@@ -81,11 +81,13 @@ socket.on('error', err => {
   console.error(err)
 })
 
-socket.on('disconnect', () => {
-  dispatch(unsubscribeFromAllMessages())
+socket.on('connect', () => {
+  dispatch(socketConnected())
 })
 
-dispatch(subscribeToChannels())
+socket.on('disconnect', () => {
+  dispatch(socketDisconnected())
+})
 
 const routes = EMBED_CHANNEL ? [
   {

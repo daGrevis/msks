@@ -65,6 +65,10 @@ const initialState = {
     // '#developerslv': true,
   },
 
+  loadCache: {
+    // 'd3348233-440e-4962-b60a-9fb174f75331': true,
+  },
+
   hasReachedBeginning: {
     // '#developerslv': true,
   },

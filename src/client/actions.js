@@ -16,6 +16,10 @@ const setVisibility = createAction('SET_VISIBILITY')
 
 const navigated = createAction('NAVIGATED')
 
+const socketConnected = createAction('SOCKET_CONNECTED')
+
+const socketDisconnected = createAction('SOCKET_DISCONNECTED')
+
 const setTitle = title => dispatch => {
   dispatch(createAction('SET_TITLE'))
 
@@ -32,8 +36,6 @@ const addMessage = createAction('ADD_MESSAGE')
 const addMessages = createAction('ADD_MESSAGES')
 
 const subscribeToMessages = createAction('server/SUBSCRIBE_TO_MESSAGES')
-
-const unsubscribeFromAllMessages = createAction('UNSUBSCRIBE_FROM_ALL_MESSAGES')
 
 const subscribeToUsers = createAction('server/SUBSCRIBE_TO_USERS')
 
@@ -61,6 +63,8 @@ export {
   setBroken,
   setVisibility,
   navigated,
+  socketConnected,
+  socketDisconnected,
   setTitle,
   setChannelName,
   subscribeToChannels,
@@ -68,7 +72,6 @@ export {
   addMessage,
   addMessages,
   subscribeToMessages,
-  unsubscribeFromAllMessages,
   subscribeToUsers,
   setScrollPosition,
   updateUnread,

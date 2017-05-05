@@ -2,10 +2,14 @@ import fp from 'lodash/fp'
 import { combineEpics } from 'redux-observable'
 
 import {
-  noop, addMessages, addMessage, subscribeToMessages,
+  noop, subscribeToChannels, addMessages, addMessage, subscribeToMessages,
   updateUnread, resetUnread, setFavicoBadge,
 } from './actions'
 import { channelNameSelector, allMessagesSelector } from './selectors'
+
+const subscribeToChannelsEpic = action$ =>
+  action$.ofType('SOCKET_CONNECTED')
+    .map(({ payload }) => subscribeToChannels())
 
 const addMessagesEpic = action$ =>
   action$.ofType('client/LOADED_MESSAGES')
@@ -64,6 +68,7 @@ const setFavicoBadgeEpic = action$ =>
     .map(setFavicoBadge)
 
 const rootEpic = combineEpics(
+  subscribeToChannelsEpic,
   addMessagesEpic,
   subscribeToMessagesEpic,
   messageChangeEpic,

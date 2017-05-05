@@ -13,6 +13,14 @@ const historyUpdater = createUpdater({
   NAVIGATED: ({ payload }) => fp.set('location', payload)
 })
 
+const socketUpdater = createUpdater({
+  SOCKET_DISCONNECTED: () => fp.pipe(
+    fp.set('isSubscribedToUsers', {}),
+    fp.set('isSubscribedToMessages', {}),
+    fp.set('loadCache', {})
+  )
+})
+
 const channelUpdater = createUpdater({
   SET_CHANNEL_NAME: ({ payload }) => fp.set('channelName', payload),
 
@@ -68,7 +76,12 @@ const addMessages = newMessages => state => {
 
 const messagesUpdater = createUpdater({
   'server/SUBSCRIBE_TO_MESSAGES': ({ payload }) => fp.set(['isSubscribedToMessages', payload.channelName], true),
-  UNSUBSCRIBE_FROM_ALL_MESSAGES: () => fp.set('isSubscribedToMessages', {}),
+
+  'server/LOAD_MESSAGES': ({ payload }) => (
+    payload.messageId
+    ? fp.set(['loadCache', payload.messageId], true)
+    : fp.identity
+  ),
 
   ADD_MESSAGE: ({ payload }) => addMessage(payload),
   ADD_MESSAGES: ({ payload: { channelName, messages }}) => (
@@ -83,7 +96,6 @@ const messagesUpdater = createUpdater({
 
 const usersUpdater = createUpdater({
   'server/SUBSCRIBE_TO_USERS': ({ payload }) => fp.set(['isSubscribedToUsers', payload.channelName], true),
-  UNSUBSCRIBE_FROM_ALL_USERS: () => fp.set('isSubscribedToUsers', {}),
 
   'client/INITIAL_USERS': ({ payload: { channelName, users }}) => fp.set(
     ['users', channelName],
@@ -109,6 +121,7 @@ const notificationUpdater = createUpdater({
 const rootReducer = (state, action) => pipeUpdaters(
   appUpdater,
   historyUpdater,
+  socketUpdater,
   channelUpdater,
   messagesUpdater,
   usersUpdater,
