@@ -12,6 +12,7 @@ import { createEpicMiddleware } from 'redux-observable'
 import createLogger from 'redux-logger'
 import createSocketIoMiddleware from 'redux-socket.io'
 
+import config from './config'
 import { mo } from './utils'
 import { initialState } from './state'
 import { rootReducer } from  './reducers'
@@ -38,17 +39,12 @@ import 'hamburgers/dist/hamburgers.min.css'
 
 import './index.css'
 
-const EMBED_CHANNEL = process.env.REACT_APP_EMBED_CHANNEL
-
 const socketMiddleware = createSocketIoMiddleware(socket, 'server/')
 
 const loggerMiddleware = createLogger({
   duration: true,
   timestamp: false,
   collapsed: true,
-  titleFormatter: (action, time, took) => (
-    `${action.type} (in ${took.toFixed(2)} ms)`
-  ),
   predicate: (getState, action) => (
     action.type !== 'NOOP'
   )
@@ -73,7 +69,7 @@ window.addEventListener('error', () => {
   dispatch(setBroken())
 })
 
-if (EMBED_CHANNEL) {
+if (config.embedChannel) {
   dispatch(setEmbed())
 }
 
@@ -89,11 +85,11 @@ socket.on('disconnect', () => {
   dispatch(socketDisconnected())
 })
 
-const routes = EMBED_CHANNEL ? [
+const routes = config.embedChannel ? [
   {
     path: '/',
     action: () => {
-      dispatch(setChannelName(EMBED_CHANNEL))
+      dispatch(setChannelName(config.embedChannel))
       return {
         component: <Channel />,
       }
@@ -102,7 +98,7 @@ const routes = EMBED_CHANNEL ? [
   {
     path: '/:messageId',
     action: ({ params }) => {
-      dispatch(setChannelName(EMBED_CHANNEL))
+      dispatch(setChannelName(config.embedChannel))
       return {
         component: <Channel messageId={params.messageId} />,
       }

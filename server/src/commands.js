@@ -1,8 +1,9 @@
 const fp = require('lodash/fp')
 
+const logger = require('./logger')
 const config = require('./config')
 const queries = require('./queries')
-const { client, ctx } = require('./irc')
+const { ircClient, ctx } = require('./irc')
 const { humanizeDelta } = require('./utils')
 const { versionText } = require('./version')
 
@@ -23,20 +24,20 @@ const onVersion = async () => {
 }
 
 const onReload = async ({ message }) => {
-  if (!fp.includes(message.from, config.admins)) {
+  if (!fp.includes(message.from, config.irc.admins)) {
     return
   }
 
-  console.log(`reloading bot...`)
+  logger.info(`!reload requested by ${message.from}, exiting...`)
 
   const now = new Date()
 
-  const channels = await queries.leaveNetwork(client.user.nick)
+  const channels = await queries.leaveNetwork(ircClient.user.nick)
   for (const channel of channels) {
     await queries.saveMessage({
       kind: 'quit',
       timestamp: now,
-      from: client.user.nick,
+      from: ircClient.user.nick,
       to: channel,
       text: '',
     })
@@ -58,7 +59,7 @@ const matchCommand = message => {
   let isAddressedToMe = false
   let hasCommandPrefix = false
 
-  const nickPattern = new RegExp(`^${client.user.nick}[,:]{1} ?`)
+  const nickPattern = new RegExp(`^${ircClient.user.nick}[,:]{1} ?`)
   if (nickPattern.test(text)) {
     isAddressedToMe = true
     text = text.replace(nickPattern, '')

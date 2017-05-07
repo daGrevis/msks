@@ -1,15 +1,15 @@
 import createHistory from 'history/createBrowserHistory'
 
-const basePath = process.env.REACT_APP_BASE_PATH || '/'
+import config from './config'
 
 const history = createHistory()
 
 const navigate = path => {
-  history.push(basePath + path)
+  history.push(config.basePath + path)
 }
 
 const getPath = loc =>
-  '/' + (loc.pathname + loc.hash).replace(new RegExp(`^${basePath}`), '')
+  '/' + (loc.pathname + loc.hash).replace(new RegExp(`^${config.basePath}`), '')
 
 export {
   history,

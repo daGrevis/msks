@@ -41,15 +41,11 @@
     "viewport-units-buggyfill": "^0.6.0"
   },
   "scripts": {
-    "start": "echo \"Execute: 'npm run start:server' and 'npm run start:client' separately\" && exit 1",
-    "start:client": "react-scripts start",
-    "start:server": "npm run --prefix src/server start-nodemon",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "deploy-msks": "REACT_APP_BASE_PATH=/msks/ npm run build && ssh root@dagrev.is 'rm -rf ~/msks/build/*'; scp -r build/* root@dagrev.is:~/msks/build/",
-    "deploy-developerslv": "REACT_APP_EMBED_CHANNEL='#developerslv' REACT_APP_BASE_PATH=/ REACT_APP_SOCKETIO_URL='//' REACT_APP_SOCKETIO_PATH='/msks-server/socket.io' npm run build && ssh root@dagrev.is 'rm -rf ~/developerslv/build/*'; scp -r build/* root@dagrev.is:~/developerslv/build/",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "deploy-developerslv": "REACT_APP_BASE_PATH=/ REACT_APP_EMBED_CHANNEL='#developerslv' npm run build && ssh root@dagrev.is 'rm -rf ~/developerslv/build/*'; scp -r build/* root@dagrev.is:~/developerslv/build/"
   },
   "proxy": "http://localhost:3001/",
-  "homepage": "http://dagrev.is/msks"
+  "homepage": "."
 }

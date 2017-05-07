@@ -1,11 +1,12 @@
 const _ = require('lodash')
 
+const logger = require('./logger')
 const config = require('./config')
 const queries = require('./queries')
-const { client, ctx } = require('./irc')
+const { ircClient, ctx } = require('./irc')
 const { matchCommand } = require('./commands')
 
-const isMe = nick => client.user.nick === nick
+const isMe = nick => ircClient.user.nick === nick
 
 const isPM = message => (
   // Apparently & is a valid prefix for channel.
@@ -14,35 +15,35 @@ const isPM = message => (
 )
 
 const onDebug = async (s) => {
-  if (!config.ircDebug) {
+  if (!config.irc.debug) {
     return
   }
 
-  console.log(s)
+  logger.debug(s)
 }
 
 const onClose = async (err) => {
-  console.log('connection to server closed!')
+  logger.warning('Connection to IRC server was closed!')
 }
 
 const onConnecting = async () => {
-  console.log('connecting to server...')
+  logger.info('Connecting to IRC server...')
 }
 
 const onReconnecting = async (payload) => {
   const { attempt, max_retries } = payload
 
-  console.log(`reconnecting to server (${attempt}/${max_retries})...`)
+  logger.info(`Reconnecting to IRC server (${attempt}/${max_retries})...`)
 }
 
 const onRegistered = async () => {
   ctx.connectionTime = new Date()
 
-  console.log('connected to server!')
+  logger.info('Connected to IRC server!')
 
-  _.forEach(config.ircChannels, channel => {
-    console.log(`joining ${channel}...`)
-    client.join(channel)
+  logger.info(`Joining channels: ${config.irc.channels}`)
+  _.forEach(config.irc.channels, channel => {
+    ircClient.join(channel)
   })
 }
 
@@ -56,7 +57,7 @@ const onJoin = async (payload) => {
   })
 
   if (isMe(payload.nick)) {
-    console.log(`joined ${payload.channel}!`)
+    logger.verbose(`Joined ${payload.channel}!`)
 
     await queries.createChannel({ name: payload.channel })
   } else {
@@ -201,7 +202,7 @@ const onMessage = async (payload) => {
 
   await queries.saveMessage(message)
 
-  const isSilent = _.includes(config.silentChannels, message.to)
+  const isSilent = _.includes(config.irc.silentChannels, message.to)
   if (isSilent) {
     return
   }
@@ -220,12 +221,12 @@ const onMessage = async (payload) => {
 
   const recipient = isPM(message) ? message.from : message.to
 
-  client.say(recipient, response)
+  ircClient.say(recipient, response)
 
   await queries.saveMessage({
     kind: 'message',
     timestamp: new Date(),
-    from: client.user.nick,
+    from: ircClient.user.nick,
     to: recipient,
     text: response,
   })
