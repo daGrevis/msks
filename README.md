@@ -1,41 +1,5 @@
-# msks-client & msks-server
+# msks
 
 [Meeseeks](https://www.youtube.com/watch?v=qUYvIAP3qQk) displays IRC messages in web browser. Demo at [developers.lv](https://developers.lv/).
 
-Messages are stored in RethinkDB by [msks-bot](https://github.com/daGrevis/msks-bot). Then they are pushed to React client via Socket.IO.
-
-## Development
-
-Make sure RethinkDB and [msks-bot](https://github.com/daGrevis/msks-bot) are running.
-
-### Client
-
-Install environment:
-
-```sh
-yarn install
-```
-
-Start client:
-
-```sh
-yarn run start:client
-```
-
-Go to [`localhost:3000`](http://localhost:3000/).
-
-### Server
-
-Install environment:
-
-```sh
-cd src/server
-yarn install
-cd -
-```
-
-Start server:
-
-```sh
-yarn run start:server
-```
+Messages are stored in RethinkDB. Then they are pushed to React client via Socket.IO.
