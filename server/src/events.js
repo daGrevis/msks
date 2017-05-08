@@ -23,7 +23,7 @@ const onDebug = async (s) => {
 }
 
 const onClose = async (err) => {
-  logger.warning('Connection to IRC server was closed!')
+  logger.warn('Connection to IRC server was closed!')
 }
 
 const onConnecting = async () => {

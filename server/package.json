@@ -9,7 +9,6 @@
     "joi": "^10.2.2",
     "koa": "^2.2.0",
     "koa-logger": "^2.0.1",
-    "koa-mount": "^3.0.0",
     "koa-router": "next",
     "koa-static": "^3.0.0",
     "lodash": "^4.17.4",

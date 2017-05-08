@@ -15,3 +15,6 @@ gecos = "Mr. Meeseeks"
 channels = ["#meeseekeria"]
 silentChannels = []
 admins = ["daGrevis"]
+
+[http]
+clientPath = "../client/build"

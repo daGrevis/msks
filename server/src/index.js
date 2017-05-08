@@ -7,7 +7,6 @@ const http = require('http')
 const socketio = require('socket.io')
 const Koa = require('koa')
 const KoaRouter = require('koa-router')
-const KoaMount = require('koa-mount')
 const KoaStatic = require('koa-static')
 
 const config = require('./config')
@@ -28,15 +27,30 @@ const koaRouter = new KoaRouter()
 
 koa.use(koaLogger())
 
-const indexHtml = fs.readFileSync('../client/build/index.html', 'utf8')
-
-koa.use(KoaMount('/static', KoaStatic(`../client/build/static`)))
-
 koaRouter.get('/api/version', ctx => {
   ctx.body = { version: versionText }
 })
 
+const getClientPath = ctx => {
+  if (_.isString(config.http.clientPath)) {
+    return config.http.clientPath
+  }
+
+  return config.http.clientPath[
+    ctx.request.headers['x-client-app']
+  ]
+}
+
 koaRouter.get('/*', ctx => {
+  const clientPath = getClientPath(ctx)
+
+  if (!clientPath) {
+    logger.warn('Could not detect clientPath!')
+    return
+  }
+
+  const indexHtml = fs.readFileSync(`${clientPath}/index.html`, 'utf8')
+
   ctx.body = indexHtml
 })
 

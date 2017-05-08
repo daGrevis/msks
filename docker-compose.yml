@@ -30,5 +30,5 @@ services:
      - '3001:3001'
     volumes:
      - ~/msks/config.toml:/usr/src/app/config.toml:ro
-     - ~/msks/build:/usr/src/app/client/build:ro
+     - ~/msks/build:/srv/msks:ro
     restart: always
