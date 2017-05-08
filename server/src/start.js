@@ -12,10 +12,8 @@ const startDevelopment = () => {
     console.log()
   })
 
-  process.once('SIGINT', () => {
-    monitor.once('exit', () => {
-      process.exit()
-    })
+  monitor.on('quit', () => {
+    process.exit()
   })
 }
 
