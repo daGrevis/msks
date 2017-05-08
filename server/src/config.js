@@ -10,7 +10,7 @@ const obfuscateConfig = fp.update(['irc', 'password'], s => s === '' ? '' : '***
 let configToml
 
 try {
-  configToml = fs.readFileSync('config.toml')
+  configToml = fs.readFileSync('../config.toml')
 } catch (e) {
   logger.error('Could not find config.toml, see config.example.toml!')
   process.exit(1)

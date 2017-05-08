@@ -1,0 +1,16 @@
+[rethink]
+host = "localhost"
+debug = false
+
+[irc]
+debug = false
+host = "chat.freenode.net"
+port = 6667
+tls = false
+nick = "msks"
+username = "msks"
+password = ""
+gecos = "Mr. Meeseeks"
+channels = ["#meeseekeria"]
+silentChannels = []
+admins = ["daGrevis"]
