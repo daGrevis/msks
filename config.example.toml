@@ -1,8 +1,9 @@
 [rethink]
-host = "localhost"
 debug = false
+host = "localhost"
 
 [irc]
+enable = true
 debug = false
 host = "chat.freenode.net"
 port = 6667

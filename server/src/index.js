@@ -10,6 +10,7 @@ const KoaRouter = require('koa-router')
 const KoaMount = require('koa-mount')
 const KoaStatic = require('koa-static')
 
+const config = require('./config')
 const logger = require('./logger')
 const koaLogger = require('./koaLogger')
 const events = require('./events')
@@ -109,5 +110,7 @@ runMigrations().then(() => {
   server.listen(SERVER_PORT)
   logger.info(`Listening on port ${SERVER_PORT}...`)
 
-  ircClient.connect()
+  if (config.irc.enable) {
+    ircClient.connect()
+  }
 })
