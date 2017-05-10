@@ -49,7 +49,13 @@ koaRouter.get('/*', ctx => {
     return
   }
 
-  const indexHtml = fs.readFileSync(`${clientPath}/index.html`, 'utf8')
+  let indexHtml
+  try {
+    indexHtml = fs.readFileSync(`${clientPath}/index.html`, 'utf8')
+  } catch (e) {
+    logger.warn(`Could not find ${clientPath}/index.html!`)
+    return
+  }
 
   ctx.body = indexHtml
 })

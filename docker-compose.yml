@@ -12,6 +12,7 @@ services:
     volumes:
      - ~/msks/nginx.conf:/etc/nginx/nginx.conf:ro
      - ~/msks/build:/srv/msks:ro
+     - ~/msks/developerslv:/srv/developerslv:ro
     restart: always
 
   rethink:
@@ -26,9 +27,8 @@ services:
     image: msks
     links:
      - rethink
-    ports:
-     - '3001:3001'
     volumes:
      - ~/msks/config.toml:/usr/src/app/config.toml:ro
      - ~/msks/build:/srv/msks:ro
+     - ~/msks/developerslv:/srv/developerslv:ro
     restart: always

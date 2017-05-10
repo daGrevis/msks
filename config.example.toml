@@ -18,3 +18,4 @@ admins = ["daGrevis"]
 
 [http]
 clientPath = "../client/build"
+# clientPath = { msks = "/srv/msks", developerslv = "/srv/developerslv" }
