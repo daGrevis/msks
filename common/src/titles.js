@@ -1,13 +1,12 @@
-const getIndexTitle = () => (
-  'msks'
-)
+function getIndexTitle() {
+  return 'msks'
+}
 
-const getChannelTitle = channel => (
-  `${channel.name} · msks`
-)
+function getChannelTitle(channel) {
+  return channel.name + ' · msks'
+}
 
-const getMessageTitle = message => {
-  const { from, text } = message
+function getMessageTitle(message) {
   const timestamp = (
     new Date(message.timestamp)
     .toISOString()
@@ -16,11 +15,14 @@ const getMessageTitle = message => {
     + 'Z'
   )
 
-  return `${from} on ${timestamp}: ${text}`
+  return (
+    message.from + ' on ' + timestamp + ': '
+    + message.text
+  )
 }
 
 module.exports = {
-  getIndexTitle,
-  getChannelTitle,
-  getMessageTitle,
+  getIndexTitle: getIndexTitle,
+  getChannelTitle: getChannelTitle,
+  getMessageTitle: getMessageTitle,
 }
