@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import { connect } from 'react-redux'
 
 import { navigate } from '../history'
-import { setTitle, subscribeToUsers } from '../actions'
+import { subscribeToUsers } from '../actions'
 import { isEmbedSelector, userCountSelector, groupedUsersSelector } from '../selectors'
 import Maybe from '../components/Maybe'
 import Text from '../components/Text'
@@ -36,8 +36,6 @@ class Channel extends Component {
   }
 
   componentDidMount() {
-    this.props.setTitle(`${this.props.channel.name} · msks`)
-
     if (!this.props.isSubscribedToUsers) {
       this.props.subscribeToUsers({ channelName: this.props.channel.name })
     }
@@ -108,7 +106,6 @@ const mapStateToProps = (state, props) => {
 }
 
 const mapDispatchToProps = {
-  setTitle,
   subscribeToUsers,
 }
 

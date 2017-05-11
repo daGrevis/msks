@@ -3,10 +3,12 @@ import fp from 'lodash/fp'
 import React from 'react'
 import { connect } from 'react-redux'
 
+import titles from '../../../common/src/titles'
+
 import { mo } from '../utils'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
-import { loadMessages, setScrollPosition } from '../actions'
+import { setTitle, loadMessages, setScrollPosition } from '../actions'
 import { isEmbedSelector, messagesSelector, hasReachedBeginningSelector } from '../selectors'
 
 const DayHeader = ({ text, isoTimestamp }) => {
@@ -31,7 +33,6 @@ class Messages extends React.Component {
 
   onRef = node => {
     this.wrapperNode = node
-    window.wrapperNode = node
   }
 
   onScroll = _.debounce(() => {
@@ -110,9 +111,25 @@ class Messages extends React.Component {
     }
   }
 
+  getActiveMessage = () => (
+    fp.find({ id: this.props.messageId }, this.props.messages)
+  )
+
+  updateTitle = () => {
+    const activeMessage = this.getActiveMessage()
+
+    this.props.setTitle(
+      activeMessage
+      ? titles.getMessageTitle(activeMessage)
+      : titles.getChannelTitle(this.props.channel)
+    )
+  }
+
   componentWillMount() {
+    this.updateTitle()
+
     if (this.props.messageId) {
-      if (!fp.find({ id: this.props.messageId }, this.props.messages)) {
+      if (!this.getActiveMessage()) {
         this.props.loadMessages({
           channelName: this.props.channel.name,
           messageId: this.props.messageId,
@@ -167,6 +184,7 @@ class Messages extends React.Component {
   }
 
   componentDidUpdate() {
+    this.updateTitle()
     this.updateScroll()
     this.onScroll()
   }
@@ -272,6 +290,7 @@ const mergeProps = (stateProps, { dispatch }, ownProps) => {
     ...stateProps,
     ...ownProps,
 
+    setTitle: payload => dispatch(setTitle(payload)),
     setScrollPosition: payload => dispatch(setScrollPosition(payload)),
     loadMessages: payload => {
       if (payload.messageId && stateProps.loadCache[payload.messageId]) {

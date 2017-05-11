@@ -2,6 +2,8 @@ import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
 
+import titles from '../../../common/src/titles'
+
 import { navigate } from '../history'
 import { setTitle } from '../actions'
 import { sortedChannelsSelector } from '../selectors'
@@ -10,7 +12,7 @@ import '../styles/Front.css'
 
 class Front extends React.Component {
   componentWillMount() {
-    this.props.setTitle('msks')
+    this.props.setTitle(titles.getIndexTitle())
   }
 
   render() {

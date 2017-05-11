@@ -6,15 +6,14 @@ const Queue = require('promise-queue')
 const http = require('http')
 const socketio = require('socket.io')
 const Koa = require('koa')
-const KoaRouter = require('koa-router')
 const KoaStatic = require('koa-static')
 
 const config = require('./config')
 const logger = require('./logger')
-const koaLogger = require('./koaLogger')
+const httpLogger = require('./http/logger')
+const httpRouter = require('./http/router')
 const events = require('./events')
 const actions = require('./actions')
-const { versionText } = require('./version')
 const { ircClient } = require('./irc')
 const { runMigrations } = require('./migrations')
 
@@ -23,45 +22,9 @@ Queue.configure(Promise)
 const SERVER_PORT = 3001
 
 const koa = new Koa()
-const koaRouter = new KoaRouter()
-
-koa.use(koaLogger())
-
-koaRouter.get('/api/version', ctx => {
-  ctx.body = { version: versionText }
-})
-
-const getClientPath = ctx => {
-  if (_.isString(config.http.clientPath)) {
-    return config.http.clientPath
-  }
-
-  return config.http.clientPath[
-    ctx.request.headers['x-client-app']
-  ]
-}
-
-koaRouter.get('/*', ctx => {
-  const clientPath = getClientPath(ctx)
-
-  if (!clientPath) {
-    logger.warn('Could not detect clientPath!')
-    return
-  }
-
-  let indexHtml
-  try {
-    indexHtml = fs.readFileSync(`${clientPath}/index.html`, 'utf8')
-  } catch (e) {
-    logger.warn(`Could not find ${clientPath}/index.html!`)
-    return
-  }
-
-  ctx.body = indexHtml
-})
-
-koa.use(koaRouter.routes())
-koa.use(koaRouter.allowedMethods())
+koa.use(httpLogger())
+koa.use(httpRouter.routes())
+koa.use(httpRouter.allowedMethods())
 
 let server = http.createServer(koa.callback())
 

@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "bluebird": "^3.4.7",
+    "escape-html": "^1.0.3",
     "irc-framework": "^2.6.0",
     "joi": "^10.2.2",
     "koa": "^2.2.0",

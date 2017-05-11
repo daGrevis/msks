@@ -130,6 +130,12 @@ const getMessagesAround = async (channelName, messageId) => {
   return fp.reduce(fp.concat, [], [messagesBefore, [message], messagesAfter])
 }
 
+const getMessage = async (messageId) => {
+  return await (
+    r.table('messages').get(messageId)
+  )
+}
+
 const queries = fp.mapValues(retry, {
   createChannel,
   joinChannel,
@@ -146,6 +152,7 @@ const queries = fp.mapValues(retry, {
   getMessagesBefore,
   getMessagesAfter,
   getMessagesAround,
+  getMessage,
 })
 
 module.exports = queries

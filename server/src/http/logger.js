@@ -1,6 +1,6 @@
 // Based on https://github.com/koajs/logger
 
-const logger = require('./logger')
+const logger = require('../logger')
 
 const log = (ctx, err) => {
   const status = err
