@@ -45,8 +45,8 @@
     "build": "react-scripts build",
     "build-msks": "REACT_APP_BASE_PATH=/msks/ REACT_APP_SOCKET_PATH='/msks/socket.io' yarn run build",
     "build-developerslv": "REACT_APP_EMBED_CHANNEL='#developerslv' yarn run build",
-    "deploy-msks": "yarn run build-msks && ssh root@dagrev.is 'rm -rf ~/msks/build/*'; scp -r build/* root@dagrev.is:~/msks/build/",
-    "deploy-developerslv": "yarn run deploy-developerslv && ssh root@dagrev.is 'rm -rf ~/developerslv/build/*'; scp -r build/* root@dagrev.is:~/developerslv/build/"
+    "deploy-msks": "yarn run build-msks && rsync -azi --delete-after build/ root@dagrev.is:~/msks/build",
+    "deploy-developerslv": "yarn run build-developerslv && rsync -azi --delete-after build/ root@dagrev.is:~/msks/developerslv"
   },
   "proxy": "http://localhost:3001/",
   "homepage": "/"
