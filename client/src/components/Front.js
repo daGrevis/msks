@@ -18,7 +18,7 @@ class Front extends React.Component {
   render() {
     return (
       <div id='front'>
-        <a href='https://github.com/daGrevis/msks-web' target='_blank'>
+        <a href='https://github.com/daGrevis/msks' target='_blank'>
           <h1>msks</h1>
         </a>
 

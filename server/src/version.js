@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const REPO_LINK = 'https://github.com/daGrevis/msks-bot'
+const REPO_LINK = 'https://github.com/daGrevis/msks'
 
 function getVersion() {
   let output
@@ -17,12 +17,12 @@ function getVersion() {
 
 function formatVersion(version) {
   if (!version) {
-    return `msks-bot, ${REPO_LINK}`
+    return `msks, ${REPO_LINK}`
   }
 
   const { tag, rev, subject, date } = version
   return (
-    `msks-bot ${tag ? tag + '@' : ''}${rev.slice(0, 7)}:` +
+    `msks ${tag ? tag + '@' : ''}${rev.slice(0, 7)}:` +
     ` "${subject}" of ${date}, ${REPO_LINK}`
   )
 }
