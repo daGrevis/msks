@@ -1,18 +1,23 @@
 const fs = require('fs')
 
+const logger = require('./logger')
+
 const REPO_LINK = 'https://github.com/daGrevis/msks'
 
 function getVersion() {
+  const versionPath = '../VERSION'
+
   let output
   try {
-    output = fs.readFileSync('VERSION', 'utf8')
+    output = fs.readFileSync(versionPath, 'utf8')
   } catch (err) {
-    return undefined
+    logger.warn(`Could not find ${versionPath}!`)
+    return
   }
 
-  const [rev, tag, subject, date] = output.split('\n')
+  const [rev, currentTag, recentTag, subject, date] = output.split('\n')
 
-  return { rev, tag, subject, date }
+  return { rev, currentTag, recentTag, subject, date }
 }
 
 function formatVersion(version) {
@@ -20,10 +25,15 @@ function formatVersion(version) {
     return `msks, ${REPO_LINK}`
   }
 
-  const { tag, rev, subject, date } = version
+  const { rev, currentTag, recentTag, subject, date } = version
   return (
-    `msks ${tag ? tag + '@' : ''}${rev.slice(0, 7)}:` +
-    ` "${subject}" of ${date}, ${REPO_LINK}`
+    'Running ' +
+    (
+      currentTag !== 'undefined'
+      ? `${currentTag}@${rev.slice(0, 7)}`
+      : recentTag
+    ) +
+    `: "${subject}" of ${date}, ${REPO_LINK}`
   )
 }
 

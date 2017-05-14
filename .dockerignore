@@ -21,6 +21,3 @@ build
 
 # mac OS
 .DS_Store
-
-# git
-.git
