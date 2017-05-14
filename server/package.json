@@ -23,7 +23,7 @@
   "scripts": {
     "start": "node src/start.js",
     "repl": "node src/repl.js",
-    "build": "cd .. && docker build -t msks . && docker save -o ~/msks.tar msks-bot",
+    "build": "cd .. && docker build -t msks . && docker save -o ~/msks.tar msks",
     "deploy": "yarn run build && scp ~/msks.tar root@dagrev.is:~ && ssh root@dagrev.is docker load -i msks.tar"
   }
 }
