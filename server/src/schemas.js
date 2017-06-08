@@ -33,6 +33,8 @@ const Message = Joi.object().keys({
   from: Joi.string().required(),
   to: Joi.string().required(),
   text: Joi.string().required().allow(''),
+  isOp: Joi.boolean(),
+  isVoiced: Joi.boolean(),
 
   kicked: Joi.string().when('kind', { is: 'kick', then: Joi.required() }),
   newNick: Joi.string().when('kind', { is: 'nick', then: Joi.required() }),

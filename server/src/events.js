@@ -3,16 +3,9 @@ const _ = require('lodash')
 const logger = require('./logger')
 const config = require('./config')
 const queries = require('./queries')
-const { ircClient, ctx } = require('./irc')
+const { ircClient, ctx, isMe, isPM } = require('./irc')
 const { matchCommand } = require('./commands')
-
-const isMe = nick => ircClient.user.nick === nick
-
-const isPM = message => (
-  // Apparently & is a valid prefix for channel.
-  !_.startsWith(message.to, '#')
-  && !_.startsWith(message.to, '&')
-)
+const userCache = require('./userCache')
 
 const onDebug = async (s) => {
   if (!config.irc.debug) {
@@ -72,31 +65,43 @@ const onJoin = async (payload) => {
 const onQuit = async (payload) => {
   const now = new Date()
 
-  const channels = await queries.leaveNetwork(payload.nick)
-  for (const channel of channels) {
+  const oldUsers = await queries.leaveNetwork(payload.nick)
+  for (const oldUser of oldUsers) {
     await queries.saveMessage({
       kind: 'quit',
       timestamp: now,
       from: payload.nick,
-      to: channel,
+      to: oldUser.channel,
       text: payload.message,
+      isOp: oldUser.isOp,
+      isVoiced: oldUser.isVoiced,
     })
   }
 }
 
 const onPart = async (payload) => {
+  const user = userCache.get([payload.channel, payload.nick])
+
+  await queries.leaveChannel(payload.channel, payload.nick)
+
   await queries.saveMessage({
     kind: 'part',
     timestamp: new Date(),
     from: payload.nick,
     to: payload.channel,
     text: payload.message,
+    isOp: user.isOp,
+    isVoiced: user.isVoiced,
   })
-  await queries.leaveChannel(payload.channel, payload.nick)
+
 }
 
 const onKick = async (payload) => {
   const reason = payload.message === payload.kicked ? '' : payload.message
+
+  await queries.leaveChannel(payload.channel, payload.kicked)
+
+  const user = userCache.get([payload.channel, payload.nick])
 
   await queries.saveMessage({
     kind: 'kick',
@@ -104,22 +109,26 @@ const onKick = async (payload) => {
     from: payload.nick,
     to: payload.channel,
     text: reason,
+    isOp: user.isOp,
+    isVoiced: user.isVoiced,
     kicked: payload.kicked,
   })
-  await queries.leaveChannel(payload.channel, payload.kicked)
 }
 
 const onNick = async (payload) => {
   const now = new Date()
 
   const newUsers = await queries.updateNick(payload.nick, payload.new_nick)
-  _.forEach(newUsers, async ({ channel }) => {
+
+  _.forEach(newUsers, async newUser => {
     await queries.saveMessage({
       kind: 'nick',
       timestamp: now,
       from: payload.nick,
-      to: channel,
+      to: newUser.channel,
       text: '',
+      isOp: newUser.isOp,
+      isVoiced: newUser.isVoiced,
       newNick: payload.new_nick,
     })
   })
@@ -144,45 +153,44 @@ const onMode = async (payload) => {
     const isOp = _.includes(['+o', '-o'], mode)
     const isVoiced = _.includes(['+v', '-v'], mode)
 
-    if (isOp || isVoiced) {
-      await queries.saveMessage({
-        kind: 'mode',
-        timestamp: now,
-        from: payload.nick,
-        to: payload.target,
-        text: mode,
-        param,
-      })
+    if (!isOp && !isVoiced) {
+      return
     }
 
-    if (isOp) {
-      await queries.updateUser({
-        id: [payload.target, param],
-        channel: payload.target,
-        nick: param,
-        isOp: mode[0] === '+',
-      })
-    }
+    const targetUser = _.assign(
+      userCache.get([payload.target, param]),
+      { [isOp ? 'isOp' : 'isVoiced']: mode[0] === '+' }
+    )
 
-    if (isVoiced) {
-      await queries.updateUser({
-        id: [payload.target, param],
-        channel: payload.target,
-        nick: param,
-        isVoiced: mode[0] === '+',
-      })
-    }
+    await queries.updateUser(targetUser)
+
+    const user = userCache.get([payload.target, payload.nick])
+
+    await queries.saveMessage({
+      kind: 'mode',
+      timestamp: now,
+      from: payload.nick,
+      to: payload.target,
+      text: mode,
+      isOp: user.isOp,
+      isVoiced: user.isVoiced,
+      param,
+    })
   })
 }
 
 const onTopic = async (payload) => {
   if (payload.nick) {
+    const user = userCache.get([payload.channel, payload.nick])
+
     await queries.saveMessage({
       kind: 'topic',
       timestamp: new Date(),
       from: payload.nick,
       to: payload.channel,
       text: payload.topic,
+      isOp: user.isOp,
+      isVoiced: user.isVoiced,
     })
   }
 
@@ -192,12 +200,23 @@ const onTopic = async (payload) => {
 const onMessage = async (payload) => {
   const now = new Date()
 
-  const message = {
+  let message = {
     kind: 'message',
     timestamp: now,
     from: payload.nick,
     to: payload.target,
     text: payload.message,
+  }
+
+  const isPrivate = isPM(message)
+
+  if (!isPrivate) {
+    const user = userCache.get([payload.target, payload.nick])
+
+    message = _.assign(message, {
+      isOp: user.isOp,
+      isVoiced: user.isVoiced,
+    })
   }
 
   await queries.saveMessage(message)
@@ -213,43 +232,58 @@ const onMessage = async (payload) => {
     return
   }
 
-  const response = await command()
+  const responseText = await command()
 
-  if (!response) {
+  if (!responseText) {
     return
   }
 
-  const recipient = isPM(message) ? message.from : message.to
-
-  ircClient.say(recipient, response)
-
-  await queries.saveMessage({
+  const responseMessage = {
     kind: 'message',
     timestamp: new Date(),
     from: ircClient.user.nick,
-    to: recipient,
-    text: response,
-  })
+    to: isPrivate ? message.from : message.to,
+    text: responseText,
+  }
+
+  ircClient.say(responseMessage.to, responseMessage.text)
+
+  await queries.saveMessage(responseMessage)
 }
 
 const onAction = async (payload) => {
+  const user = userCache.get([payload.target, payload.nick])
+
   await queries.saveMessage({
     kind: 'action',
     timestamp: new Date(),
     from: payload.nick,
     to: payload.target,
     text: payload.message,
+    isOp: user.isOp,
+    isVoiced: user.isVoiced,
   })
 }
 
 const onNotice = async (payload) => {
-  await queries.saveMessage({
+  const user = userCache.get([payload.target, payload.nick])
+
+  let message = {
     kind: 'notice',
     timestamp: new Date(),
     from: payload.nick,
     to: payload.target,
     text: payload.message,
-  })
+  }
+
+  if (user) {
+    message = _.assign(message, {
+      isOp: user.isOp,
+      isVoiced: user.isVoiced,
+    })
+  }
+
+  await queries.saveMessage(message)
 }
 
 module.exports = {

@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const ircFramework = require('irc-framework')
 
 const config = require('./config')
@@ -22,7 +23,17 @@ let ctx = {
   connectionTime: null,
 }
 
+const isMe = nick => ircClient.user.nick === nick
+
+const isPM = message => (
+  // Apparently & is a valid prefix for channel.
+  !_.startsWith(message.to, '#')
+  && !_.startsWith(message.to, '&')
+)
+
 module.exports = {
   ircClient,
   ctx,
+  isMe,
+  isPM,
 }
