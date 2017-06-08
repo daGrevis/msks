@@ -6,41 +6,68 @@ const r = require('./rethink')
 const { validate } = require('./schemas')
 const schemas = require('./schemas')
 const retry = require('./retry')
+const userCache = require('./userCache')
 
 const createChannel = async function(channel) {
   await validate(channel, schemas.Channel)
+
   // Creates the channel or silently fails when it exists already.
   await r.table('channels').insert(channel).run().catch(_.noop)
 }
 
 const joinChannel = async function(user) {
   await validate(user, schemas.User)
+
   await r.table('users').insert(user, { conflict: 'replace' }).run()
+
+  userCache.set(user.id, user)
 }
 
 const leaveChannel = async function(channel, nick) {
-  await r.table('users').get([channel, nick]).delete().run()
+  const userId = [channel, nick]
+
+  await r.table('users').get(userId).delete().run()
+
+  userCache.delete(userId)
 }
 
 const leaveNetwork = async function(nick) {
   const { changes } = await r.table('users').getAll(nick, { index: 'nick' })
     .delete({ returnChanges: true }).run()
 
-  return _.map(changes, 'old_val.channel')
+  const oldUsers = _.map(changes, 'old_val')
+
+  _.forEach(oldUsers, oldUser => {
+    userCache.delete(oldUser.id)
+  })
+
+  return oldUsers
 }
 
 const updateNick = async function(nick, newNick) {
   const { changes } = await r.table('users').getAll(nick, { index: 'nick' })
     .delete({ returnChanges: true }).run()
 
-  const newUsers = _.map(changes, ({ old_val }) => ({
-    id: [old_val.channel, newNick],
-    channel: old_val.channel,
+  const oldUsers = _.map(changes, 'old_val')
+
+  _.forEach(oldUsers, oldUser => {
+    userCache.delete(oldUser.id)
+  })
+
+  const newUsers = _.map(oldUsers, oldUser => ({
+    id: [oldUser.channel, newNick],
+    channel: oldUser.channel,
     nick: newNick,
+    isOp: oldUser.isOp,
+    isVoiced: oldUser.isVoiced,
   }))
   await Promise.all(_.map(newUsers, user => validate(user, schemas.User)))
 
   await r.table('users').insert(newUsers, { conflict: 'replace' }).run()
+
+  _.forEach(newUsers, newUser => {
+    userCache.set(newUser.id, newUser)
+  })
 
   return newUsers
 }
@@ -49,12 +76,24 @@ const updateUsers = async function(channel, users) {
   await Promise.all(_.map(users, user => validate(user, schemas.User)))
 
   await r.table('users').getAll(channel, { index: 'channel' }).delete().run()
+
+  _.filter(userCache.values(), { channel }).forEach(cachedUser => {
+    userCache.delete(cachedUser.id)
+  })
+
   await r.table('users').insert(users, { conflict: 'replace' }).run()
+
+  _.map(users, user => {
+    userCache.set(user.id, user)
+  })
 }
 
 const updateUser = async function(user) {
   await validate(user, schemas.User)
+
   await r.table('users').get(user.id).update(user).run()
+
+  userCache.set(user.id, user)
 }
 
 const updateTopic = async function(channel, topic) {
@@ -62,7 +101,15 @@ const updateTopic = async function(channel, topic) {
 }
 
 const saveMessage = async function(message) {
+  if (!message.isOp) {
+    delete message.isOp
+  }
+  if (!message.isVoiced) {
+    delete message.isVoiced
+  }
+
   await validate(message, schemas.Message)
+
   await r.table('messages').insert(message).run()
 }
 

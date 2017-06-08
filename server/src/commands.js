@@ -32,13 +32,13 @@ const onReload = async ({ message }) => {
 
   const now = new Date()
 
-  const channels = await queries.leaveNetwork(ircClient.user.nick)
-  for (const channel of channels) {
+  const users = await queries.leaveNetwork(ircClient.user.nick)
+  for (const user of users) {
     await queries.saveMessage({
       kind: 'quit',
       timestamp: now,
-      from: ircClient.user.nick,
-      to: channel,
+      from: user.nick,
+      to: user.channel,
       text: '',
     })
   }

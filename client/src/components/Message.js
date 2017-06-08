@@ -3,16 +3,11 @@ import React from 'react'
 import classNames from 'classnames'
 import { onlyUpdateForKeys } from 'recompose'
 
-import Text from './Text'
-import { getColor } from '../colors'
 import { navigate } from '../history'
+import Text from './Text'
+import Nick from './Nick'
 
 import '../styles/Message.css'
-
-const Nick = ({ children: nick }) =>
-  <span className='nick strong' style={{ color: getColor(nick) }} title={nick}>
-    {nick}
-  </span>
 
 const MessageText = ({ message }) => {
   let text
@@ -22,31 +17,31 @@ const MessageText = ({ message }) => {
       text = <Text>{message.text}</Text>
       break
     case 'action':
-      text = <span><Nick>{message.from}</Nick> <Text>{message.text}</Text></span>
+      text = <span><Nick {...message} /> <Text>{message.text}</Text></span>
       break
     case 'join':
-      text = <span><Nick>{message.from}</Nick> joined</span>
+      text = <span><Nick {...message} /> joined</span>
       break
     case 'quit':
-      text = <span title={message.text}><Nick>{message.from}</Nick> quit</span>
+      text = <span title={message.text}><Nick {...message} /> quit</span>
       break
     case 'part':
-      text = <span title={message.text}><Nick>{message.from}</Nick> left</span>
+      text = <span title={message.text}><Nick {...message} /> left</span>
       break
     case 'kick':
       text = <span>
-        <Nick>{message.kicked}</Nick> kicked by <Nick>{message.from}</Nick>
+        <Nick from={message.kicked} /> kicked by <Nick {...message} />
         {message.text ? <span className='kick-reason'>({message.text})</span> : ''}
       </span>
       break
     case 'nick':
-      text = <span><Nick>{message.from}</Nick> is now known as <Nick>{message.newNick}</Nick></span>
+      text = <span><Nick {...message} /> is known as <Nick {...message} from={message.newNick} /></span>
       break
     case 'topic':
-      text = <span><Nick>{message.from}</Nick> set topic to <span className='topic'><Text>{message.text}</Text></span></span>
+      text = <span><Nick {...message} /> set topic to <span className='topic'><Text>{message.text}</Text></span></span>
       break
     case 'mode':
-      text = <span><Nick>{message.from}</Nick> sets <strong>{message.text}</strong> on <Nick>{message.param}</Nick></span>
+      text = <span><Nick {...message} /> sets <strong>{message.text}</strong> on <Nick from={message.param} /></span>
       break
     default:
       console.log('MessageText case for kind not handled:', message.kind)
@@ -96,7 +91,7 @@ const Message = onlyUpdateForKeys(['id', 'isActive'])(props => {
         >
           {timestampText}
         </span>
-        {isNickVisible ? <Nick>{message.from}</Nick> : null}
+        {isNickVisible ? <Nick {...message} /> : null}
       </div>
 
       <MessageText message={message} />
