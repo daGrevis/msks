@@ -238,12 +238,21 @@ const onMessage = async (payload) => {
     return
   }
 
-  const responseMessage = {
+  let responseMessage = {
     kind: 'message',
     timestamp: new Date(),
     from: ircClient.user.nick,
     to: isPrivate ? message.from : message.to,
     text: responseText,
+  }
+
+  if (!isPrivate) {
+    const responseUser = userStore.get([responseMessage.to, responseMessage.from])
+
+    responseMessage = _.assign(responseMessage, {
+      isOp: responseUser.isOp,
+      isVoiced: responseUser.isVoiced,
+    })
   }
 
   ircClient.say(responseMessage.to, responseMessage.text)
