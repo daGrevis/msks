@@ -16,7 +16,6 @@ const events = require('./events')
 const actions = require('./actions')
 const { ircClient } = require('./irc')
 const { runMigrations } = require('./migrations')
-const userCache = require('./userCache')
 
 Queue.configure(Promise)
 

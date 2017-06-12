@@ -6,7 +6,7 @@ const r = require('./rethink')
 const { validate } = require('./schemas')
 const schemas = require('./schemas')
 const retry = require('./retry')
-const userCache = require('./userCache')
+const userStore = require('./userStore')
 
 const createChannel = async function(channel) {
   await validate(channel, schemas.Channel)
@@ -20,7 +20,7 @@ const joinChannel = async function(user) {
 
   await r.table('users').insert(user, { conflict: 'replace' }).run()
 
-  userCache.set(user.id, user)
+  userStore.set(user.id, user)
 }
 
 const leaveChannel = async function(channel, nick) {
@@ -28,7 +28,7 @@ const leaveChannel = async function(channel, nick) {
 
   await r.table('users').get(userId).delete().run()
 
-  userCache.delete(userId)
+  userStore.delete(userId)
 }
 
 const leaveNetwork = async function(nick) {
@@ -38,7 +38,7 @@ const leaveNetwork = async function(nick) {
   const oldUsers = _.map(changes, 'old_val')
 
   _.forEach(oldUsers, oldUser => {
-    userCache.delete(oldUser.id)
+    userStore.delete(oldUser.id)
   })
 
   return oldUsers
@@ -51,7 +51,7 @@ const updateNick = async function(nick, newNick) {
   const oldUsers = _.map(changes, 'old_val')
 
   _.forEach(oldUsers, oldUser => {
-    userCache.delete(oldUser.id)
+    userStore.delete(oldUser.id)
   })
 
   const newUsers = _.map(oldUsers, oldUser => ({
@@ -66,7 +66,7 @@ const updateNick = async function(nick, newNick) {
   await r.table('users').insert(newUsers, { conflict: 'replace' }).run()
 
   _.forEach(newUsers, newUser => {
-    userCache.set(newUser.id, newUser)
+    userStore.set(newUser.id, newUser)
   })
 
   return newUsers
@@ -77,14 +77,14 @@ const updateUsers = async function(channel, users) {
 
   await r.table('users').getAll(channel, { index: 'channel' }).delete().run()
 
-  _.filter(userCache.values(), { channel }).forEach(cachedUser => {
-    userCache.delete(cachedUser.id)
+  _.filter(userStore.values(), { channel }).forEach(cachedUser => {
+    userStore.delete(cachedUser.id)
   })
 
   await r.table('users').insert(users, { conflict: 'replace' }).run()
 
   _.map(users, user => {
-    userCache.set(user.id, user)
+    userStore.set(user.id, user)
   })
 }
 
@@ -93,7 +93,7 @@ const updateUser = async function(user) {
 
   await r.table('users').get(user.id).update(user).run()
 
-  userCache.set(user.id, user)
+  userStore.set(user.id, user)
 }
 
 const updateTopic = async function(channel, topic) {

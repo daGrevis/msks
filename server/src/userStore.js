@@ -1,27 +1,27 @@
-class UserCache {
+class UserStore {
   constructor() {
-    this._cache = new Map()
+    this._store = new Map()
   }
 
   get(key) {
-    return this._cache.get(
+    return this._store.get(
       this._serializeKey(key)
     )
   }
 
   values() {
-    return this._cache.values()
+    return this._store.values()
   }
 
   set(key, value) {
-    this._cache.set(
+    this._store.set(
       this._serializeKey(key),
       value
     )
   }
 
   delete(key) {
-    this._cache.delete(
+    this._store.delete(
       this._serializeKey(key)
     )
   }
@@ -31,4 +31,4 @@ class UserCache {
   }
 }
 
-module.exports = new UserCache()
+module.exports = new UserStore()

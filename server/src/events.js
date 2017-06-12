@@ -5,7 +5,7 @@ const config = require('./config')
 const queries = require('./queries')
 const { ircClient, ctx, isMe, isPM } = require('./irc')
 const { matchCommand } = require('./commands')
-const userCache = require('./userCache')
+const userStore = require('./userStore')
 
 const onDebug = async (s) => {
   if (!config.irc.debug) {
@@ -80,7 +80,7 @@ const onQuit = async (payload) => {
 }
 
 const onPart = async (payload) => {
-  const user = userCache.get([payload.channel, payload.nick])
+  const user = userStore.get([payload.channel, payload.nick])
 
   await queries.leaveChannel(payload.channel, payload.nick)
 
@@ -101,7 +101,7 @@ const onKick = async (payload) => {
 
   await queries.leaveChannel(payload.channel, payload.kicked)
 
-  const user = userCache.get([payload.channel, payload.nick])
+  const user = userStore.get([payload.channel, payload.nick])
 
   await queries.saveMessage({
     kind: 'kick',
@@ -158,13 +158,13 @@ const onMode = async (payload) => {
     }
 
     const targetUser = _.assign(
-      userCache.get([payload.target, param]),
+      userStore.get([payload.target, param]),
       { [isOp ? 'isOp' : 'isVoiced']: mode[0] === '+' }
     )
 
     await queries.updateUser(targetUser)
 
-    const user = userCache.get([payload.target, payload.nick])
+    const user = userStore.get([payload.target, payload.nick])
 
     await queries.saveMessage({
       kind: 'mode',
@@ -181,7 +181,7 @@ const onMode = async (payload) => {
 
 const onTopic = async (payload) => {
   if (payload.nick) {
-    const user = userCache.get([payload.channel, payload.nick])
+    const user = userStore.get([payload.channel, payload.nick])
 
     await queries.saveMessage({
       kind: 'topic',
@@ -211,7 +211,7 @@ const onMessage = async (payload) => {
   const isPrivate = isPM(message)
 
   if (!isPrivate) {
-    const user = userCache.get([payload.target, payload.nick])
+    const user = userStore.get([payload.target, payload.nick])
 
     message = _.assign(message, {
       isOp: user.isOp,
@@ -252,7 +252,7 @@ const onMessage = async (payload) => {
 }
 
 const onAction = async (payload) => {
-  const user = userCache.get([payload.target, payload.nick])
+  const user = userStore.get([payload.target, payload.nick])
 
   await queries.saveMessage({
     kind: 'action',
@@ -266,7 +266,7 @@ const onAction = async (payload) => {
 }
 
 const onNotice = async (payload) => {
-  const user = userCache.get([payload.target, payload.nick])
+  const user = userStore.get([payload.target, payload.nick])
 
   let message = {
     kind: 'notice',
