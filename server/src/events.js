@@ -172,8 +172,8 @@ const onMode = async (payload) => {
       from: payload.nick,
       to: payload.target,
       text: mode,
-      isOp: user.isOp,
-      isVoiced: user.isVoiced,
+      isOp: user ? user.isOp : false,
+      isVoiced: user ? user.isVoiced : false,
       param,
     })
   })
