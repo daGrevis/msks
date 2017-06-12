@@ -1,7 +1,7 @@
+global.Promise = require('bluebird')
 const fs = require('fs')
 
 const _ = require('lodash')
-const Promise = require('bluebird')
 const Queue = require('promise-queue')
 const http = require('http')
 const socketio = require('socket.io')
