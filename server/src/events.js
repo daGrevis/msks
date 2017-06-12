@@ -149,7 +149,7 @@ const onUserList = async (payload) => {
 const onMode = async (payload) => {
   const now = new Date()
 
-  _.forEach(payload.modes, async ({ mode, param }) => {
+  for (const { mode, param } of payload.modes) {
     const isOp = _.includes(['+o', '-o'], mode)
     const isVoiced = _.includes(['+v', '-v'], mode)
 
@@ -176,7 +176,7 @@ const onMode = async (payload) => {
       isVoiced: user ? user.isVoiced : false,
       param,
     })
-  })
+  }
 }
 
 const onTopic = async (payload) => {
