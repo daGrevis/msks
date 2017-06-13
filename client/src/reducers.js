@@ -1,19 +1,19 @@
 import fp from 'lodash/fp'
-import { createUpdater, pipeUpdaters } from 'redux-fp'
+import { handleActions, concat } from 'redux-fp'
 
 import { mo } from './utils'
 
-const appUpdater = createUpdater({
+const appUpdater = handleActions({
   SET_EMBED: () => fp.set('isEmbed', true),
   SET_BROKEN: () => fp.set('isBroken', true),
   SET_VISIBILITY: ({ payload }) => fp.set('isVisible', payload),
 })
 
-const historyUpdater = createUpdater({
+const historyUpdater = handleActions({
   NAVIGATED: ({ payload }) => fp.set('location', payload)
 })
 
-const socketUpdater = createUpdater({
+const socketUpdater = handleActions({
   SOCKET_DISCONNECTED: () => fp.pipe(
     fp.set('isSubscribedToUsers', {}),
     fp.set('isSubscribedToMessages', {}),
@@ -21,7 +21,7 @@ const socketUpdater = createUpdater({
   )
 })
 
-const channelUpdater = createUpdater({
+const channelUpdater = handleActions({
   SET_CHANNEL_NAME: ({ payload }) => fp.set('channelName', payload),
 
   'client/INITIAL_CHANNELS': ({ payload: { channels }}) => fp.set(
@@ -74,7 +74,7 @@ const addMessages = newMessages => state => {
   }, state)
 }
 
-const messagesUpdater = createUpdater({
+const messagesUpdater = handleActions({
   'server/SUBSCRIBE_TO_MESSAGES': ({ payload }) => fp.set(['isSubscribedToMessages', payload.channelName], true),
 
   'server/LOAD_MESSAGES': ({ payload }) => (
@@ -94,7 +94,7 @@ const messagesUpdater = createUpdater({
   ),
 })
 
-const usersUpdater = createUpdater({
+const usersUpdater = handleActions({
   'server/SUBSCRIBE_TO_USERS': ({ payload }) => fp.set(['isSubscribedToUsers', payload.channelName], true),
 
   'client/INITIAL_USERS': ({ payload: { channelName, users }}) => fp.set(
@@ -108,17 +108,17 @@ const usersUpdater = createUpdater({
   ),
 })
 
-const faviconUpdater = createUpdater({
+const faviconUpdater = handleActions({
   UPDATE_UNREAD: () => fp.update('unread', count => count + 1),
   RESET_UNREAD: () => fp.set('unread', 0),
 })
 
-const notificationUpdater = createUpdater({
+const notificationUpdater = handleActions({
   ADD_NOTIFICATION: ({ payload }) => fp.update('notifications', notifs => fp.concat(notifs, payload)),
   REMOVE_NOTIFICATION: ({ payload }) => fp.update('notifications', fp.reject(({ key }) => key === payload)),
 })
 
-const rootReducer = (state, action) => pipeUpdaters(
+const rootReducer = (state, action) => concat(
   appUpdater,
   historyUpdater,
   socketUpdater,
