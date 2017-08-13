@@ -55,9 +55,6 @@
   margin-bottom: 15px;
   cursor: pointer;
 }
-#channel .header .name.is-embed {
-  cursor: auto;
-}
 
 #channel .header .user-count {
   position: relative;
