@@ -10,15 +10,23 @@ const navigate = path => {
 }
 
 const getPathname = loc => {
-  let path = '/' + (loc.pathname + loc.hash)
+  let path = loc.pathname + loc.hash
+
   path = path.replace(new RegExp(`^${config.basePath}`), '')
+  if (path[0] !== '/') {
+    path = '/' + path
+  }
+
   path = path.replace(/\?.*/, '')
+
   return path
 }
 
 const getQuery = loc => {
-  let path = '/' + (loc.pathname + loc.hash)
+  let path = loc.pathname + loc.hash + loc.search
+
   const search = path.replace(/[^?]*\?/, '')
+
   return qs.decode(search)
 }
 
