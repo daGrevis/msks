@@ -2,11 +2,11 @@ const Promise = require('bluebird')
 const _ = require('lodash')
 const fp = require('lodash/fp')
 
-const r = require('./rethink')
-const { validate } = require('./schemas')
-const schemas = require('./schemas')
-const retry = require('./retry')
-const userStore = require('./userStore')
+const r = require('./index')
+const { validate } = require('../schemas')
+const schemas = require('../schemas')
+const retry = require('../retry')
+const userStore = require('../userStore')
 
 const createChannel = async function(channel) {
   await validate(channel, schemas.Channel)
@@ -110,7 +110,10 @@ const saveMessage = async function(message) {
 
   await validate(message, schemas.Message)
 
-  await r.table('messages').insert(message).run()
+  const changes = await r.table('messages').insert(message).run()
+  const id = changes.generated_keys[0]
+
+  return fp.assign(message, { id })
 }
 
 const getInitialChannels = () => (
@@ -122,16 +125,16 @@ const getInitialUsers = channelName => (
   .getAll(channelName, { index: 'channel' })
 )
 
-const getInitialMessages = async (channelName) => {
+const getInitialMessages = async ({ channelName, limit }) => {
   const messages = await r.table('messages')
     .between([channelName, r.minval], [channelName, r.maxval], { index: 'toAndTimestamp' })
     .orderBy({ index: r.desc('toAndTimestamp') })
-    .limit(75)
+    .limit(limit)
 
   return fp.reverse(messages)
 }
 
-const getMessagesBefore = async (channelName, timestamp, messageId) => {
+const getMessagesBefore = async ({ channelName, timestamp, messageId, limit }) => {
   return await (
     r.table('messages')
     .between(
@@ -141,12 +144,12 @@ const getMessagesBefore = async (channelName, timestamp, messageId) => {
     )
     .orderBy({ index: r.desc('toAndTimestamp') })
     .filter(r.row('id').ne(messageId))
-    .limit(75)
+    .limit(limit)
     .orderBy(r.asc('timestamp'))
   )
 }
 
-const getMessagesAfter = async (channelName, timestamp, messageId) => {
+const getMessagesAfter = async ({ channelName, timestamp, messageId, limit }) => {
   return await (
     r.table('messages')
     .between(
@@ -156,11 +159,11 @@ const getMessagesAfter = async (channelName, timestamp, messageId) => {
     )
     .orderBy({ index: 'toAndTimestamp' })
     .filter(r.row('id').ne(messageId))
-    .limit(75)
+    .limit(limit)
   )
 }
 
-const getMessagesAround = async (channelName, messageId) => {
+const getMessagesAround = async ({ channelName, messageId, limit }) => {
   const message = await r.table('messages').get(messageId)
 
   if (!message) {
@@ -171,10 +174,30 @@ const getMessagesAround = async (channelName, messageId) => {
     return []
   }
 
-  const messagesBefore = await getMessagesBefore(channelName, message.timestamp, message.id)
-  const messagesAfter = await getMessagesAfter(channelName, message.timestamp, message.id)
+  const halfLimit = Math.floor(limit / 2)
+
+  const messagesBefore = await getMessagesBefore({
+    channelName,
+    timestamp: message.timestamp,
+    messageId: message.id,
+    limit: halfLimit,
+  })
+  const messagesAfter = await getMessagesAfter({
+    channelName,
+    timestamp: message.timestamp,
+    messageId: message.id,
+    limit: halfLimit
+  })
 
   return fp.reduce(fp.concat, [], [messagesBefore, [message], messagesAfter])
+}
+
+const getMessagesByIds = async (messageIds) => {
+  return await (
+    r.table('messages')
+    .getAll(r.args(messageIds))
+    .orderBy(r.asc('timestamp'))
+  )
 }
 
 const getMessage = async (messageId) => {
@@ -199,6 +222,7 @@ const queries = fp.mapValues(retry, {
   getMessagesBefore,
   getMessagesAfter,
   getMessagesAround,
+  getMessagesByIds,
   getMessage,
 })
 

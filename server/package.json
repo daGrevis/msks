@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "bluebird": "^3.4.7",
+    "elasticsearch": "^13.3.1",
     "escape-html": "^1.0.3",
     "irc-framework": "^2.6.0",
     "joi": "^10.2.2",
@@ -13,6 +14,7 @@
     "koa-router": "next",
     "koa-static": "^3.0.0",
     "lodash": "^4.17.4",
+    "progress": "^2.0.0",
     "promise-queue": "^2.2.3",
     "rethinkdbdash": "^2.3.28",
     "socket.io": "^1.7.3",
@@ -24,6 +26,7 @@
     "start": "node src/start.js",
     "repl": "node src/repl.js",
     "build": "cd .. && docker build -t msks . && docker save -o ~/msks.tar msks",
-    "deploy": "yarn run build && scp ~/msks.tar root@dagrev.is:~ && ssh root@dagrev.is docker load -i msks.tar"
+    "deploy": "yarn run build && scp ~/msks.tar root@dagrev.is:~ && ssh root@dagrev.is docker load -i msks.tar",
+    "indexMessages": "node src/indexMessages.js"
   }
 }

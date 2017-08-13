@@ -22,6 +22,7 @@
     "loaders.css": "^0.1.2",
     "lodash": "^4.17.4",
     "moment": "^2.17.1",
+    "querystring": "0.2.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-redux": "^5.0.3",
@@ -43,6 +44,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "test": "react-scripts test",
     "build-msks": "REACT_APP_BASE_PATH=/msks/ REACT_APP_SOCKET_PATH='/msks/socket.io' yarn run build",
     "build-developerslv": "REACT_APP_EMBED_CHANNEL='#developerslv' yarn run build",
     "deploy-msks": "yarn run build-msks && rsync -azi --delete-after build/ root@dagrev.is:~/msks/build",

@@ -23,11 +23,12 @@ import {
 } from './actions'
 import * as actions from './actions'
 import * as selectors from './selectors'
+import { colorize, bold, italic, underline } from './text'
 import App from './components/App'
 import Channel from './components/Channel'
 import Front from './components/Front'
 
-import { history, navigate, getPath } from  './history'
+import { history, navigate, getPathname, getQuery } from  './history'
 import socket from './socket'
 
 import viewportUnitsBuggyfill from 'viewport-units-buggyfill'
@@ -140,12 +141,13 @@ const onReady = () => {
   const mountNode = document.getElementById('root')
 
   const onRoute = loc => {
-    const path = getPath(loc)
+    const pathname = getPathname(loc)
+    const query = getQuery(loc)
 
-    router.resolve({ path })
-      .then(({ component, params }) => {
+    router.resolve({ path: pathname })
+      .then(({ component }) => {
         dispatch(
-          navigated({ loc, params })
+          navigated({ pathname, query })
         )
 
         ReactDOM.render((
@@ -186,3 +188,7 @@ window.getState = getState
 window.selectors = selectors
 window.navigate = navigate
 window.socket = socket
+window.colorize = colorize
+window.bold = bold
+window.italic = italic
+window.underline = underline

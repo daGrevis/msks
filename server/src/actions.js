@@ -1,9 +1,13 @@
 const r = require('./rethink')
 
-const queries = require('./queries')
+const {
+  getInitialChannels, getInitialUsers,
+  getInitialMessages, getMessagesBefore, getMessagesAfter, getMessagesAround,
+} = require('./rethink/queries')
+const { searchMessages } = require('./elastic/queries')
 
 const subscribeToChannels = () => ({ socket, context }) => (
-  queries.getInitialChannels().then(channels => {
+  getInitialChannels().then(channels => {
     socket.emit('action', {
       type: 'client/INITIAL_CHANNELS',
       payload: {
@@ -35,7 +39,7 @@ const subscribeToUsers = ({ channelName = null }) => ({ socket, context }) => {
     return
   }
 
-  queries.getInitialUsers(channelName).then(users => {
+  getInitialUsers(channelName).then(users => {
     socket.emit('action', {
       type: 'client/INITIAL_USERS',
       payload: {
@@ -77,6 +81,7 @@ const subscribeToMessages = payload => ({ socket, context }) => {
     .run()
     .then(changefeed => {
       context['changefeeds'].push(changefeed)
+      context['messagesChangefeeds'][channelName] = changefeed
 
       changefeed.each((err, change) => {
         socket.emit('action', {
@@ -85,6 +90,21 @@ const subscribeToMessages = payload => ({ socket, context }) => {
         })
       })
     })
+}
+
+const unsubscribeFromMessages = payload => ({ socket, context }) => {
+  const { channelName } = payload
+
+  if (!channelName) {
+    console.error('UNSUBSCRIBE_FROM_MESSAGES: channelName missing!')
+    return
+  }
+
+  const changefeed = context['messagesChangefeeds'][channelName]
+
+  if (changefeed) {
+    changefeed.close()
+  }
 }
 
 const loadMessages = payload => ({ socket }) => {
@@ -100,17 +120,37 @@ const loadMessages = payload => ({ socket }) => {
     return
   }
 
+  let limit
   let messagePromise
-  let isInitial = false
   if (before) {
-    messagePromise = queries.getMessagesBefore(channelName, r.ISO8601(before), messageId)
+    limit = 75
+    messagePromise = getMessagesBefore({
+      channelName,
+      messageId,
+      timestamp: r.ISO8601(before),
+      limit,
+    })
   } else if (after) {
-    messagePromise = queries.getMessagesAfter(channelName, r.ISO8601(after), messageId)
+    limit = 75
+    messagePromise = getMessagesAfter({
+      channelName,
+      messageId,
+      timestamp: r.ISO8601(after),
+      limit,
+    })
   } else if (messageId) {
-    messagePromise = queries.getMessagesAround(channelName, messageId)
+    limit = 150
+    messagePromise = getMessagesAround({
+      channelName,
+      messageId,
+      limit,
+    })
   } else {
-    isInitial = true
-    messagePromise = queries.getInitialMessages(channelName)
+    limit = 75
+    messagePromise = getInitialMessages({
+      channelName,
+      limit,
+    })
   }
 
   messagePromise.then(messages => {
@@ -119,11 +159,19 @@ const loadMessages = payload => ({ socket }) => {
       payload: {
         channelName,
         messages,
-        isInitial,
+        messageId,
         before,
         after,
+        limit,
       }
     })
+  })
+}
+
+const search = ({ channel, query, offset }) => async ({ socket }) => {
+  socket.emit('action', {
+    type: 'client/FOUND_MESSAGES',
+    payload: await searchMessages(channel, query, offset),
   })
 }
 
@@ -132,4 +180,6 @@ module.exports = {
   subscribeToUsers,
   loadMessages,
   subscribeToMessages,
+  unsubscribeFromMessages,
+  search,
 }

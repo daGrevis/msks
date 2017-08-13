@@ -9,8 +9,9 @@ const titles = require('../../../common/src/titles')
 
 const config = require('../config')
 const logger = require('../logger')
-const queries = require('../queries')
+const { getMessage } = require('../rethink/queries')
 const { versionText } = require('../version')
+const { searchMessages } = require('../elastic/queries')
 
 const router = new KoaRouter()
 
@@ -26,6 +27,13 @@ const getClientPath = ctx => {
 
 router.get('/api/version', ctx => {
   ctx.body = { version: versionText }
+})
+
+router.get('/api/search', async ctx => {
+  const { query } = ctx.request
+  const { channel, offset } = ctx.request.query
+
+  ctx.body = await searchMessages(channel, query, offset)
 })
 
 router.get('/:messageId', async (ctx) => {
@@ -47,7 +55,7 @@ router.get('/:messageId', async (ctx) => {
   }
 
   if (isUuid(ctx.params.messageId)) {
-    const message = await queries.getMessage(ctx.params.messageId)
+    const message = await getMessage(ctx.params.messageId)
 
     if (message) {
       const title = titles.getMessageTitle(message)

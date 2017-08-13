@@ -1,8 +1,8 @@
 const _ = require('lodash')
 const ircFramework = require('irc-framework')
 
-const config = require('./config')
-const { versionText } = require('./version')
+const config = require('../config')
+const { versionText } = require('../version')
 
 const ircClient = new ircFramework.Client({
   host: config.irc.host,

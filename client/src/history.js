@@ -1,4 +1,5 @@
 import createHistory from 'history/createBrowserHistory'
+import * as qs from 'querystring'
 
 import config from './config'
 
@@ -8,11 +9,22 @@ const navigate = path => {
   history.push(config.basePath + path)
 }
 
-const getPath = loc =>
-  '/' + (loc.pathname + loc.hash).replace(new RegExp(`^${config.basePath}`), '')
+const getPathname = loc => {
+  let path = '/' + (loc.pathname + loc.hash)
+  path = path.replace(new RegExp(`^${config.basePath}`), '')
+  path = path.replace(/\?.*/, '')
+  return path
+}
+
+const getQuery = loc => {
+  let path = '/' + (loc.pathname + loc.hash)
+  const search = path.replace(/[^?]*\?/, '')
+  return qs.decode(search)
+}
 
 export {
   history,
   navigate,
-  getPath,
+  getPathname,
+  getQuery,
 }

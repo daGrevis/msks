@@ -55,3 +55,11 @@
 
 .foreground-15 { color: #DDDDDD; }
 .background-15 { background: #DDDDDD; }
+
+.highlight {
+  border-radius: 2px;
+  background-color: #FFDC00;
+  padding: 1px 2px;
+  margin: -1px -2px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}

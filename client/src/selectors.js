@@ -4,7 +4,12 @@ import { createSelector } from 'reselect'
 
 const isEmbedSelector = fp.get('isEmbed')
 
-const locationSelector = fp.get('location')
+const routeSelector = fp.get('route')
+
+const querySelector = createSelector(
+  routeSelector,
+  fp.get('query')
+)
 
 const channelsSelector = state => state.channels || []
 
@@ -28,11 +33,45 @@ const channelSelector = createSelector(
   (channels, channelName) => channels[channelName]
 )
 
+const isSearchOpenSelector = createSelector(
+  querySelector,
+  query => fp.has('search', query)
+)
+
+const searchQuerySelector = createSelector(
+  querySelector,
+  query => fp.pick(['text', 'nick'], query)
+)
+
+const searchSelector = fp.get('search')
+
+const isSearchOutdatedSelector = createSelector(
+  searchSelector, searchQuerySelector,
+  ({ query }, searchQuery) => !fp.isEqual(query, searchQuery)
+)
+
+const searchHighlightsSelector = createSelector(
+  searchQuerySelector,
+  ({ text }) => !text ? [] : text.split(' ')
+
+)
+
+const foundMessagesSelector = createSelector(
+  searchSelector, isSearchOutdatedSelector,
+  ({ messages }, isOutdated) => isOutdated ? [] : messages
+)
+
 const allMessagesSelector = state => state.messages || []
 
 const messagesSelector = createSelector(
-  allMessagesSelector, channelNameSelector,
-  (messages, channelName) => messages[channelName] || []
+  allMessagesSelector, channelNameSelector, isSearchOpenSelector, foundMessagesSelector,
+  (messages, channelName, isSearchOpen, foundMessages) => {
+    if (isSearchOpen) {
+      return foundMessages
+    }
+
+    return messages[channelName] || []
+  }
 )
 
 const allUsersSelector = state => state.users || []
@@ -72,20 +111,28 @@ const isAppLoadingSelector = createSelector(
 )
 
 const hasReachedBeginningSelector = createSelector(
-  fp.get('hasReachedBeginning'), channelNameSelector,
-  (hasReachedBeginning, channelName) => (
-    hasReachedBeginning[channelName]
-  )
+  fp.get('hasReachedBeginning'), channelNameSelector, isSearchOpenSelector, searchSelector,
+  (hasReachedBeginning, channelName, isSearchOpen, search) => {
+    if (isSearchOpen) {
+      return search.hasReachedBeginning
+    }
+
+    return hasReachedBeginning[channelName]
+  }
 )
 
 export {
   isEmbedSelector,
-  locationSelector,
+  routeSelector,
   channelsSelector,
   sortedChannelsSelector,
   openChannelsSelector,
   channelNameSelector,
   channelSelector,
+  isSearchOpenSelector,
+  searchQuerySelector,
+  isSearchOutdatedSelector,
+  searchHighlightsSelector,
   allMessagesSelector,
   messagesSelector,
   allUsersSelector,

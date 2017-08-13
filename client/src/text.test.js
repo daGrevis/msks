@@ -1,8 +1,13 @@
 import {
-  parse, tokenize, createToken,
+  parse as parseWithOpts, tokenize as tokenizeWithOpts, createToken,
   COLOR_CHAR, BOLD_CHAR, ITALIC_CHAR, UNDERLINE_CHAR, RESET_CHAR,
   colorize, bold, italic, underline, logChars,
 } from './text'
+
+const opts = { highlights: ['foo', 'bar'] }
+
+const tokenize = tokenizeWithOpts(opts)
+const parse = parseWithOpts(opts)
 
 describe('lexer', () => {
   const s = 'hello'
@@ -82,6 +87,15 @@ describe('lexer', () => {
         createToken('underline'),
         createToken('text', 'underline'),
         createToken('underline'),
+      ])
+  })
+
+  it('tokenizes highlights', () => {
+    expect(tokenize('Foo and BAR'))
+      .toEqual([
+        createToken('highlight', 'Foo'),
+        createToken('text', ' and '),
+        createToken('highlight', 'BAR'),
       ])
   })
 })
@@ -196,6 +210,13 @@ describe('parser', () => {
       .toEqual([
         { text: 'x', foreground: 4, styles: ['bold', 'italic', 'underline'] },
         { text: 'y' },
+      ])
+  })
+
+  it('parses highlight', () => {
+    expect(parse('foo'))
+      .toEqual([
+        { text: 'foo', isHighlight: true },
       ])
   })
 })

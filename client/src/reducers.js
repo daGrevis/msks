@@ -2,6 +2,7 @@ import fp from 'lodash/fp'
 import { handleActions, concat } from 'redux-fp'
 
 import { mo } from './utils'
+import { searchQuerySelector } from './selectors'
 
 const appUpdater = handleActions({
   SET_EMBED: () => fp.set('isEmbed', true),
@@ -10,14 +11,13 @@ const appUpdater = handleActions({
 })
 
 const historyUpdater = handleActions({
-  NAVIGATED: ({ payload }) => fp.set('location', payload)
+  NAVIGATED: ({ payload }) => fp.set('route', payload)
 })
 
 const socketUpdater = handleActions({
   SOCKET_DISCONNECTED: () => fp.pipe(
-    fp.set('isSubscribedToUsers', {}),
-    fp.set('isSubscribedToMessages', {}),
-    fp.set('loadCache', {})
+    fp.update('isSubscribedToUsers', fp.mapValues(() => false)),
+    fp.update('isSubscribedToMessages', fp.mapValues(() => false)),
   )
 })
 
@@ -55,13 +55,13 @@ const addMessage = m => fp.update(
   }
 )
 
-const addMessages = newMessages => state => {
+const addMessages = ({ channelName, messages: newMessages, before, after, messageId }) => state => {
   if (!newMessages.length) {
     return state
   }
 
   const firstMessage = fp.first(newMessages)
-  return fp.update(['messages', firstMessage.to], messages => {
+  return fp.update(['messages', channelName], messages => {
     if (!messages || !messages.length) {
       return newMessages
     }
@@ -74,23 +74,71 @@ const addMessages = newMessages => state => {
   }, state)
 }
 
+const addFoundMessages = ({ messages, channel, query, offset, limit }) => state => {
+  const isOutdated = !fp.isEqual(
+    searchQuerySelector(state),
+    query
+  ) || state.channelName !== channel
+  if (isOutdated) {
+    return state
+  }
+
+  return fp.pipe(
+    fp.update('search', search => ({
+      query,
+      offset,
+      hasReachedBeginning: messages.length < limit,
+      messages: (
+        !offset
+        ? messages
+        : fp.concat(messages, search.messages)
+      ),
+    })),
+    fp.update('searchCache', cache => (
+      !offset
+      ? {}
+      : cache
+    ))
+  )(state)
+}
+
 const messagesUpdater = handleActions({
   'server/SUBSCRIBE_TO_MESSAGES': ({ payload }) => fp.set(['isSubscribedToMessages', payload.channelName], true),
+  'server/UNSUBSCRIBE_FROM_MESSAGES': ({ payload }) => fp.set(['isSubscribedToMessages', payload.channelName], false),
 
-  'server/LOAD_MESSAGES': ({ payload }) => (
-    payload.messageId
-    ? fp.set(['loadCache', payload.messageId], true)
-    : fp.identity
-  ),
+  'server/LOAD_MESSAGES': ({ payload }) => {
+    if (payload.messageId) {
+      return fp.pipe(
+        fp.set(['loadCache', payload.messageId], true),
+        fp.update(['messages', payload.channelName], messages => (
+          !payload.before && !payload.after ? [] : messages
+        ))
+      )
+    } else if (!payload.before && !payload.after) {
+      return fp.set(['loadCache', payload.channelName], true)
+    }
+
+    return fp.identity
+  },
 
   ADD_MESSAGE: ({ payload }) => addMessage(payload),
-  ADD_MESSAGES: ({ payload: { channelName, messages }}) => (
-    addMessages(messages)
+  ADD_MESSAGES: ({ payload }) => (
+    addMessages(payload)
   ),
 
-  'client/LOADED_MESSAGES': ({ payload: { channelName, messages, before } }) => fp.set(
+  'client/LOADED_MESSAGES': ({ payload: { channelName, messages, after, limit } }) => fp.set(
     ['hasReachedBeginning', channelName],
-    before && !messages.length
+    !after && messages.length < 25
+  ),
+
+  'client/FOUND_MESSAGES': ({ payload }) => (
+    addFoundMessages(payload)
+  ),
+
+  'server/SEARCH': ({ payload }) => (
+    payload.messageId
+    ? fp.set(['searchCache', payload.messageId], true)
+    : fp.identity
   ),
 })
 

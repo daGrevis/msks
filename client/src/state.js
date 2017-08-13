@@ -5,7 +5,7 @@ const initialState = {
 
   isVisible: true,
 
-  location: null,
+  route: null,
 
   channelName: null,
 
@@ -58,6 +58,24 @@ const initialState = {
     // ],
   },
 
+  search: {
+    query: {
+      // text: 'bar',
+    },
+    offset: 0,
+    hasReachedBeginning: false,
+    messages: [
+      // {
+      //   'id': '7eec370e-36e4-496a-9dcf-390cbfa1fbe0',
+      //   'from': 'Sorella',
+      //   'to': '##javascript',
+      //   'text': 'Chrome only allows up to 1GB heaps',
+      //   'kind': 'message',
+      //   'timestamp': '2016-11-21T21:13:44.338Z',
+      // },
+    ],
+  },
+
   isSubscribedToMessages: {
     // '#developerslv': true,
   },
@@ -66,6 +84,10 @@ const initialState = {
   },
 
   loadCache: {
+    // '#developerslv': true,
+    // 'd3348233-440e-4962-b60a-9fb174f75331': true,
+  },
+  searchCache: {
     // 'd3348233-440e-4962-b60a-9fb174f75331': true,
   },
 

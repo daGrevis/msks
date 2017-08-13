@@ -1,7 +1,4 @@
-const _ = require('lodash')
-const Promise = require('bluebird')
-
-const r = require('./rethink')
+const r = require('./index')
 
 const migrations = [
   r.tableCreate('channels', { primaryKey: 'name' }),
@@ -19,13 +16,4 @@ const migrations = [
   r.table('messages').indexWait(),
 ]
 
-const runMigrations = () => (
-  Promise.all(_.map(migrations, fn =>
-    fn.run().catch(_.noop)
-  ))
-)
-
-module.exports = {
-  migrations,
-  runMigrations,
-}
+module.exports = migrations

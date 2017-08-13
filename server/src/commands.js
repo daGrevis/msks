@@ -2,7 +2,7 @@ const fp = require('lodash/fp')
 
 const logger = require('./logger')
 const config = require('./config')
-const queries = require('./queries')
+const { leaveNetwork, saveMessage } = require('./rethink/queries')
 const { ircClient, ctx } = require('./irc')
 const { humanizeDelta } = require('./utils')
 const { versionText } = require('./version')
@@ -32,9 +32,9 @@ const onReload = async ({ message }) => {
 
   const now = new Date()
 
-  const users = await queries.leaveNetwork(ircClient.user.nick)
+  const users = await leaveNetwork(ircClient.user.nick)
   for (const user of users) {
-    await queries.saveMessage({
+    await saveMessage({
       kind: 'quit',
       timestamp: now,
       from: user.nick,

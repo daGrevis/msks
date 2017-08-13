@@ -7,13 +7,14 @@ import { parse } from '../text'
 import '../styles/Text.css'
 
 export default props => {
-  const { children: text } = props
+  const { children: text, highlights } = props
 
-  const fragments = parse(text)
-  const textNodes = _.map(fragments, ({ text, isLink, styles, foreground, background }, i) => {
+  const fragments = parse({ highlights })(text)
+  const textNodes = _.map(fragments, ({ text, isLink, isHighlight, styles, foreground, background }, i) => {
     const classes = classNames(styles, {
       [`foreground-${foreground}`]: foreground,
       [`background-${background}`]: background,
+      'highlight': isHighlight,
     })
     if (isLink) {
       return <a key={i} href={text} target='_blank' className={classes}>{text}</a>

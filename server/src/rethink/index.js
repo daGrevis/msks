@@ -1,6 +1,6 @@
 const rethinkdb = require('rethinkdbdash')
 
-const config = require('./config')
+const config = require('../config')
 
 const r = rethinkdb({
   host: config.rethink.host,

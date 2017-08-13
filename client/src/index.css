@@ -27,3 +27,10 @@ a {
   font-size: 14px;
   text-decoration: none;
 }
+
+input {
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  border-radius: 0;
+  -webkit-appearance: none;
+}

@@ -12,10 +12,11 @@ const config = require('./config')
 const logger = require('./logger')
 const httpLogger = require('./http/logger')
 const httpRouter = require('./http/router')
-const events = require('./events')
 const actions = require('./actions')
 const { ircClient } = require('./irc')
-const { runMigrations } = require('./migrations')
+const events = require('./irc/events')
+const waitForRethink = require('./rethink/waitForRethink')
+const waitForElastic = require('./elastic/waitForElastic')
 
 Queue.configure(Promise)
 
@@ -36,12 +37,15 @@ const ACTIONS = {
   'server/SUBSCRIBE_TO_CHANNELS': actions.subscribeToChannels,
   'server/SUBSCRIBE_TO_USERS': actions.subscribeToUsers,
   'server/SUBSCRIBE_TO_MESSAGES': actions.subscribeToMessages,
+  'server/UNSUBSCRIBE_FROM_MESSAGES': actions.unsubscribeFromMessages,
   'server/LOAD_MESSAGES': actions.loadMessages,
+  'server/SEARCH': actions.search,
 }
 
 io.on('connection', socket => {
   let context = {
     changefeeds: [],
+    messagesChangefeeds: {},
   }
 
   socket.on('action', ({ type, payload = null }) => {
@@ -89,7 +93,10 @@ _.forEach(eventMap, (fn, name) => {
   })
 })
 
-runMigrations().then(() => {
+Promise.all([
+  waitForRethink(),
+  waitForElastic(),
+]).then(() => {
   server.listen(SERVER_PORT)
   logger.info(`Listening on port ${SERVER_PORT}...`)
 

@@ -1,11 +1,17 @@
 const _ = require('lodash')
 
-const logger = require('./logger')
-const config = require('./config')
-const queries = require('./queries')
-const { ircClient, ctx, isMe, isPM } = require('./irc')
-const { matchCommand } = require('./commands')
-const userStore = require('./userStore')
+const logger = require('../logger')
+const config = require('../config')
+const {
+  saveMessage,
+  createChannel, updateTopic,
+  joinChannel, leaveChannel, leaveNetwork,
+  updateUsers, updateUser, updateNick,
+} = require('../rethink/queries')
+const { indexMessage } = require('../elastic/queries')
+const { ircClient, ctx, isMe, isPM } = require('./index')
+const { matchCommand } = require('../commands')
+const userStore = require('../userStore')
 
 const onDebug = async (s) => {
   if (!config.irc.debug) {
@@ -41,7 +47,7 @@ const onRegistered = async () => {
 }
 
 const onJoin = async (payload) => {
-  await queries.saveMessage({
+  await saveMessage({
     kind: 'join',
     timestamp: new Date(),
     from: payload.nick,
@@ -52,9 +58,9 @@ const onJoin = async (payload) => {
   if (isMe(payload.nick)) {
     logger.verbose(`Joined ${payload.channel}!`)
 
-    await queries.createChannel({ name: payload.channel })
+    await createChannel({ name: payload.channel })
   } else {
-    await queries.joinChannel({
+    await joinChannel({
       id: [payload.channel, payload.nick],
       channel: payload.channel,
       nick: payload.nick,
@@ -65,9 +71,9 @@ const onJoin = async (payload) => {
 const onQuit = async (payload) => {
   const now = new Date()
 
-  const oldUsers = await queries.leaveNetwork(payload.nick)
+  const oldUsers = await leaveNetwork(payload.nick)
   for (const oldUser of oldUsers) {
-    await queries.saveMessage({
+    await saveMessage({
       kind: 'quit',
       timestamp: now,
       from: payload.nick,
@@ -82,9 +88,9 @@ const onQuit = async (payload) => {
 const onPart = async (payload) => {
   const user = userStore.get([payload.channel, payload.nick])
 
-  await queries.leaveChannel(payload.channel, payload.nick)
+  await leaveChannel(payload.channel, payload.nick)
 
-  await queries.saveMessage({
+  await saveMessage({
     kind: 'part',
     timestamp: new Date(),
     from: payload.nick,
@@ -99,11 +105,11 @@ const onPart = async (payload) => {
 const onKick = async (payload) => {
   const reason = payload.message === payload.kicked ? '' : payload.message
 
-  await queries.leaveChannel(payload.channel, payload.kicked)
+  await leaveChannel(payload.channel, payload.kicked)
 
   const user = userStore.get([payload.channel, payload.nick])
 
-  await queries.saveMessage({
+  await saveMessage({
     kind: 'kick',
     timestamp: new Date(),
     from: payload.nick,
@@ -118,10 +124,10 @@ const onKick = async (payload) => {
 const onNick = async (payload) => {
   const now = new Date()
 
-  const newUsers = await queries.updateNick(payload.nick, payload.new_nick)
+  const newUsers = await updateNick(payload.nick, payload.new_nick)
 
   _.forEach(newUsers, async newUser => {
-    await queries.saveMessage({
+    await saveMessage({
       kind: 'nick',
       timestamp: now,
       from: payload.nick,
@@ -143,7 +149,7 @@ const onUserList = async (payload) => {
     nick,
   }))
 
-  await queries.updateUsers(payload.channel, users)
+  await updateUsers(payload.channel, users)
 }
 
 const onMode = async (payload) => {
@@ -162,11 +168,11 @@ const onMode = async (payload) => {
       { [isOp ? 'isOp' : 'isVoiced']: mode[0] === '+' }
     )
 
-    await queries.updateUser(targetUser)
+    await updateUser(targetUser)
 
     const user = userStore.get([payload.target, payload.nick])
 
-    await queries.saveMessage({
+    await saveMessage({
       kind: 'mode',
       timestamp: now,
       from: payload.nick,
@@ -183,7 +189,7 @@ const onTopic = async (payload) => {
   if (payload.nick) {
     const user = userStore.get([payload.channel, payload.nick])
 
-    await queries.saveMessage({
+    await saveMessage({
       kind: 'topic',
       timestamp: new Date(),
       from: payload.nick,
@@ -194,7 +200,7 @@ const onTopic = async (payload) => {
     })
   }
 
-  await queries.updateTopic(payload.channel, payload.topic)
+  await updateTopic(payload.channel, payload.topic)
 }
 
 const onMessage = async (payload) => {
@@ -219,7 +225,8 @@ const onMessage = async (payload) => {
     })
   }
 
-  await queries.saveMessage(message)
+  message = await saveMessage(message)
+  await indexMessage(message)
 
   const isSilent = _.includes(config.irc.silentChannels, message.to)
   if (isSilent) {
@@ -257,13 +264,14 @@ const onMessage = async (payload) => {
 
   ircClient.say(responseMessage.to, responseMessage.text)
 
-  await queries.saveMessage(responseMessage)
+  responseMessage = await saveMessage(responseMessage)
+  await indexMessage(responseMessage)
 }
 
 const onAction = async (payload) => {
   const user = userStore.get([payload.target, payload.nick])
 
-  await queries.saveMessage({
+  await saveMessage({
     kind: 'action',
     timestamp: new Date(),
     from: payload.nick,
@@ -292,7 +300,7 @@ const onNotice = async (payload) => {
     })
   }
 
-  await queries.saveMessage(message)
+  await saveMessage(message)
 }
 
 module.exports = {

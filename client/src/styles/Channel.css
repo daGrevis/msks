@@ -30,11 +30,22 @@
   border-bottom: 1px solid #cacaca;
 }
 
-#channel .header .hamburger {
+#channel .header .hamburger-icon {
   position: absolute;
   right: -12px;
   top: -8px;
   transform: scale(.6);
+}
+#channel .header .hamburger-icon:hover {
+  opacity: 1;
+}
+
+#channel .header .search-icon {
+  position: absolute;
+  right: 45px;
+  top: 10px;
+  width: 20px;
+  cursor: pointer;
 }
 
 #channel .header .name {
@@ -84,6 +95,12 @@
   padding-bottom: 10px;
 }
 
+#channel .messages .notice {
+  text-align: center;
+  font-size: 20px;
+  color: #cacaca;
+}
+
 #channel .messages .day-header {
   padding: 15px 0;
   text-align: center;
@@ -105,12 +122,12 @@
   background: #ddd;
 }
 
-#channel .header .hamburger {
+#channel .header .hamburger-icon {
   display: none;
 }
 
 @media screen and (max-width: 666px) {
-  #channel .header .hamburger {
+  #channel .header .hamburger-icon {
     display: block;
   }
 
@@ -153,5 +170,9 @@
 
   #channel .sidebar {
     flex: 0 0 160px;
+  }
+
+  #channel .header .search-icon {
+    right: 172px;
   }
 }

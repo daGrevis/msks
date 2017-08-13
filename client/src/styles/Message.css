@@ -4,7 +4,7 @@
 }
 
 #channel .message.is-active {
-  background: #fffbd0;
+  background: #FFFBD0;
 }
 #channel .message.is-active .timestamp {
   font-weight: bold;

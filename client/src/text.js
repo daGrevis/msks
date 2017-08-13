@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import fp from 'lodash/fp'
 
 // 101 on IRC fomatting: https://github.com/myano/jenni/wiki/IRC-String-Formatting
@@ -11,7 +10,7 @@ const RESET_CHAR = '\u000f'
 
 // eslint-disable-next-line no-unused-vars
 const logChars = s => {
-  console.log(s, _.map(s, c => c.charCodeAt()))
+  console.log(s, fp.map(c => c.charCodeAt(), s))
 }
 
 function colorize([fg, bg], s) {
@@ -73,6 +72,30 @@ const tokenizeColors = token => {
   ])(token.payload)
 }
 
+const tokenizeHighlights = highlights => token => {
+  if (!highlights || !highlights.length) {
+    return token
+  }
+
+  const escapedHighlights = fp.map(fp.escapeRegExp, highlights)
+  const pattern = new RegExp(`(${escapedHighlights.join('|')})`, 'i')
+
+  const splits = fp.split(pattern, token.payload)
+
+  if (splits.length === 1) {
+    return token
+  }
+
+  return fp.pipe([
+    fp.chunk(2),
+    fp.map(([s, highlight]) => fp.reject(fp.isUndefined, [
+      s ? createToken('text', s) : undefined,
+      highlight ? createToken('highlight', highlight) : undefined,
+    ])),
+    fp.flatten,
+  ])(splits)
+}
+
 const createTokenizer = (type, pattern) => token => {
   if (!fp.includes(pattern, token.payload)) {
     return token
@@ -105,7 +128,7 @@ const applyTokenizer = tokenizerFn => fp.pipe([
   fp.flatten,
 ])
 
-const tokenize = fp.pipe([
+const tokenize = ({ highlights }) => fp.pipe([
   input => [createToken('text', input)],
   applyTokenizer(tokenizeColors),
   applyTokenizer(tokenizeResets),
@@ -113,18 +136,23 @@ const tokenize = fp.pipe([
   applyTokenizer(tokenizeItalics),
   applyTokenizer(tokenizeUnderlines),
   applyTokenizer(tokenizeLinks),
+  applyTokenizer(tokenizeHighlights(highlights)),
 ])
 
-const fragmentize = tokens => fp.reduce((prev, token) => {
+const fragmentize = () => tokens => fp.reduce((prev, token) => {
   switch (token.type) {
     case 'text':
     case 'link':
+    case 'highlight':
       let fragment = {
         text: token.payload,
       }
 
       if (token.type === 'link') {
         fragment.isLink = true
+      }
+      if (token.type === 'highlight') {
+        fragment.isHighlight = true
       }
 
       if (!fp.isUndefined(prev.foreground)) {
@@ -183,9 +211,9 @@ const fragmentize = tokens => fp.reduce((prev, token) => {
   }
 }, { fragments: [] }, tokens).fragments
 
-const parse = input => {
-  const tokens = tokenize(input)
-  const fragments = fragmentize(tokens)
+const parse = opts => input => {
+  const tokens = tokenize(opts)(input)
+  const fragments = fragmentize(opts)(tokens)
 
   return fragments
 }
@@ -204,8 +232,3 @@ export {
   italic,
   underline,
 }
-
-window.colorize = colorize
-window.bold = bold
-window.italic = italic
-window.underline = underline

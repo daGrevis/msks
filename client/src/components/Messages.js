@@ -8,8 +8,17 @@ import titles from '../../../common/src/titles'
 import { mo } from '../utils'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
-import { setTitle, loadMessages, setScrollPosition } from '../actions'
-import { isEmbedSelector, messagesSelector, hasReachedBeginningSelector } from '../selectors'
+import { setTitle, loadMessages, setScrollPosition, search } from '../actions'
+import {
+  isEmbedSelector, messagesSelector, hasReachedBeginningSelector,
+  isSearchOpenSelector, searchQuerySelector, isSearchOutdatedSelector, searchHighlightsSelector,
+} from '../selectors'
+
+const Notice = props => (
+  <div className='notice'>
+    {props.children}
+  </div>
+)
 
 const DayHeader = ({ text, isoTimestamp }) => {
   return (
@@ -35,8 +44,40 @@ class Messages extends React.Component {
     this.wrapperNode = node
   }
 
-  onScroll = _.debounce(() => {
-    if (!this.props.messages.length) {
+  onScrolledTop = () => {
+    const firstMessage = fp.first(this.props.messages)
+
+    if (this.props.isSearchOpen) {
+      this.props.search({
+        query: this.props.searchQuery,
+        offset: this.props.messages.length,
+        messageId: firstMessage.id,
+      })
+    } else {
+      this.props.loadMessages({
+        channelName: this.props.channelName,
+        before: firstMessage.timestamp,
+        messageId: firstMessage.id,
+      })
+    }
+  }
+
+  onScrolledBottom = () => {
+    if (this.props.isSearchOpen) {
+      // Do nothing.
+    } else if (!this.props.isSubscribedToMessages) {
+      const lastMessage = fp.last(this.props.messages)
+
+      this.props.loadMessages({
+        channelName: this.props.channelName,
+        after: lastMessage.timestamp,
+        messageId: lastMessage.id,
+      })
+    }
+  }
+
+  onDebouncedScroll = _.debounce(() => {
+    if (!this.wrapperNode || !this.props.messages.length) {
       return
     }
 
@@ -47,30 +88,24 @@ class Messages extends React.Component {
     )
 
     if (hasReachedTop) {
-      const firstMessage = fp.first(this.props.messages)
-
-      this.props.loadMessages({
-        channelName: this.props.channel.name,
-        before: firstMessage.timestamp,
-        messageId: firstMessage.id,
-      })
+      this.onScrolledTop()
     }
 
-    if (hasReachedBottom && !this.props.isSubscribedToMessages) {
-      const lastMessage = fp.last(this.props.messages)
-
-      this.props.loadMessages({
-        channelName: this.props.channel.name,
-        after: lastMessage.timestamp,
-        messageId: lastMessage.id,
-      })
+    if (hasReachedBottom) {
+      this.onScrolledBottom()
     }
 
-    this.props.setScrollPosition({
-      channelName: this.props.channel.name,
-      position: this.wrapperNode.scrollTop,
-    })
+    if (!this.props.isSearchOpen) {
+      this.props.setScrollPosition({
+        channelName: this.props.channelName,
+        position: this.wrapperNode.scrollTop,
+      })
+    }
   }, 100)
+
+  onScroll = () => {
+    this.onDebouncedScroll()
+  }
 
   updateScroll = () => {
     if (!this.props.messages.length) {
@@ -80,18 +115,22 @@ class Messages extends React.Component {
     if (this.shouldScrollToBottom) {
       this.wrapperNode.scrollTop = this.wrapperNode.scrollHeight - this.wrapperNode.clientHeight
 
+      this.shouldScrollToBottom = false
+
       return
     }
 
     if (this.shouldScrollToMessage) {
       const messageNode = document.getElementById(this.props.messageId)
-      if (messageNode) {
-        this.wrapperNode.scrollTop = (
-          messageNode.offsetTop - (this.wrapperNode.clientHeight / 2)
-        )
-
-        this.shouldScrollToMessage = false
+      if (!messageNode) {
+        return
       }
+
+      this.wrapperNode.scrollTop = (
+        messageNode.offsetTop - (this.wrapperNode.clientHeight / 2)
+      )
+
+      this.shouldScrollToMessage = false
 
       return
     }
@@ -101,22 +140,22 @@ class Messages extends React.Component {
         this.scrollTop + (this.wrapperNode.scrollHeight - this.scrollHeight)
       )
 
+      this.shouldAdjustScrollPosition = false
+
       return
     }
 
     if (this.shouldRestoreScrollPosition) {
       this.wrapperNode.scrollTop = this.props.scrollPosition
 
+      this.shouldRestoreScrollPosition = false
+
       return
     }
   }
 
-  getActiveMessage = () => (
-    fp.find({ id: this.props.messageId }, this.props.messages)
-  )
-
   updateTitle = () => {
-    const activeMessage = this.getActiveMessage()
+    const activeMessage = fp.find({ id: this.props.messageId }, this.props.messages)
 
     this.props.setTitle(
       activeMessage
@@ -126,83 +165,129 @@ class Messages extends React.Component {
   }
 
   componentWillMount() {
-    this.updateTitle()
+    this.onBeforeRender(this.props)
 
-    if (this.props.messageId) {
-      if (!this.getActiveMessage()) {
-        this.props.loadMessages({
-          channelName: this.props.channel.name,
-          messageId: this.props.messageId,
-        })
-      }
-    } else {
-      if (!this.props.messages.length) {
-        this.props.loadMessages({
-          channelName: this.props.channel.name,
-        })
-      }
-    }
+    this.shouldScrollToMessage = this.props.messageId
+
+    this.updateTitle()
   }
 
   componentWillUpdate(nextProps) {
-    if (!this.props.messages.length || !nextProps.messages.length) {
-      return
-    }
+    this.onBeforeRender(nextProps)
 
     this.scrollHeight = this.wrapperNode.scrollHeight
     this.scrollTop = this.wrapperNode.scrollTop
 
     this.shouldScrollToBottom = (
       !this.props.messageId
-      && this.props.isSubscribedToMessages
+      && (this.props.isSubscribedToMessages || !this.props.messages.length)
       && (
         this.wrapperNode.scrollHeight
         === (this.wrapperNode.scrollTop + this.wrapperNode.clientHeight)
       )
     )
 
-    this.shouldScrollToMessage = false
-
-    this.shouldRestoreScrollPosition = false
+    if (nextProps.messageId && this.props.messageId !== nextProps.messageId) {
+      this.shouldScrollToMessage = true
+    }
 
     this.shouldAdjustScrollPosition = (
-      this.props.messages[0].id !== nextProps.messages[0].id
+      this.props.messages.length
+      && nextProps.messages.length
+      && this.props.messages[0].id !== nextProps.messages[0].id
     )
   }
 
-  componentDidMount() {
-    this.shouldScrollToBottom = !this.props.messageId && !this.props.messages.length
+  onBeforeRender(props) {
+    if (props.isSearchOpen) {
+      return
+    }
 
-    this.shouldScrollToMessage = this.props.messageId
+    if (props.messageId) {
+      props.loadMessages({
+        channelName: props.channelName,
+        messageId: props.messageId,
+      })
+    } else {
+      props.loadMessages({
+        channelName: props.channelName,
+      })
+    }
+  }
+
+  componentDidMount() {
+    if (this.props.isSearchOpen) {
+      this.props.search({
+        query: this.props.searchQuery,
+      })
+    }
+
+    this.updateTitle()
 
     this.shouldRestoreScrollPosition = this.props.scrollPosition
-
-    this.shouldAdjustScrollPosition = false
-
     this.updateScroll()
-    this.onScroll()
   }
 
   componentDidUpdate() {
     this.updateTitle()
+
     this.updateScroll()
-    this.onScroll()
   }
 
   render() {
-    const { messages, hasReachedBeginning, isSubscribedToMessages } = this.props
+    const {
+      messages, hasReachedBeginning, isSubscribedToMessages,
+      isSearchOpen, searchQuery, isSearchOutdated, searchHighlights,
+    } = this.props
 
     const now = mo()
     const messageLength = messages.length
 
     let currentDay, dayText
 
+    const isSearchIntro = (
+      isSearchOpen
+      && fp.isEmpty(searchQuery)
+    )
+    const isSearchNotFound = (
+      isSearchOpen
+      && !isSearchIntro
+      && !isSearchOutdated
+      && !messageLength
+    )
+
+    const isTopLoading = (
+      isSearchOpen
+      ? (
+        // Show when not reached beginning or outdated.
+        (!hasReachedBeginning || isSearchOutdated)
+        // Don't show when intro or not found.
+        && (!isSearchIntro && !isSearchNotFound)
+      )
+      // Show when not reached beginning or no messages.
+      : (!hasReachedBeginning || !messageLength)
+    )
+    const isBottomLoading = (
+      // Never show when search.
+      !isSearchOpen
+      // Never show when no messages.
+      && messageLength
+      // Show when not subscribed.
+      && !isSubscribedToMessages
+    )
+
     return (
       <div className='messages-wrapper' ref={this.onRef} onScroll={this.onScroll}>
         <div className='messages'>
-          {messageLength === 0 ? <Loader /> : null}
+          {isSearchIntro ? (
+            <Notice>Start typing to search...</Notice>
+          ) : null}
 
-          {messageLength && !hasReachedBeginning ? <Loader /> : null}
+          {isSearchNotFound ? (
+            <Notice>Nothing was found...</Notice>
+          ) : null}
+
+          {isTopLoading ? <Loader /> : null}
 
           {_.map(messages, (message, i) => {
             const previousMessage = i > 0 ? messages[i - 1] : null
@@ -224,7 +309,9 @@ class Messages extends React.Component {
               } else if (currentDay.isSame(now.subtract(1, 'd'), 'day')) {
                 dayText = 'Yesterday'
               } else {
-                dayText = currentDay.format('dddd, MMMM Do')
+                dayText = currentDay.format(
+                  'dddd, MMMM Do' + (currentDay.isSame(now, 'year') ? '' : ' (YYYY)')
+                )
               }
             }
 
@@ -253,12 +340,13 @@ class Messages extends React.Component {
                   timestampText={timestamp.format('HH:mm')}
                   isActive={isActive}
                   isEmbed={this.props.isEmbed}
+                  highlights={searchHighlights}
                 />
               </div>
             )
           })}
 
-          {messageLength && !isSubscribedToMessages ? <Loader /> : null}
+          {isBottomLoading ? <Loader /> : null}
         </div>
       </div>
     )
@@ -266,40 +354,30 @@ class Messages extends React.Component {
 }
 
 const mapStateToProps = (state, props) => {
-  const { channelName } = state
-
   return {
     messageId: props.messageId,
 
     isEmbed: isEmbedSelector(state),
-    isSubscribedToMessages: state.isSubscribedToMessages[channelName],
+    isSubscribedToMessages: state.isSubscribedToMessages[state.channelName],
+    channelName: state.channelName,
+    channel: state.channels[state.channelName],
     loadCache: state.loadCache,
-    channel: state.channels[channelName],
     messages: messagesSelector(state),
-    scrollPosition: state.scrollPositions[channelName],
+    scrollPosition: state.scrollPositions[state.channelName],
     hasReachedBeginning: hasReachedBeginningSelector(state),
+    isSearchOpen: isSearchOpenSelector(state),
+    searchQuery: searchQuerySelector(state),
+    isSearchOutdated: isSearchOutdatedSelector(state),
+    searchHighlights: searchHighlightsSelector(state),
+    searchCache: state.searchCache,
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  dispatch,
-})
-
-const mergeProps = (stateProps, { dispatch }, ownProps) => {
-  return {
-    ...stateProps,
-    ...ownProps,
-
-    setTitle: payload => dispatch(setTitle(payload)),
-    setScrollPosition: payload => dispatch(setScrollPosition(payload)),
-    loadMessages: payload => {
-      if (payload.messageId && stateProps.loadCache[payload.messageId]) {
-        return
-      }
-
-      dispatch(loadMessages(payload))
-    },
-  }
+const mapDispatchToProps = {
+  setTitle,
+  setScrollPosition,
+  loadMessages,
+  search,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Messages)
+export default connect(mapStateToProps, mapDispatchToProps)(Messages)

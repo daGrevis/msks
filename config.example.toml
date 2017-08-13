@@ -2,6 +2,11 @@
 debug = false
 host = "localhost"
 
+[elastic]
+debug = false
+host = 'localhost:9200'
+httpAuth = 'elastic:changeme'
+
 [irc]
 enable = true
 debug = false
