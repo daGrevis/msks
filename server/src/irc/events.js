@@ -271,7 +271,7 @@ const onMessage = async (payload) => {
 const onAction = async (payload) => {
   const user = userStore.get([payload.target, payload.nick])
 
-  await saveMessage({
+  const message = await saveMessage({
     kind: 'action',
     timestamp: new Date(),
     from: payload.nick,
@@ -280,6 +280,7 @@ const onAction = async (payload) => {
     isOp: user.isOp,
     isVoiced: user.isVoiced,
   })
+  await indexMessage(message)
 }
 
 const onNotice = async (payload) => {
@@ -300,7 +301,8 @@ const onNotice = async (payload) => {
     })
   }
 
-  await saveMessage(message)
+  message = await saveMessage(message)
+  await indexMessage(message)
 }
 
 module.exports = {
