@@ -168,6 +168,7 @@ const search = ({ query, offset, messageId }) => (dispatch, getState) => {
       channel: state.channelName,
       query,
       offset,
+      messageId,
     },
   })
 }

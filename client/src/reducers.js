@@ -97,7 +97,7 @@ const addFoundMessages = ({ messages, channel, query, offset, limit }) => state 
       ),
     })),
     fp.update('searchCache', cache => (
-      !offset
+      offset === 0
       ? {}
       : cache
     ))
