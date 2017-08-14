@@ -216,20 +216,25 @@ class Messages extends React.Component {
   }
 
   componentDidMount() {
+    this.shouldRestoreScrollPosition = this.props.scrollPosition
+
     if (this.props.isSearchOpen) {
       this.props.search({
         query: this.props.searchQuery,
       })
     }
 
-    this.updateTitle()
-
-    this.shouldRestoreScrollPosition = this.props.scrollPosition
-    this.updateScroll()
+    this.onAfterRender()
   }
 
   componentDidUpdate() {
+    this.onAfterRender()
+  }
+
+  onAfterRender() {
     this.updateTitle()
+
+    this.onScroll()
 
     this.updateScroll()
   }

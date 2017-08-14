@@ -1,5 +1,4 @@
 import fp from 'lodash/fp'
-import { Observable } from 'rxjs'
 import { combineEpics } from 'redux-observable'
 
 import {
@@ -25,31 +24,6 @@ const messageChangeEpic = (action$, store) =>
     .map(({ payload }) => addMessage(payload.new_val))
 
 const subscribeToMessagesEpic = (action$, store) =>
-  action$.ofType('SOCKET_CONNECTED')
-    .flatMap(action => {
-      const state = store.getState()
-
-      const channelNames = fp.keys(state.isSubscribedToMessages)
-      const allMessages = allMessagesSelector(state)
-
-      const actions = fp.map(channelName => {
-        const lastMessage = fp.last(allMessages[channelName])
-
-        if (!lastMessage) {
-          return noop()
-        }
-
-        return subscribeToMessages({
-          channelName,
-          timestamp: lastMessage.timestamp,
-          messageId: lastMessage.id,
-        })
-      }, channelNames)
-
-      return Observable.concat(...fp.map(Observable.of, actions))
-    })
-
-const subscribeToLoadedMessagesEpic = (action$, store) =>
   action$.ofType('client/LOADED_MESSAGES')
     .filter(({ payload: { messages, before }}) =>
       !messages.length
@@ -105,7 +79,6 @@ const rootEpic = combineEpics(
   subscribeToChannelsEpic,
   addMessagesEpic,
   subscribeToMessagesEpic,
-  subscribeToLoadedMessagesEpic,
   messageChangeEpic,
   updateUnreadEpic,
   setFavicoBadgeEpic,

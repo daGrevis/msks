@@ -18,7 +18,9 @@ const socketUpdater = handleActions({
   SOCKET_DISCONNECTED: () => fp.pipe(
     fp.update('isSubscribedToUsers', fp.mapValues(() => false)),
     fp.update('isSubscribedToMessages', fp.mapValues(() => false)),
-  )
+  ),
+
+  SOCKET_CONNECTED: () => fp.set('loadCache', {}),
 })
 
 const channelUpdater = handleActions({
