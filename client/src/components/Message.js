@@ -17,7 +17,7 @@ const MessageText = ({ message, highlights }) => {
       text = <Text highlights={highlights}>{message.text}</Text>
       break
     case 'action':
-      text = <span><Nick {...message} /> <Text>{message.text}</Text></span>
+      text = <span><Nick {...message} /> <Text highlights={highlights}>{message.text}</Text></span>
       break
     case 'join':
       text = <span><Nick {...message} /> joined</span>
