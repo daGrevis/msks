@@ -128,9 +128,12 @@ const messagesUpdater = handleActions({
     addMessages(payload)
   ),
 
-  'client/LOADED_MESSAGES': ({ payload: { channelName, messages, after, limit } }) => fp.set(
-    ['hasReachedBeginning', channelName],
-    !after && messages.length < 25
+  'client/LOADED_MESSAGES': ({ payload: { channelName, messages, before, messageId, limit } }) => (
+    fp.update(['hasReachedBeginning', channelName], hasReachedBeginning => (
+      before && messageId
+      ? messages.length < limit
+      : hasReachedBeginning
+    ))
   ),
 
   'client/FOUND_MESSAGES': ({ payload }) => (
