@@ -22,11 +22,23 @@ services:
      - ~/msks/rethink-data:/data
     restart: always
 
+  elastic:
+    container_name: elastic
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.1
+    volumes:
+      - ~/msks/elastic-data:/usr/share/elasticsearch/data
+    environment:
+      http.host: '0.0.0.0'
+      transport.host: '127.0.0.1'
+      ES_JAVA_OPTS: '-Xmx256m -Xms256m'
+    restart: always
+
   msks:
     container_name: msks
     image: msks
     links:
      - rethink
+     - elastic
     volumes:
      - ~/msks/config.toml:/usr/src/app/config.toml:ro
      - ~/msks/build:/srv/msks:ro
