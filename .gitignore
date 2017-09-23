@@ -3,6 +3,7 @@
 # app
 config.toml
 .env
+apidoc
 
 # node
 node_modules

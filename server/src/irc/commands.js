@@ -1,11 +1,11 @@
 const fp = require('lodash/fp')
 
-const logger = require('./logger')
-const config = require('./config')
-const { leaveNetwork, saveMessage } = require('./rethink/queries')
-const { ircClient, ctx } = require('./irc')
-const { humanizeDelta } = require('./utils')
-const { versionText } = require('./version')
+const logger = require('../logger')
+const config = require('../config')
+const { leaveNetwork, saveMessage } = require('../rethink/queries')
+const { humanizeDelta } = require('../utils')
+const { versionText } = require('../version')
+const { ircClient, ctx } = require('./index')
 
 const onPing = async () => {
   return 'pong'
@@ -16,7 +16,11 @@ const onEcho = async ({ params }) => {
 }
 
 const onUptime = async () => {
-  return humanizeDelta(new Date() - ctx.connectionTime)
+  if (ctx.connectionTime) {
+    return humanizeDelta(new Date() - ctx.connectionTime)
+  } else {
+    return 0
+  }
 }
 
 const onVersion = async () => {
@@ -95,5 +99,9 @@ const matchCommand = message => {
 }
 
 module.exports = {
+  onPing,
+  onEcho,
+  onUptime,
+  onVersion,
   matchCommand,
 }

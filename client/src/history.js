@@ -25,7 +25,7 @@ const getPathname = loc => {
 const getQuery = loc => {
   let path = loc.pathname + loc.hash + loc.search
 
-  const search = path.replace(/[^?]*\?/, '')
+  const search = path.replace(/[^?]*\??/, '')
 
   return qs.decode(search)
 }

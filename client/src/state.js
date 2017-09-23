@@ -1,11 +1,20 @@
 const initialState = {
-  isEmbed: false,
-
   isBroken: false,
 
   isVisible: true,
 
-  route: null,
+  route: {
+    path: '',
+    params: {},
+    meta: {},
+    pathname: '',
+    query: {},
+  },
+
+  scrollPositions: {
+    // 'messages.#developerslv': 123,
+    // 'search.#developerslv': 234,
+  },
 
   channelName: null,
 
@@ -59,10 +68,10 @@ const initialState = {
   },
 
   search: {
+    channelName: '#developerslv',
     query: {
       // text: 'bar',
     },
-    offset: 0,
     hasReachedBeginning: false,
     messages: [
       // {
@@ -83,6 +92,10 @@ const initialState = {
     // '#developerslv': true,
   },
 
+  isViewingArchive: {
+    // '#developerslv': false,
+  },
+
   loadCache: {
     // '#developerslv': true,
     // 'd3348233-440e-4962-b60a-9fb174f75331': true,
@@ -95,18 +108,7 @@ const initialState = {
     // '#developerslv': true,
   },
 
-  scrollPositions: {
-    // '#developerslv': 123,
-  },
-
   unread: 0,
-
-  notifications: [
-    // {
-    //   'key': '826833f3-d75e-40f9-8bbc-cae5712a0799',
-    //   'message': 'Hello, world',
-    // },
-  ],
 }
 
 export {

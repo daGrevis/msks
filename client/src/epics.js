@@ -2,60 +2,34 @@ import fp from 'lodash/fp'
 import { combineEpics } from 'redux-observable'
 
 import {
-  noop, subscribeToChannels, addMessages, addMessage, subscribeToMessages,
-  updateUnread, resetUnread, setFavicoBadge, search,
+  subscribeToChannels, subscribeToUsers, subscribeToMessages, searchMessages,
+  updateUnread, resetUnread, setFavicoBadge,
 } from './actions'
-import { channelNameSelector, allMessagesSelector } from './selectors'
 
 const subscribeToChannelsEpic = action$ =>
   action$.ofType('SOCKET_CONNECTED')
     .map(() => subscribeToChannels())
 
-const addMessagesEpic = action$ =>
-  action$.ofType('client/LOADED_MESSAGES')
-    .filter(({ payload }) => payload.messages.length)
-    .map(({ payload }) => addMessages(payload))
-
-const messageChangeEpic = (action$, store) =>
-  action$.ofType('client/MESSAGE_CHANGE')
-    .filter(({ payload: { new_val: message }}) => {
-      return store.getState().isSubscribedToMessages[message.to]
-    })
-    .map(({ payload }) => addMessage(payload.new_val))
+const subscribeToUsersEpic = action$ =>
+  action$.ofType('SOCKET_CONNECTED')
+    .map(() => subscribeToUsers())
 
 const subscribeToMessagesEpic = (action$, store) =>
-  action$.ofType('client/LOADED_MESSAGES')
-    .filter(({ payload: { messages, before }}) =>
-      !messages.length
-      && !before
-    )
-    .map(({ payload: { channelName }}) => {
-      const state = store.getState()
+  action$.ofType('client/UPDATE_CHANNEL')
+    .map(({ payload }) => subscribeToMessages({ channelName: payload.name }))
 
-      if (state.isSubscribedToMessages[channelName]) {
-        return noop()
-      }
-
-      const lastMessage = fp.last(allMessagesSelector(state)[channelName])
-      if (!lastMessage) {
-        return noop()
-      }
-
-      return subscribeToMessages({
-        channelName,
-        timestamp: lastMessage.timestamp,
-        messageId: lastMessage.id,
-      })
-    })
+const searchEpic = (action$, store) =>
+  action$.ofType('INPUT_SEARCH')
+    .debounceTime(1000)
+    .map(({ payload }) => searchMessages({ query: payload }))
 
 const updateUnreadEpic = (action$, store) =>
-  action$.ofType('client/MESSAGE_CHANGE')
-    .filter(({ payload }) => {
+  action$.ofType('client/ADD_MESSAGE')
+    .filter(({ payload: message }) => {
       const state = store.getState()
-      const message = payload.new_val
       return (
         !state.isVisible
-        && message.to === channelNameSelector(state)
+        && message.to === state.channelName
         && !fp.includes(message.kind, ['join', 'quit', 'part', 'nick'])
       )
     })
@@ -70,20 +44,14 @@ const setFavicoBadgeEpic = action$ =>
   action$.ofType('UPDATE_UNREAD', 'RESET_UNREAD')
     .map(() => setFavicoBadge())
 
-const searchEpic = (action$, store) =>
-  action$.ofType('INPUT_SEARCH')
-    .debounceTime(1000)
-    .map(({ payload }) => search({ query: payload }))
-
 const rootEpic = combineEpics(
   subscribeToChannelsEpic,
-  addMessagesEpic,
+  subscribeToUsersEpic,
   subscribeToMessagesEpic,
-  messageChangeEpic,
+  searchEpic,
   updateUnreadEpic,
   setFavicoBadgeEpic,
   resetUnreadEpic,
-  searchEpic
 )
 
 export {

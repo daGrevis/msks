@@ -1,7 +1,6 @@
 const fp = require('lodash/fp')
 
 const elastic = require('./index')
-const { getMessagesByIds } = require('../rethink/queries')
 
 const toBody = message =>
   fp.pick([
@@ -29,47 +28,34 @@ const indexMessages = messages => {
   })
 }
 
-const searchMessages = async (channel, query, offset = 0) => {
-  const limit = 50
-
-  query = fp.omit(['channel', 'offset'], query)
-
-  if (!channel) {
-    return {
-      error: 'SEARCH_MESSAGES: channel missing!',
-    }
+const searchMessages = async (channel, query, limit, afterTimestamp) => {
+  let body = {
+    size: limit,
+    sort: [{ timestamp: { order: 'desc' }}],
+    query: {
+      bool: {
+        filter: fp.concat(
+          { term: { to: channel }},
+          !query.nick ? [] : { term: { from: query.nick }}
+        ),
+        must: !query.text ? [] : [{
+          match: { text: query.text },
+        }],
+      },
+    },
   }
 
-  const { hits: results } = await elastic.search({
+  if (afterTimestamp) {
+    body.search_after = [+afterTimestamp]
+  }
+
+  const { hits } = await elastic.search({
     index: 'messages',
     type: 'message',
-    body: {
-      query: {
-        bool: {
-          filter: fp.concat(
-            { term: { to: channel }},
-            !query.nick ? [] : { term: { from: query.nick }}
-          ),
-          must: !query.text ? [] : [{
-            match: { text: query.text },
-          }],
-        },
-      },
-      sort: [
-        { timestamp: { order: 'desc' }},
-      ],
-      size: limit,
-      from: offset,
-    },
+    body,
   })
 
-  return {
-    messages: await getMessagesByIds(fp.map('_id', results.hits)),
-    channel,
-    query,
-    offset,
-    limit,
-  }
+  return hits
 }
 
 module.exports = { indexMessage, indexMessages, searchMessages }

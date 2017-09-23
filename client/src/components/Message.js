@@ -3,6 +3,7 @@ import React from 'react'
 import classNames from 'classnames'
 import { onlyUpdateForKeys } from 'recompose'
 
+import config from '../config'
 import { navigate } from '../history'
 import Text from './Text'
 import Nick from './Nick'
@@ -74,7 +75,7 @@ const Message = onlyUpdateForKeys(['id', 'isActive', 'highlights'])(props => {
           className='timestamp'
           title={isoTimestamp}
           onClick={() => {
-            if (props.isEmbed) {
+            if (config.embedChannel) {
               if (!isActive) {
                 navigate(message.id)
               } else {

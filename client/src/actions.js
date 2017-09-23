@@ -1,19 +1,18 @@
 import fp from 'lodash/fp'
 import { createAction } from 'redux-actions'
-import uuid from 'uuid'
 import * as qs from 'querystring'
 import Favico from 'favico.js'
 
+import config from './config'
 import { navigate } from './history'
-import { messagesSelector, isSearchOpenSelector, searchQuerySelector } from './selectors'
+import {
+  messagesSelector, foundMessagesSelector, isSearchOpenSelector, searchQuerySelector,
+} from './selectors'
 
-const favicon = new Favico({
+const favico = new Favico({
   animation: 'none',
+  bgColor: '#e91e63',
 })
-
-const noop = createAction('NOOP')
-
-const setEmbed = createAction('SET_EMBED')
 
 const setBroken = createAction('SET_BROKEN')
 
@@ -27,75 +26,123 @@ const socketDisconnected = createAction('SOCKET_DISCONNECTED')
 
 const setTitle = title => (dispatch, getState) => {
   if (document.title !== title) {
-    dispatch({ type: 'SET_TITLE', payload: title })
+    dispatch({
+      type: 'SET_TITLE',
+      payload: title,
+    })
 
     document.title = title
   }
 }
 
-const setChannelName = payload => (dispatch, getState) => {
-  if (getState().channelName !== payload) {
-    dispatch({ type: 'SET_CHANNEL_NAME', payload })
-  }
-}
-
 const subscribeToChannels = createAction('server/SUBSCRIBE_TO_CHANNELS')
 
-const subscribeToMessages = createAction('server/SUBSCRIBE_TO_MESSAGES')
+const subscribeToMessages = ({ channelName }) => (dispatch, getState) => {
+  const state = getState()
 
-const unsubscribeFromMessages = payload => (dispatch, getState) => {
-  const isSubscribed = getState().isSubscribedToMessages[payload.channelName]
-  if (!isSubscribed) {
+  const isSubscribedToMessages = fp.get(['isSubscribedToMessages', channelName], state)
+  if (isSubscribedToMessages) {
     return
   }
 
   dispatch({
-    type: 'server/UNSUBSCRIBE_FROM_MESSAGES',
-    payload,
+    type: 'server/SUBSCRIBE_TO_MESSAGES',
+    payload: { channelName },
   })
 }
 
-const subscribeToUsers = createAction('server/SUBSCRIBE_TO_USERS')
-
-const loadMessages = payload => (dispatch, getState) => {
+const subscribeToUsers = channelName => (dispatch, getState) => {
   const state = getState()
 
-  const isInitialMessages = !payload.messageId && !payload.before && !payload.after
+  const channelNames = channelName ? [channelName] : fp.keys(state.isSubscribedToUsers)
 
-  // Avoid loading initial messages twice.
-  if (isInitialMessages && state.loadCache[state.channelName]) {
+  for (const channelName of channelNames) {
+    if (state.isSubscribedToUsers[channelName]) {
+      break
+    }
+
+    dispatch({
+      type: 'server/SUBSCRIBE_TO_USERS',
+      payload: { channelName },
+    })
+  }
+}
+
+const getMessages = () => (dispatch, getState) => {
+  const state = getState()
+
+  const messages = messagesSelector(state)
+
+  if (messages.length) {
     return
   }
 
-  // Avoid loading before/after messages twice.
-  if (payload.messageId && state.loadCache[payload.messageId]) {
+  dispatch({
+    type: 'server/GET_MESSAGES',
+    payload: {
+      channel: state.channelName,
+    },
+  })
+}
+
+const getMessagesBefore = () => (dispatch, getState) => {
+  const state = getState()
+
+  const messages = messagesSelector(state)
+
+  if (!messages.length) {
+    return
+  }
+
+  const firstMessage = fp.first(messages)
+
+  if (state.loadCache[firstMessage.id]) {
+    return
+  }
+
+  dispatch({
+    type: 'server/GET_MESSAGES_BEFORE',
+    payload: {
+      messageId: firstMessage.id,
+    },
+  })
+}
+
+const getMessagesAfter = () => (dispatch, getState) => {
+  const state = getState()
+
+  if (!state.isViewingArchive[state.channelName]) {
     return
   }
 
   const messages = messagesSelector(state)
 
-  // Avoid loading initial messages when not needed.
-  if (isInitialMessages && messages.length) {
+  if (!messages.length) {
     return
   }
 
-  // Avoid loading existing message.
-  if (payload.messageId && !payload.before && !payload.after && fp.find({ id: payload.messageId }, messages)) {
-    return
-  }
+  const lastMessage = fp.last(messages)
 
-  if (payload.messageId && !payload.before && !payload.after) {
-    dispatch(unsubscribeFromMessages({ channelName: payload.channelName }))
+  if (state.loadCache[lastMessage.id]) {
+    return
   }
 
   dispatch({
-    type: 'server/LOAD_MESSAGES',
-    payload,
+    type: 'server/GET_MESSAGES_AFTER',
+    payload: {
+      messageId: lastMessage.id,
+    },
   })
 }
 
-const addMessage = createAction('ADD_MESSAGE')
-const addMessages = createAction('ADD_MESSAGES')
+const getMessagesAround = messageId => (dispatch, getState) => {
+  dispatch({
+    type: 'server/GET_MESSAGES_AROUND',
+    payload: {
+      messageId: messageId,
+    },
+  })
+}
 
 const setScrollPosition = createAction('SET_SCROLL_POSITION')
 
@@ -103,17 +150,15 @@ const updateUnread = createAction('UPDATE_UNREAD')
 const resetUnread = createAction('RESET_UNREAD')
 
 const setFavicoBadge = () => (dispatch, getState) => {
-  favicon.badge(getState().unread)
-}
+  const { unread } = getState()
 
-const addNotification = message => dispatch => {
-  dispatch({ type: 'ADD_NOTIFICATION', payload: {
-    message,
-    key: uuid(),
-  }})
-}
+  dispatch({
+    type: 'SET_FAVICO_BADGE',
+    payload: unread,
+  })
 
-const removeNotification = createAction('REMOVE_NOTIFICATION')
+  favico.badge(unread)
+}
 
 const toggleSearch = () => (dispatch, getState) => {
   dispatch({ type: 'TOGGLE_SEARCH' })
@@ -123,7 +168,7 @@ const toggleSearch = () => (dispatch, getState) => {
   const isOpen = isSearchOpenSelector(state)
 
   const search = isOpen ? '' : '?search'
-  const href = state.isEmbed ? search : `${channelName}${search}`
+  const href = config.embedChannel ? search : `${channelName}${search}`
 
   navigate(href)
 }
@@ -138,65 +183,64 @@ const inputSearch = query => (dispatch, getState) => {
     nick: query.nick !== undefined ? query.nick : prevQuery.nick,
   })
 
-  dispatch({ type: 'INPUT_SEARCH', payload: nextQuery })
+  dispatch({
+    type: 'INPUT_SEARCH',
+    payload: nextQuery,
+  })
 
   const search = (
     '?search'
     + (!fp.isEmpty(nextQuery) ? '&' : '')
     + qs.encode(nextQuery)
   )
-  const href = state.isEmbed ? search : `${channelName}${search}`
+  const href = config.embedChannel ? search : `${channelName}${search}`
 
   navigate(href)
 }
 
-const search = ({ query, offset, messageId }) => (dispatch, getState) => {
+const searchMessages = ({ query }) => (dispatch, getState) => {
   if (fp.isEmpty(query)) {
     return
   }
 
   const state = getState()
-  const messages = messagesSelector(state)
+  const messages = foundMessagesSelector(state)
 
-  if (messages.length && state.searchCache[messageId]) {
+  const firstMessage = messages[0]
+
+  if (firstMessage && state.searchCache === firstMessage.id) {
     return
   }
 
   dispatch({
-    type: 'server/SEARCH',
+    type: 'server/SEARCH_MESSAGES',
     payload: {
       channel: state.channelName,
       query,
-      offset,
-      messageId,
+      messageId: firstMessage ? firstMessage.id : null,
     },
   })
 }
 
 export {
-  noop,
-  setEmbed,
   setBroken,
   setVisibility,
   navigated,
   socketConnected,
   socketDisconnected,
   setTitle,
-  setChannelName,
   subscribeToChannels,
-  loadMessages,
-  addMessage,
-  addMessages,
+  getMessages,
+  getMessagesBefore,
+  getMessagesAfter,
+  getMessagesAround,
   subscribeToMessages,
-  unsubscribeFromMessages,
   subscribeToUsers,
   setScrollPosition,
   updateUnread,
   resetUnread,
   setFavicoBadge,
-  addNotification,
-  removeNotification,
   toggleSearch,
   inputSearch,
-  search,
+  searchMessages,
 }

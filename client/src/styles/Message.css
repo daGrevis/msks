@@ -4,7 +4,7 @@
 }
 
 #channel .message.is-active {
-  background: #FFFBD0;
+  background: #fffbd0;
 }
 #channel .message.is-active .timestamp {
   font-weight: bold;
@@ -21,7 +21,9 @@
 }
 #channel .message .text {
   font-size: 15px;
+  overflow-wrap: break-word;
   word-wrap: break-word;
+  word-break: break-all;
   word-break: break-word;
 }
 #channel .message .text .nick {

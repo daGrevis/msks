@@ -1,28 +1,33 @@
 import _ from 'lodash'
-import React, { Component } from 'react'
+import React from 'react'
 import classNames from 'classnames'
 import { connect } from 'react-redux'
 
+import config from '../config'
 import { navigate } from '../history'
 import { subscribeToUsers, toggleSearch, inputSearch } from '../actions'
 import {
-  isEmbedSelector,
-  userCountSelector, groupedUsersSelector,
-  isSearchOpenSelector, searchQuerySelector,
+  routeSelector, channelSelector, userCountSelector, groupedUsersSelector,
+  isSearchOpenSelector, searchQuerySelector, activeMessageSelector,
 } from '../selectors'
 import Maybe from '../components/Maybe'
 import Text from '../components/Text'
 import Messages from '../components/Messages'
-import Users from './Users'
+import SearchMessages from '../components/SearchMessages'
 import SearchInput from './SearchInput'
+import Users from './Users'
 
 import '../styles/Channel.css'
 import searchIconSvg from '../styles/search-icon.svg'
 
-class Channel extends Component {
+class Channel extends React.Component {
   state = {
     isTopicClipped: true,
     isSidebarOpen: false,
+  }
+
+  componentDidMount() {
+    this.props.subscribeToUsers(this.props.channel.name)
   }
 
   onHamburgerIconClick = () => {
@@ -34,23 +39,21 @@ class Channel extends Component {
   }
 
   onNameClick = () => {
-    const { isEmbed, channel, messageId, isSearchOpen } = this.props
+    const { channel, activeMessage, isSearchOpen } = this.props
 
-    if (isEmbed) {
+    if (config.embedChannel) {
       navigate('')
     } else {
-      navigate(messageId || isSearchOpen ? channel.name : '')
+      if (activeMessage || isSearchOpen) {
+        navigate(channel.name)
+      } else {
+        navigate('')
+      }
     }
   }
 
   onTopicClick = () => {
     this.setState({ isTopicClipped: !this.state.isTopicClipped })
-  }
-
-  componentDidMount() {
-    if (!this.props.isSubscribedToUsers) {
-      this.props.subscribeToUsers({ channelName: this.props.channel.name })
-    }
   }
 
   render() {
@@ -64,7 +67,7 @@ class Channel extends Component {
       'is-active': this.state.isSidebarOpen,
     })
     const nameClasses = classNames('name strong', {
-      'is-embed': this.props.isEmbed,
+      'is-embed': config.embedChannel,
     })
     const topicClasses = classNames('topic', {
       'is-topic-clipped': this.state.isTopicClipped,
@@ -95,13 +98,12 @@ class Channel extends Component {
             </Maybe>
           </div>
 
-          <Messages messageId={this.props.messageId} />
+          {this.props.isSearchOpen
+            ? <SearchMessages />
+            : <Messages />}
 
-          {this.props.isSearchOpen ?
-            <SearchInput
-              query={this.props.searchQuery}
-              inputSearch={this.props.inputSearch}
-            />
+          {this.props.isSearchOpen
+            ? <SearchInput query={this.props.searchQuery} inputSearch={this.props.inputSearch} />
             : null}
         </div>
 
@@ -114,18 +116,15 @@ class Channel extends Component {
 }
 
 const mapStateToProps = (state, props) => {
-  const { channelName } = state
-
   return {
-    messageId: props.messageId,
-
-    isEmbed: isEmbedSelector(state),
-    isSubscribedToUsers: state.isSubscribedToUsers[channelName],
-    channel: state.channels[channelName],
+    isSubscribedToUsers: state.isSubscribedToUsers[state.channelName],
+    channel: channelSelector(state),
+    route: routeSelector(state),
     groupedUsers: groupedUsersSelector(state),
     userCount: userCountSelector(state),
     isSearchOpen: isSearchOpenSelector(state),
     searchQuery: searchQuerySelector(state),
+    activeMessage: activeMessageSelector(state),
   }
 }
 

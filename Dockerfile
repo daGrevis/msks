@@ -1,4 +1,4 @@
-FROM node:7.6-alpine
+FROM node:8.5-alpine
 
 ENV NODE_ENV=production
 
@@ -14,12 +14,17 @@ RUN apk add --no-cache --virtual git && \
     echo $(git describe --tags HEAD) >> VERSION && \
     echo $(git show -s --format=%s) >> VERSION && \
     echo $(git show -s --format=%ci) >> VERSION && \
+    cat VERSION && \
     rm -rf .git
 
 WORKDIR /usr/src/app/common
 RUN yarn install
 
 WORKDIR /usr/src/app/server
-RUN yarn install
+RUN yarn install && \
+    yarn add apidoc && \
+    yarn run apidoc && \
+    yarn remove apidoc && \
+    ls -l apidoc/index.html
 
 CMD yarn start

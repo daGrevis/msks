@@ -10,7 +10,7 @@ const {
 } = require('../rethink/queries')
 const { indexMessage } = require('../elastic/queries')
 const { ircClient, ctx, isMe, isPM } = require('./index')
-const { matchCommand } = require('../commands')
+const { matchCommand } = require('./commands')
 const userStore = require('../userStore')
 
 const onDebug = async (s) => {

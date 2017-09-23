@@ -1,0 +1,7 @@
+.NotFound {
+  font-size: 4em;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

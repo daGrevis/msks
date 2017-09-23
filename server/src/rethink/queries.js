@@ -116,78 +116,78 @@ const saveMessage = async function(message) {
   return fp.assign(message, { id })
 }
 
-const getInitialChannels = () => (
-  r.table('channels')
-)
+const getChannels = async () => {
+  return await (
+    r.table('channels')
+  )
+}
+const getUsers = async (channelName, nick) => {
+  let rq = (
+    r.table('users')
+    .getAll(channelName, { index: 'channel' })
+  )
+  if (nick) {
+    rq = rq.filter({ nick: nick })
+  }
+  return await rq
+}
 
-const getInitialUsers = channelName => (
-  r.table('users')
-  .getAll(channelName, { index: 'channel' })
-)
-
-const getInitialMessages = async ({ channelName, limit }) => {
-  const messages = await r.table('messages')
-    .between([channelName, r.minval], [channelName, r.maxval], { index: 'toAndTimestamp' })
+const getMessages = async (channel, limit) => {
+  const messages = await (
+    r.table('messages')
+    .between(
+      [channel, r.minval],
+      [channel, r.maxval],
+      { index: 'toAndTimestamp' }
+    )
     .orderBy({ index: r.desc('toAndTimestamp') })
     .limit(limit)
+  )
 
   return fp.reverse(messages)
 }
 
-const getMessagesBefore = async ({ channelName, timestamp, messageId, limit }) => {
+const getMessagesBefore = async (message, limit) => {
+  const minTimestamp = r.minval
+  const maxTimestamp = message.timestamp
+
   return await (
     r.table('messages')
     .between(
-      [channelName, r.minval],
-      [channelName, timestamp],
+      [message.to, minTimestamp],
+      [message.to, maxTimestamp],
       { index: 'toAndTimestamp' }
     )
     .orderBy({ index: r.desc('toAndTimestamp') })
-    .filter(r.row('id').ne(messageId))
+    .filter(r.row('id').ne(message.id))
     .limit(limit)
     .orderBy(r.asc('timestamp'))
   )
 }
 
-const getMessagesAfter = async ({ channelName, timestamp, messageId, limit }) => {
+const getMessagesAfter = async (message, limit) => {
+  const minTimestamp = message.timestamp
+  const maxTimestamp = r.maxval
+
   return await (
     r.table('messages')
     .between(
-      [channelName, timestamp],
-      [channelName, r.maxval],
+      [message.to, minTimestamp],
+      [message.to, maxTimestamp],
       { index: 'toAndTimestamp' }
     )
     .orderBy({ index: 'toAndTimestamp' })
-    .filter(r.row('id').ne(messageId))
+    .filter(r.row('id').ne(message.id))
     .limit(limit)
   )
 }
 
-const getMessagesAround = async ({ channelName, messageId, limit }) => {
-  const message = await r.table('messages').get(messageId)
+const getMessagesAround = async (message, limit) => {
+  const beforeLimit = Math.floor(limit / 2)
+  const afterLimit = limit - 1 - beforeLimit
 
-  if (!message) {
-    return []
-  }
-
-  if (message.to !== channelName) {
-    return []
-  }
-
-  const halfLimit = Math.floor(limit / 2)
-
-  const messagesBefore = await getMessagesBefore({
-    channelName,
-    timestamp: message.timestamp,
-    messageId: message.id,
-    limit: halfLimit,
-  })
-  const messagesAfter = await getMessagesAfter({
-    channelName,
-    timestamp: message.timestamp,
-    messageId: message.id,
-    limit: halfLimit
-  })
+  const messagesBefore = await getMessagesBefore(message, beforeLimit)
+  const messagesAfter = await getMessagesAfter(message, afterLimit)
 
   return fp.reduce(fp.concat, [], [messagesBefore, [message], messagesAfter])
 }
@@ -216,9 +216,9 @@ const queries = fp.mapValues(retry, {
   updateUser,
   updateTopic,
   saveMessage,
-  getInitialChannels,
-  getInitialUsers,
-  getInitialMessages,
+  getChannels,
+  getUsers,
+  getMessages,
   getMessagesBefore,
   getMessagesAfter,
   getMessagesAround,

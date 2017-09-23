@@ -6,13 +6,15 @@ const Queue = require('promise-queue')
 const http = require('http')
 const socketio = require('socket.io')
 const Koa = require('koa')
+const KoaSend = require('koa-send')
 const KoaStatic = require('koa-static')
+const KoaMount = require('koa-mount')
 
 const config = require('./config')
 const logger = require('./logger')
 const httpLogger = require('./http/logger')
 const httpRouter = require('./http/router')
-const actions = require('./actions')
+const actions = require('./socket/actions')
 const { ircClient } = require('./irc')
 const events = require('./irc/events')
 const waitForRethink = require('./rethink/waitForRethink')
@@ -23,9 +25,19 @@ Queue.configure(Promise)
 const SERVER_PORT = 3001
 
 const koa = new Koa()
+
 koa.use(httpLogger())
+
 koa.use(httpRouter.routes())
 koa.use(httpRouter.allowedMethods())
+
+koa.use(KoaMount('/main.js', async (ctx) => {
+  await KoaSend(ctx, 'apidoc/main.js')
+}))
+koa.use(KoaMount('/api', async (ctx) => {
+  await KoaSend(ctx, 'apidoc/index.html')
+}))
+koa.use(KoaStatic('apidoc'))
 
 let server = http.createServer(koa.callback())
 
@@ -37,31 +49,35 @@ const ACTIONS = {
   'server/SUBSCRIBE_TO_CHANNELS': actions.subscribeToChannels,
   'server/SUBSCRIBE_TO_USERS': actions.subscribeToUsers,
   'server/SUBSCRIBE_TO_MESSAGES': actions.subscribeToMessages,
-  'server/UNSUBSCRIBE_FROM_MESSAGES': actions.unsubscribeFromMessages,
-  'server/LOAD_MESSAGES': actions.loadMessages,
-  'server/SEARCH': actions.search,
+  'server/GET_MESSAGES': actions.getMessages,
+  'server/GET_MESSAGES_BEFORE': actions.getMessagesBefore,
+  'server/GET_MESSAGES_AFTER': actions.getMessagesAfter,
+  'server/GET_MESSAGES_AROUND': actions.getMessagesAround,
+  'server/SEARCH_MESSAGES': actions.searchMessages,
 }
 
 io.on('connection', socket => {
-  let context = {
-    changefeeds: [],
-    messagesChangefeeds: {},
+  let context = {}
+
+  const disconnectEvents = []
+
+  const onDisconnect = ev => {
+    disconnectEvents.push(ev)
   }
 
   socket.on('action', ({ type, payload = null }) => {
-    if (!ACTIONS[type]) {
+    if (!(type in ACTIONS)) {
       logger.warn(`Unknown action: ${type}`)
       return
     }
 
     const action = ACTIONS[type]
-    action(payload || {})({ socket, context })
+    action(payload || {})({ socket, context, onDisconnect })
   })
 
   socket.on('disconnect', () => {
-    const { changefeeds } = context
-    changefeeds.forEach(changefeed => {
-      changefeed.close()
+    disconnectEvents.forEach(onDisconnect => {
+      onDisconnect()
     })
   })
 })

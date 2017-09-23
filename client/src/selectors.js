@@ -2,8 +2,6 @@ import _ from 'lodash'
 import fp from 'lodash/fp'
 import { createSelector } from 'reselect'
 
-const isEmbedSelector = fp.get('isEmbed')
-
 const routeSelector = fp.get('route')
 
 const querySelector = createSelector(
@@ -43,17 +41,24 @@ const searchQuerySelector = createSelector(
   query => fp.pick(['text', 'nick'], query)
 )
 
+const isSearchQueryEmptySelector = createSelector(
+  searchQuerySelector,
+  fp.isEmpty
+)
+
 const searchSelector = fp.get('search')
 
 const isSearchOutdatedSelector = createSelector(
-  searchSelector, searchQuerySelector,
-  ({ query }, searchQuery) => !fp.isEqual(query, searchQuery)
+  searchSelector, searchQuerySelector, channelNameSelector,
+  (search, searchQuery, channelName) => (
+    search.channelName !== channelName
+    || !fp.isEqual(search.query, searchQuery)
+  )
 )
 
 const searchHighlightsSelector = createSelector(
   searchQuerySelector,
   ({ text }) => !text ? [] : text.split(' ')
-
 )
 
 const foundMessagesSelector = createSelector(
@@ -61,17 +66,35 @@ const foundMessagesSelector = createSelector(
   ({ messages }, isOutdated) => isOutdated ? [] : messages
 )
 
+const isSearchIntroSelector = createSelector(
+  isSearchOpenSelector, isSearchQueryEmptySelector,
+  (isSearchOpen, isSearchQueryEmpty) => isSearchOpen && isSearchQueryEmpty
+)
+
+const isSearchNotFoundSelector = createSelector(
+  isSearchOpenSelector, isSearchIntroSelector, isSearchOutdatedSelector, foundMessagesSelector,
+  (isSearchOpen, isSearchIntro, isSearchOutdated, messages) => (
+    isSearchOpen
+    && !isSearchIntro
+    && !isSearchOutdated
+    && !messages.length
+  )
+)
+
 const allMessagesSelector = state => state.messages || []
 
 const messagesSelector = createSelector(
   allMessagesSelector, channelNameSelector, isSearchOpenSelector, foundMessagesSelector,
-  (messages, channelName, isSearchOpen, foundMessages) => {
-    if (isSearchOpen) {
-      return foundMessages
-    }
+  (messages, channelName, isSearchOpen, foundMessages) => messages[channelName] || []
+)
 
-    return messages[channelName] || []
-  }
+const activeMessageSelector = createSelector(
+  routeSelector, messagesSelector,
+  (route, messages) => (
+    route.params.messageId
+    ? fp.find({ id: route.params.messageId }, messages)
+    : null
+  )
 )
 
 const allUsersSelector = state => state.users || []
@@ -98,31 +121,22 @@ const groupedUsersSelector = createSelector(
   )
 )
 
-const isChannelLoadingSelector = createSelector(
-  channelSelector,
-  channel => !channel
-)
-
 const isAppLoadingSelector = createSelector(
-  channelsSelector, channelNameSelector, isChannelLoadingSelector,
-  (channels, channelName, isChannelLoading) => (
-    channelName ? isChannelLoading : fp.isEmpty(channels)
+  routeSelector, channelSelector, channelsSelector,
+  (route, channel, channels) => (
+    fp.isEmpty(channels)
+    || (route.meta.isChannel && !channel)
   )
 )
 
 const hasReachedBeginningSelector = createSelector(
   fp.get('hasReachedBeginning'), channelNameSelector, isSearchOpenSelector, searchSelector,
-  (hasReachedBeginning, channelName, isSearchOpen, search) => {
-    if (isSearchOpen) {
-      return search.hasReachedBeginning
-    }
-
-    return hasReachedBeginning[channelName]
-  }
+  (hasReachedBeginning, channelName, isSearchOpen, search) => (
+    isSearchOpen ? search.hasReachedBeginning : hasReachedBeginning[channelName]
+  )
 )
 
 export {
-  isEmbedSelector,
   routeSelector,
   channelsSelector,
   sortedChannelsSelector,
@@ -131,15 +145,19 @@ export {
   channelSelector,
   isSearchOpenSelector,
   searchQuerySelector,
+  isSearchQueryEmptySelector,
   isSearchOutdatedSelector,
   searchHighlightsSelector,
+  foundMessagesSelector,
+  isSearchIntroSelector,
+  isSearchNotFoundSelector,
   allMessagesSelector,
   messagesSelector,
+  activeMessageSelector,
   allUsersSelector,
   usersSelector,
   userCountSelector,
   groupedUsersSelector,
-  isChannelLoadingSelector,
   isAppLoadingSelector,
   hasReachedBeginningSelector,
 }
