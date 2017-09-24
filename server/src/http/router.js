@@ -113,7 +113,7 @@ router.get('/:messageId', async (ctx, next) => {
 
   const message = await rethinkQueries.getMessage(ctx.params.messageId)
 
-  if (message) {
+  if (!message) {
     return next()
   }
 
