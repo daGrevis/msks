@@ -79,7 +79,6 @@ const onNavigated = async (location) => {
 
 const initialLocation = history.location
 onNavigated(initialLocation)
-
 history.listen((currentLocation) => {
   onNavigated(currentLocation)
 })
@@ -87,7 +86,6 @@ history.listen((currentLocation) => {
 socket.on('connect', () => {
   dispatch(socketConnected())
 })
-
 socket.on('disconnect', () => {
   dispatch(socketDisconnected())
 })

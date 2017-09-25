@@ -208,29 +208,21 @@
  */
 
 /**
- * @api {get} /socket.io UPDATE_CHANNEL
- * @apiName UPDATE_CHANNEL
+ * @api {get} /socket.io CHANNEL_CHANGES
+ * @apiName CHANNEL_CHANGES
  * @apiGroup SocketIO/client
  * @apiDescription
  * Dispatched when subscribed to channels
  *
- * @apiParam {String=client/UPDATE_CHANNEL} type Action type
+ * @apiParam {String=client/CHANNEL_CHANGES} type Action type
  * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.name Channel name
- * @apiParam {String} [payload.topic] Channel topic
- */
-
-/**
- * @api {get} /socket.io REMOVE_CHANNEL
- * @apiName REMOVE_CHANNEL
- * @apiGroup SocketIO/client
- * @apiDescription
- * Dispatched when subscribed to channels
- *
- * @apiParam {String=client/REMOVE_CHANNEL} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.name Channel name
- * @apiParam {String} [payload.topic] Channel topic
+ * @apiParam {Object[]} payload.changes Changes
+ * @apiParam {String} [payload.changes.new_val] New value (when insert or update)
+ * @apiParam {String} payload.changes.new_val.name Channel name
+ * @apiParam {String} [payload.changes.new_val.topic] Channel topic
+ * @apiParam {Object} [payload.changes.old_val] Old value (when delete)
+ * @apiParam {String} payload.changes.old_val.name Channel name
+ * @apiParam {String} [payload.changes.old_val.topic] Channel topic
  */
 
 /**
@@ -241,19 +233,21 @@
  * Dispatched when subscribed to users
  *
  * @apiParam {String=client/USER_CHANGES} type Action type
- * @apiParam {Object[]} payload User changes
- * @apiParam {String} [payload.new_val] New value (when insert or update)
- * @apiParam {String} payload.new_val.id User ID
- * @apiParam {String} payload.new_val.channel Channel
- * @apiParam {String} payload.new_val.nick Nick
- * @apiParam {Boolean} [payload.new_val.isOp] Is operator?
- * @apiParam {Boolean} [payload.new_val.isVoiced] Is voiced?
- * @apiParam {Object} [payload.old_val] Old value (when delete)
- * @apiParam {String} payload.old_val.id User ID
- * @apiParam {String} payload.old_val.channel Channel
- * @apiParam {String} payload.old_val.nick Nick
- * @apiParam {Boolean} [payload.old_val.isOp] Is operator?
- * @apiParam {Boolean} [payload.old_val.isVoiced] Is voiced?
+ * @apiParam {Object} payload Action payload
+ * @apiParam {String} payload.channelName Channel
+ * @apiParam {Object[]} payload.changes Changes
+ * @apiParam {String} [payload.changes.new_val] New value (when insert or update)
+ * @apiParam {String} payload.changes.new_val.id User ID
+ * @apiParam {String} payload.changes.new_val.channel Channel
+ * @apiParam {String} payload.changes.new_val.nick Nick
+ * @apiParam {Boolean} [payload.changes.new_val.isOp] Is operator?
+ * @apiParam {Boolean} [payload.changes.new_val.isVoiced] Is voiced?
+ * @apiParam {Object} [payload.changes.old_val] Old value (when delete)
+ * @apiParam {String} payload.changes.old_val.id User ID
+ * @apiParam {String} payload.changes.old_val.channel Channel
+ * @apiParam {String} payload.changes.old_val.nick Nick
+ * @apiParam {Boolean} [payload.changes.old_val.isOp] Is operator?
+ * @apiParam {Boolean} [payload.changes.old_val.isVoiced] Is voiced?
  */
 
 /**
@@ -360,7 +354,7 @@
  * @apiName SUBSCRIBE_TO_CHANNELS
  * @apiGroup SocketIO/server
  * @apiDescription
- * Subscribe to channels by dispatching `client/UPDATE_CHANNEL` or `client/REMOVE_CHANNEL` action on channel change
+ * Subscribe to channels by dispatching `client/CHANNEL_CHANGES` action on channel changes (batched)
  *
  * @apiParam {String=server/SUBSCRIBE_TO_CHANNELS} type Action type
  */

@@ -28,6 +28,7 @@ const initialState = {
     //   'topic': 'About software and hacking in Latvian. | Can't talk? Get registered on Freenode.',
     // },
   },
+  resetChannels: false,
 
   users: {
     // '#developerslv': {
@@ -44,6 +45,9 @@ const initialState = {
     //     'isOp': true,
     //   },
     // },
+  },
+  resetUsers: {
+    // '#developerslv': true,
   },
 
   messages: {
@@ -68,7 +72,7 @@ const initialState = {
   },
 
   search: {
-    channelName: '#developerslv',
+    channelName: null,
     query: {
       // text: 'bar',
     },
@@ -85,10 +89,10 @@ const initialState = {
     ],
   },
 
-  isSubscribedToMessages: {
+  isSubscribedToUsers: {
     // '#developerslv': true,
   },
-  isSubscribedToUsers: {
+  isSubscribedToMessages: {
     // '#developerslv': true,
   },
 

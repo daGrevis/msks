@@ -8,22 +8,30 @@ const subscribeToChannels = () => async ({ socket, onDisconnect }) => {
     .run()
   )
 
+  let changes = []
+
   changefeed.each((err, change) => {
-    if (change.new_val) {
-      socket.emit('action', {
-        type: 'client/UPDATE_CHANNEL',
-        payload: change.new_val,
-      })
-    } else {
-      socket.emit('action', {
-        type: 'client/REMOVE_CHANNEL',
-        payload: change.old_val,
-      })
-    }
+    changes.push(change)
   })
+
+  const interval = setInterval(() => {
+    if (!changes.length) {
+      return
+    }
+
+    socket.emit('action', {
+      type: 'client/CHANNEL_CHANGES',
+      payload: {
+        changes,
+      },
+    })
+
+    changes = []
+  }, 100)
 
   onDisconnect(() => {
     changefeed.close()
+    clearInterval(interval)
   })
 }
 
@@ -53,11 +61,14 @@ const subscribeToUsers = ({ channelName }) => async ({ socket, onDisconnect }) =
 
     socket.emit('action', {
       type: 'client/USER_CHANGES',
-      payload: changes,
+      payload: {
+        channelName,
+        changes,
+      },
     })
 
     changes = []
-  }, 250)
+  }, 100)
 
   onDisconnect(() => {
     changefeed.close()

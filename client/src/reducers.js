@@ -20,16 +20,18 @@ const historyUpdater = handleActions({
 
 const socketUpdater = handleActions({
   SOCKET_DISCONNECTED: () => fp.pipe(
-    fp.update('isSubscribedToMessages', fp.mapValues(() => false)),
+    fp.update('isSubscribedToChannels', fp.mapValues(() => false)),
     fp.update('isSubscribedToUsers', fp.mapValues(() => false)),
+    fp.update('isSubscribedToMessages', fp.mapValues(() => false)),
     fp.update('isViewingArchive', fp.mapValues(() => true)),
   ),
 
-  SOCKET_CONNECTED: () => fp.pipe(
-    fp.set('channels', {}),
-    fp.set('users', {}),
-    fp.set('loadCache', {})
-  ),
+  SOCKET_RECONNECTED: () => state => fp.pipe(
+    fp.set('resetChannels', true),
+    fp.set('resetUsers', fp.mapValues(() => true, state.users)),
+    fp.set('loadCache', {}),
+    fp.set('searchCache', {})
+  )(state),
 })
 
 const channelUpdater = handleActions({
@@ -39,31 +41,43 @@ const channelUpdater = handleActions({
     : payload.params.channelName
   )),
 
-  'client/UPDATE_CHANNEL': ({ payload }) => fp.set(['channels', payload.name], payload),
-  'client/REMOVE_CHANNEL': ({ payload }) => fp.unset(['channels', payload.name]),
+  'client/CHANNEL_CHANGES': ({ payload: { changes }}) => state => fp.pipe(
+    fp.update('channels', prevChannels => {
+      prevChannels = state.resetChannels ? {} : prevChannels
+
+      const nextChannels = fp.reduce((channels, { new_val, old_val }) => (
+        new_val
+        ? fp.set(new_val.name, new_val, channels)
+        : fp.unset(old_val.name, channels)
+      ), prevChannels, changes)
+
+      return nextChannels
+    }),
+    fp.set('resetChannels', false)
+  )(state),
 })
 
-const addFoundMessages = ({ messages, channel, query, limit, messageId }) => state => {
-  const isOutdated = (
-    channel !== state.channelName
-    || !fp.isEqual(query, searchQuerySelector(state))
-  )
-  if (isOutdated) {
-    return state
-  }
+const usersUpdater = handleActions({
+  'server/SUBSCRIBE_TO_USERS': ({ payload }) => fp.set(
+    ['isSubscribedToUsers', payload.channelName],
+    true
+  ),
 
-  return fp.update('search', search => ({
-    channelName: channel,
-    query,
-    messageId,
-    hasReachedBeginning: messages.length < limit,
-    messages: (
-      !messageId
-      ? messages
-      : fp.concat(messages, search.messages)
-    ),
-  }))(state)
-}
+  'client/USER_CHANGES': ({ payload: { channelName, changes }}) => state => fp.pipe(
+    fp.update(['users', channelName], prevUsers => {
+      prevUsers = state.resetUsers[channelName] ? {} : prevUsers
+
+      const nextUsers = fp.reduce((users, { new_val, old_val }) => (
+        new_val
+        ? fp.set([new_val.nick], new_val, users)
+        : fp.unset([old_val.nick], users)
+      ), prevUsers, changes)
+
+      return nextUsers
+    }),
+    fp.set(['resetUsers', channelName], false)
+  )(state),
+})
 
 const messagesUpdater = handleActions({
   'client/SET_MESSAGES': ({ payload }) => fp.pipe(
@@ -149,9 +163,29 @@ const messagesUpdater = handleActions({
     )(state)
   },
 
-  'client/FOUND_MESSAGES': ({ payload }) => (
-    addFoundMessages(payload)
-  ),
+  'client/FOUND_MESSAGES': ({ payload }) => state => {
+    const { messages, channel, query, limit, messageId } = payload
+
+    const isOutdated = (
+      channel !== state.channelName
+      || !fp.isEqual(query, searchQuerySelector(state))
+    )
+    if (isOutdated) {
+      return state
+    }
+
+    return fp.update('search', search => ({
+      channelName: channel,
+      query,
+      messageId,
+      hasReachedBeginning: messages.length < limit,
+      messages: (
+        !messageId
+        ? messages
+        : fp.concat(messages, search.messages)
+      ),
+    }))(state)
+  },
 
   'server/SEARCH_MESSAGES': ({ payload }) => state => {
     const firstMessage = foundMessagesSelector(state)[0]
@@ -161,22 +195,6 @@ const messagesUpdater = handleActions({
       : state
     )
   },
-})
-
-const usersUpdater = handleActions({
-  'server/SUBSCRIBE_TO_USERS': ({ payload }) => fp.set(
-    ['isSubscribedToUsers', payload.channelName],
-    true
-  ),
-
-  'client/USER_CHANGES': ({ payload }) => fp.update(
-    'users',
-    users => fp.reduce((users, { new_val, old_val }) => (
-      new_val
-      ? fp.set([new_val.channel, new_val.nick], new_val, users)
-      : fp.unset([old_val.channel, old_val.nick], users)
-    ), users, payload)
-  ),
 })
 
 const faviconUpdater = handleActions({
@@ -189,8 +207,8 @@ const rootReducer = (state, action) => concat(
   historyUpdater,
   socketUpdater,
   channelUpdater,
-  messagesUpdater,
   usersUpdater,
+  messagesUpdater,
   faviconUpdater,
 )(action)(state)
 

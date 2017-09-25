@@ -23,8 +23,8 @@ const DayHeader = ({ text, isoTimestamp }) => {
 
 const MessagesGrid = props => {
   const {
-    messages, activeMessage, isViewingArchive, hasReachedBeginning, searchHighlights,
-    isSearchOpen, isSearchOutdated, isSearchIntro, isSearchNotFound,
+    messages, activeMessage, isViewingArchive, hasReachedBeginning, isSubscribedToMessages,
+    searchHighlights, isSearchOpen, isSearchOutdated, isSearchIntro, isSearchNotFound,
   } = props
 
   if (isSearchIntro || isSearchNotFound) {
@@ -38,18 +38,13 @@ const MessagesGrid = props => {
 
   const isTopLoading = (
     isSearchOpen
-    // Show when not reached beginning or outdated.
-    ? (!hasReachedBeginning || isSearchOutdated)
-    // Show when not reached beginning or no messages.
-    : (!hasReachedBeginning || !messageLength)
+    ? !messageLength || !hasReachedBeginning || isSearchOutdated
+    : !messageLength || !hasReachedBeginning
   )
   const isBottomLoading = (
-    // Never show when search.
-    !isSearchOpen
-    // Never show when no messages.
-    && messageLength
-    // Show when viewing archive.
-    && isViewingArchive
+    isSearchOpen
+    ? false
+    : !isSubscribedToMessages || isViewingArchive
   )
 
   return (
@@ -122,6 +117,7 @@ const mapStateToProps = (state, props) => ({
   activeMessage: props.activeMessage,
   isViewingArchive: state.isViewingArchive[state.channelName],
   hasReachedBeginning: hasReachedBeginningSelector(state),
+  isSubscribedToMessages: state.isSubscribedToMessages[state.channelName],
   searchHighlights: searchHighlightsSelector(state),
   isSearchOpen: isSearchOpenSelector(state),
   isSearchOutdated: isSearchOutdatedSelector(state),

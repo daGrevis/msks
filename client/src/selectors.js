@@ -16,14 +16,6 @@ const sortedChannelsSelector = createSelector(
   fp.sortBy('name')
 )
 
-const openChannelsSelector = createSelector(
-  channelsSelector, fp.get('messages'),
-  (channels, messages) => fp.pipe(
-    fp.map(channelName => channels[channelName]),
-    fp.keyBy('name')
-  )(fp.keys(messages))
-)
-
 const channelNameSelector = fp.get('channelName')
 
 const channelSelector = createSelector(
@@ -43,7 +35,7 @@ const searchQuerySelector = createSelector(
 
 const isSearchQueryEmptySelector = createSelector(
   searchQuerySelector,
-  fp.isEmpty
+  query => fp.isEmpty(query) || fp.every(fp.isEmpty, query)
 )
 
 const searchSelector = fp.get('search')
@@ -84,8 +76,8 @@ const isSearchNotFoundSelector = createSelector(
 const allMessagesSelector = state => state.messages || []
 
 const messagesSelector = createSelector(
-  allMessagesSelector, channelNameSelector, isSearchOpenSelector, foundMessagesSelector,
-  (messages, channelName, isSearchOpen, foundMessages) => messages[channelName] || []
+  allMessagesSelector, channelNameSelector,
+  (messages, channelName) => messages[channelName] || []
 )
 
 const activeMessageSelector = createSelector(
@@ -124,8 +116,7 @@ const groupedUsersSelector = createSelector(
 const isAppLoadingSelector = createSelector(
   routeSelector, channelSelector, channelsSelector,
   (route, channel, channels) => (
-    fp.isEmpty(channels)
-    || (route.meta.isChannel && !channel)
+    route.meta.isChannel ? !channel : fp.isEmpty(channels)
   )
 )
 
@@ -140,7 +131,6 @@ export {
   routeSelector,
   channelsSelector,
   sortedChannelsSelector,
-  openChannelsSelector,
   channelNameSelector,
   channelSelector,
   isSearchOpenSelector,

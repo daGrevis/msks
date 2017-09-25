@@ -2,9 +2,18 @@ import fp from 'lodash/fp'
 import { combineEpics } from 'redux-observable'
 
 import {
-  subscribeToChannels, subscribeToUsers, subscribeToMessages, searchMessages,
+  socketReconnected, subscribeToChannels, subscribeToUsers, subscribeToMessages, searchMessages,
   updateUnread, resetUnread, setFavicoBadge,
 } from './actions'
+
+// Listening for socket.on('reconnect') doesn't work with socket.disconnect() and socket.connect().
+const socketReconnectedEpic = (action$, store) =>
+  action$.ofType('SOCKET_DISCONNECTED')
+    .mergeMap(() =>
+      action$.ofType('SOCKET_CONNECTED')
+      .take(1)
+      .map(() => socketReconnected())
+    )
 
 const subscribeToChannelsEpic = action$ =>
   action$.ofType('SOCKET_CONNECTED')
@@ -15,8 +24,8 @@ const subscribeToUsersEpic = action$ =>
     .map(() => subscribeToUsers())
 
 const subscribeToMessagesEpic = (action$, store) =>
-  action$.ofType('client/UPDATE_CHANNEL')
-    .map(({ payload }) => subscribeToMessages({ channelName: payload.name }))
+  action$.ofType('client/CHANNEL_CHANGES')
+    .map(() => subscribeToMessages())
 
 const searchEpic = (action$, store) =>
   action$.ofType('INPUT_SEARCH')
@@ -45,6 +54,7 @@ const setFavicoBadgeEpic = action$ =>
     .map(() => setFavicoBadge())
 
 const rootEpic = combineEpics(
+  socketReconnectedEpic,
   subscribeToChannelsEpic,
   subscribeToUsersEpic,
   subscribeToMessagesEpic,

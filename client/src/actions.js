@@ -6,7 +6,8 @@ import Favico from 'favico.js'
 import config from './config'
 import { navigate } from './history'
 import {
-  messagesSelector, foundMessagesSelector, isSearchOpenSelector, searchQuerySelector,
+  messagesSelector,
+  foundMessagesSelector, isSearchOpenSelector, isSearchQueryEmptySelector, searchQuerySelector,
 } from './selectors'
 
 const favico = new Favico({
@@ -15,14 +16,15 @@ const favico = new Favico({
 })
 
 const setBroken = createAction('SET_BROKEN')
-
 const setVisibility = createAction('SET_VISIBILITY')
+
+const setScrollPosition = createAction('SET_SCROLL_POSITION')
 
 const navigated = createAction('NAVIGATED')
 
 const socketConnected = createAction('SOCKET_CONNECTED')
-
 const socketDisconnected = createAction('SOCKET_DISCONNECTED')
+const socketReconnected = createAction('SOCKET_RECONNECTED')
 
 const setTitle = title => (dispatch, getState) => {
   if (document.title !== title) {
@@ -37,20 +39,6 @@ const setTitle = title => (dispatch, getState) => {
 
 const subscribeToChannels = createAction('server/SUBSCRIBE_TO_CHANNELS')
 
-const subscribeToMessages = ({ channelName }) => (dispatch, getState) => {
-  const state = getState()
-
-  const isSubscribedToMessages = fp.get(['isSubscribedToMessages', channelName], state)
-  if (isSubscribedToMessages) {
-    return
-  }
-
-  dispatch({
-    type: 'server/SUBSCRIBE_TO_MESSAGES',
-    payload: { channelName },
-  })
-}
-
 const subscribeToUsers = channelName => (dispatch, getState) => {
   const state = getState()
 
@@ -58,11 +46,28 @@ const subscribeToUsers = channelName => (dispatch, getState) => {
 
   for (const channelName of channelNames) {
     if (state.isSubscribedToUsers[channelName]) {
-      break
+      continue
     }
 
     dispatch({
       type: 'server/SUBSCRIBE_TO_USERS',
+      payload: { channelName },
+    })
+  }
+}
+
+const subscribeToMessages = () => (dispatch, getState) => {
+  const state = getState()
+
+  const channelNames = config.embedChannel ? [config.embedChannel] : fp.keys(state.channels)
+
+  for (const channelName of channelNames) {
+    if (state.isSubscribedToMessages[channelName]) {
+      continue
+    }
+
+    dispatch({
+      type: 'server/SUBSCRIBE_TO_MESSAGES',
       payload: { channelName },
     })
   }
@@ -144,8 +149,6 @@ const getMessagesAround = messageId => (dispatch, getState) => {
   })
 }
 
-const setScrollPosition = createAction('SET_SCROLL_POSITION')
-
 const updateUnread = createAction('UPDATE_UNREAD')
 const resetUnread = createAction('RESET_UNREAD')
 
@@ -199,11 +202,12 @@ const inputSearch = query => (dispatch, getState) => {
 }
 
 const searchMessages = ({ query }) => (dispatch, getState) => {
-  if (fp.isEmpty(query)) {
+  const state = getState()
+
+  if (isSearchQueryEmptySelector(state)) {
     return
   }
 
-  const state = getState()
   const messages = foundMessagesSelector(state)
 
   const firstMessage = messages[0]
@@ -228,6 +232,7 @@ export {
   navigated,
   socketConnected,
   socketDisconnected,
+  socketReconnected,
   setTitle,
   subscribeToChannels,
   getMessages,
