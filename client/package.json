@@ -37,7 +37,7 @@
     "reselect": "^2.5.4",
     "rxjs": "^5.2.0",
     "scroll-into-view-if-needed": "^1.1.0",
-    "socket.io-client": "^1.7.3",
+    "socket.io-client": "^2.0.3",
     "universal-router": "^3.2.0",
     "viewport-units-buggyfill": "^0.6.0"
   },
