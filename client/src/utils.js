@@ -1,13 +1,13 @@
 import _ from 'lodash'
 
 const isSameDay = (d1, d2) => (
-  d1.getUTCFullYear() === d2.getUTCFullYear()
-  && d1.getUTCMonth() === d2.getUTCMonth()
-  && d1.getUTCDate() === d2.getUTCDate()
+  d1.getFullYear() === d2.getFullYear()
+  && d1.getMonth() === d2.getMonth()
+  && d1.getDate() === d2.getDate()
 )
 
 const isSameYear = (d1, d2) => (
-  d1.getUTCFullYear() === d2.getUTCFullYear()
+  d1.getFullYear() === d2.getFullYear()
 )
 
 const getDaysBetween = (d1, d2) => (
@@ -15,7 +15,7 @@ const getDaysBetween = (d1, d2) => (
 )
 
 const getStartOfDay = d => (
-  new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
+  new Date(d.getFullYear(), d.getMonth(), d.getDate())
 )
 
 export {
