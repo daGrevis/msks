@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import format from 'date-fns/format'
 import React from 'react'
 import classNames from 'classnames'
 import { onlyUpdateForKeys } from 'recompose'
@@ -58,7 +59,7 @@ const MessageText = ({ message, highlights }) => {
 }
 
 const Message = onlyUpdateForKeys(['id', 'isActive', 'highlights'])(props => {
-  const { message, isFirst, isActive, isoTimestamp, timestampText, highlights } = props
+  const { message, date, isFirst, isActive, highlights } = props
 
   const messageClasses = classNames('message', `kind-${message.kind}`, {
     'is-first': isFirst,
@@ -73,7 +74,7 @@ const Message = onlyUpdateForKeys(['id', 'isActive', 'highlights'])(props => {
       <div className='meta'>
         <span
           className='timestamp'
-          title={isoTimestamp}
+          title={format(date, 'YYYY-MM-DDTHH:mm:ssZ')}
           onClick={() => {
             if (config.embedChannel) {
               if (!isActive) {
@@ -90,7 +91,7 @@ const Message = onlyUpdateForKeys(['id', 'isActive', 'highlights'])(props => {
             }
           }}
         >
-          {timestampText}
+          {format(date, 'HH:mm')}
         </span>
         {isNickVisible ? <Nick {...message} /> : null}
       </div>

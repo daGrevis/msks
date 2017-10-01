@@ -12,7 +12,6 @@ import createLogger from 'redux-logger'
 import createSocketIoMiddleware from 'redux-socket.io'
 
 import router from './router'
-import { mo } from './utils'
 import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
@@ -109,7 +108,6 @@ document.addEventListener('visibilitychange', onVisibilityChange)
 
 window._ = _
 window.fp = fp
-window.mo = mo
 window.socket = socket
 window.navigate = navigate
 window.store = store

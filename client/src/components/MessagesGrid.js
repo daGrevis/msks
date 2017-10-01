@@ -1,8 +1,9 @@
 import _ from 'lodash'
+import format from 'date-fns/format'
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { mo } from '../utils'
+import { isSameDay, isSameYear, getDaysBetween, getStartOfDay } from '../utils'
 import {
   hasReachedBeginningSelector, searchHighlightsSelector,
   isSearchOpenSelector, isSearchOutdatedSelector, isSearchIntroSelector, isSearchNotFoundSelector,
@@ -10,10 +11,13 @@ import {
 import Loader from '../components/Loader'
 import Message from '../components/Message'
 
-const DayHeader = ({ text, isoTimestamp }) => {
+const DayHeader = ({ text, date }) => {
   return (
     <div className='day-header'>
-      <span className='text strong' title={isoTimestamp}>
+      <span
+        className='text strong'
+        title={date && format(date, 'YYYY-MM-DDTHH:mm:ssZ')}
+      >
         {text}
       </span>
       <div className='divider' />
@@ -31,15 +35,12 @@ const MessagesGrid = props => {
     return null
   }
 
-  const now = mo()
-  const messageLength = messages.length
-
-  let currentDay, dayText
+  const now = new Date()
 
   const isTopLoading = (
     isSearchOpen
-    ? !messageLength || !hasReachedBeginning || isSearchOutdated
-    : !messageLength || !hasReachedBeginning
+    ? !messages.length || !hasReachedBeginning || isSearchOutdated
+    : !messages.length || !hasReachedBeginning
   )
   const isBottomLoading = (
     isSearchOpen
@@ -47,43 +48,51 @@ const MessagesGrid = props => {
     : !isSubscribedToMessages || isViewingArchive
   )
 
+  let startOfDay, dayText
+
   return (
     <div className='messages'>
       {isTopLoading ? <Loader /> : null}
 
       {_.map(messages, (message, i) => {
-        const previousMessage = i > 0 ? messages[i - 1] : null
+        const prevMessage = i > 0 ? messages[i - 1] : null
 
-        const timestamp = mo(message.timestamp)
-        const previousTimestamp = previousMessage ? mo(previousMessage.timestamp) : null
+        const messageDate = new Date(message.timestamp)
+        const prevMessageDate = prevMessage ? new Date(prevMessage.timestamp) : null
 
         const isNewDay = (
-          !previousMessage
+          !prevMessage
           ? true
-          : previousTimestamp.date() !== timestamp.date()
+          : !isSameDay(prevMessageDate, messageDate)
         )
 
         if (isNewDay) {
-          currentDay = timestamp.startOf('day')
+          startOfDay = getStartOfDay(messageDate)
 
-          if (currentDay.isSame(now, 'day')) {
+          const daysBetween = getDaysBetween(now, startOfDay)
+
+          if (daysBetween === 0) {
             dayText = 'Today'
-          } else if (currentDay.isSame(now.subtract(1, 'd'), 'day')) {
+          } else if (daysBetween === 1) {
             dayText = 'Yesterday'
           } else {
-            dayText = currentDay.format(
-              'dddd, MMMM Do' + (currentDay.isSame(now, 'year') ? '' : ' (YYYY)')
+            dayText = format(
+              startOfDay,
+              'dddd, MMMM Do' + (isSameYear(now, startOfDay) ? '' : ' (YYYY)')
             )
+            if (daysBetween <= 7) {
+              dayText = 'Last ' + dayText
+            }
           }
         }
 
         const isFirst = (
           isNewDay
           || message.kind !== 'message'
-          || previousMessage.kind !== 'message'
+          || prevMessage.kind !== 'message'
           || (
-            previousMessage.from !== message.from
-            || (timestamp - previousTimestamp) >= 60000
+            prevMessage.from !== message.from
+            || (messageDate - prevMessageDate) >= 60000
           )
         )
 
@@ -91,15 +100,14 @@ const MessagesGrid = props => {
 
         return (
           <div key={message.id}>
-            {isNewDay && (hasReachedBeginning || previousMessage)
-                ? <DayHeader text={dayText} isoTimestamp={currentDay && currentDay.format()} />
+            {isNewDay && (hasReachedBeginning || prevMessage)
+                ? <DayHeader text={dayText} date={startOfDay} />
                 : null}
 
             <Message
               message={message}
+              date={messageDate}
               isFirst={isFirst}
-              isoTimestamp={timestamp.format()}
-              timestampText={timestamp.format('HH:mm')}
               isActive={isActive}
               highlights={searchHighlights}
             />
