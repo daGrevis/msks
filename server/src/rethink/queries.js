@@ -1,11 +1,12 @@
 const Promise = require('bluebird')
+const promiseRetry = require('promise-retry')
 const _ = require('lodash')
 const fp = require('lodash/fp')
 
 const r = require('./index')
+const logger = require('../logger')
 const { validate } = require('../schemas')
 const schemas = require('../schemas')
-const retry = require('../retry')
 const userStore = require('../userStore')
 
 const createChannel = async function(channel) {
@@ -206,7 +207,7 @@ const getMessage = async (messageId) => {
   )
 }
 
-const queries = fp.mapValues(retry, {
+const queries = {
   createChannel,
   joinChannel,
   leaveChannel,
@@ -224,6 +225,25 @@ const queries = fp.mapValues(retry, {
   getMessagesAround,
   getMessagesByIds,
   getMessage,
-})
+}
 
-module.exports = queries
+const retryQueries = _.mapValues(
+  queries,
+  (fn, fnName) => (...args) => {
+    return promiseRetry((retry, number) => {
+      if (number > 1) {
+        logger.verbose(`Retrying ${fnName} for ${number - 1} time`)
+      }
+      return fn(...args)
+        .then(value => {
+          if (number > 1) {
+            logger.verbose(`Ran ${fnName} with ${number - 1} attempt`)
+          }
+          return value
+        })
+        .catch(retry)
+    })
+  }
+)
+
+module.exports = retryQueries

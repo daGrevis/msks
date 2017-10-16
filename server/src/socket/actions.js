@@ -11,6 +11,10 @@ const subscribeToChannels = () => async ({ socket, onDisconnect }) => {
   let changes = []
 
   changefeed.each((err, change) => {
+    if (err) {
+      throw err
+    }
+
     changes.push(change)
   })
 
@@ -51,6 +55,10 @@ const subscribeToUsers = ({ channelName }) => async ({ socket, onDisconnect }) =
   let changes = []
 
   changefeed.each((err, change) => {
+    if (err) {
+      throw err
+    }
+
     changes.push(change)
   })
 
@@ -92,6 +100,10 @@ const subscribeToMessages = payload => async ({ socket, onDisconnect }) => {
   )
 
   changefeed.each((err, change) => {
+    if (err) {
+      throw err
+    }
+
     if (!change.old_val) {
       socket.emit('action', {
         type: 'client/ADD_MESSAGE',

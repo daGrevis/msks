@@ -1,20 +1,27 @@
 const elastic = require('./index')
 const { runMappings } = require('./mappings')
+const logger = require('../logger')
 
-const waitForElastic = (sleepInterval = 5 * 1000) => new Promise((resolve) => {
+const SLEEP_INTERVAL = 5 * 1000
+
+const waitForElastic = () => new Promise((resolve) => {
   const tryPinging = (skipTimeout = false) => {
     setTimeout(() => {
+      logger.verbose('Pinging Elastic...')
+
       elastic.ping(true, error => {
         if (error) {
           return tryPinging()
         }
 
-        runMappings().then(resolve)
+        logger.verbose('Pong from Elastic!')
+
+        resolve()
       })
-    }, skipTimeout ? 0 : sleepInterval)
+    }, skipTimeout ? 0 : SLEEP_INTERVAL)
   }
 
   tryPinging(true)
 })
 
-module.exports = waitForElastic
+module.exports = () => waitForElastic().then(runMappings)

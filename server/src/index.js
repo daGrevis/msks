@@ -71,8 +71,9 @@ io.on('connection', socket => {
       return
     }
 
-    const action = ACTIONS[type]
-    action(payload || {})({ socket, context, onDisconnect })
+    const action = ACTIONS[type](payload || {})
+
+    action({ socket, context, onDisconnect })
   })
 
   socket.on('disconnect', () => {
