@@ -8,7 +8,7 @@
     "bluebird": "^3.4.7",
     "elasticsearch": "^13.3.1",
     "escape-html": "^1.0.3",
-    "irc-framework": "^2.6.0",
+    "irc-framework": "^2.9.1",
     "joi": "^10.2.2",
     "koa": "^2.2.0",
     "koa-logger": "^2.0.1",

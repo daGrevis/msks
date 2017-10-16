@@ -119,6 +119,12 @@ const onKick = async (payload) => {
     isVoiced: user.isVoiced,
     kicked: payload.kicked,
   })
+
+  if (isMe(payload.kicked)) {
+    logger.warn(`Kicked by ${payload.nick}, rejoining ${payload.channel}!`)
+
+    ircClient.join(payload.channel)
+  }
 }
 
 const onNick = async (payload) => {
