@@ -20,6 +20,9 @@ gecos = "Mr. Meeseeks"
 channels = ["#meeseekeria"]
 silentChannels = []
 admins = ["daGrevis"]
+# 4 messages per 60 seconds.
+limitRate = 4
+limitPer = 60000
 
 [http]
 clientPath = "../client/build"

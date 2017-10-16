@@ -12,6 +12,7 @@ const { indexMessage } = require('../elastic/queries')
 const { ircClient, ctx, isMe, isPM } = require('./index')
 const { matchCommand } = require('./commands')
 const userStore = require('../userStore')
+const rateLimitStore = require('../rateLimitStore')
 
 const onDebug = async (s) => {
   if (!config.irc.debug) {
@@ -242,6 +243,40 @@ const onMessage = async (payload) => {
   const command = matchCommand(message)
 
   if (!command) {
+    return
+  }
+
+  const prevLimit = rateLimitStore.get(message.from) || {
+    allowance: config.irc.limitRate,
+    timestamp: now,
+  }
+
+  const timePassed = now - prevLimit.timestamp
+
+  let { allowance } = prevLimit
+
+  allowance += timePassed * (config.irc.limitRate / config.irc.limitPer)
+
+  if (allowance > config.irc.limitRate) {
+    allowance = config.irc.limitRate
+  }
+
+  allowance -= 1
+
+  const isRateLimited = allowance < 0
+
+  rateLimitStore.set(message.from, {
+    allowance,
+    timestamp: now,
+  })
+
+  if (isRateLimited && prevLimit.allowance >= 0) {
+    ircClient.say(message.from, `Per-user rate limit exceeded, stop the spam!`)
+  }
+
+  if (isRateLimited) {
+    logger.verbose(`Rate-limited message from ${message.from} (allowance: ${_.round(allowance, 2)})`)
+
     return
   }
 
