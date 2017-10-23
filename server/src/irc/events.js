@@ -106,9 +106,9 @@ const onPart = async (payload) => {
 const onKick = async (payload) => {
   const reason = payload.message === payload.kicked ? '' : payload.message
 
-  await leaveChannel(payload.channel, payload.kicked)
-
   const user = userStore.get([payload.channel, payload.nick])
+
+  await leaveChannel(payload.channel, payload.kicked)
 
   await saveMessage({
     kind: 'kick',
