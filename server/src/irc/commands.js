@@ -1,8 +1,5 @@
 const fp = require('lodash/fp')
 
-const logger = require('../logger')
-const config = require('../config')
-const { leaveNetwork, saveMessage } = require('../rethink/queries')
 const { humanizeDelta } = require('../utils')
 const { versionText } = require('../version')
 const { ircClient, ctx } = require('./index')

@@ -126,18 +126,10 @@ Promise.all([
 process.on('SIGINT', () => {})
 process.on('SIGTERM', async () => {
   if (config.irc.enable) {
-    const now = new Date()
-
-    const users = await rethinkQueries.leaveNetwork(ircClient.user.nick)
-    for (const user of users) {
-      await rethinkQueries.saveMessage({
-        kind: 'quit',
-        timestamp: now,
-        from: user.nick,
-        to: user.channel,
-        text: '',
-      })
-    }
+    await events.onQuit({
+      nick: ircClient.user.nick,
+      message: '',
+    })
   }
 
   process.exit()
