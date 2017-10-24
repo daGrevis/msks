@@ -19,6 +19,7 @@ const { ircClient } = require('./irc')
 const events = require('./irc/events')
 const waitForRethink = require('./rethink/waitForRethink')
 const waitForElastic = require('./elastic/waitForElastic')
+const rethinkQueries = require('./rethink/queries')
 
 Queue.configure(Promise)
 
@@ -120,4 +121,24 @@ Promise.all([
   if (config.irc.enable) {
     ircClient.connect()
   }
+})
+
+process.on('SIGINT', () => {})
+process.on('SIGTERM', async () => {
+  if (config.irc.enable) {
+    const now = new Date()
+
+    const users = await rethinkQueries.leaveNetwork(ircClient.user.nick)
+    for (const user of users) {
+      await rethinkQueries.saveMessage({
+        kind: 'quit',
+        timestamp: now,
+        from: user.nick,
+        to: user.channel,
+        text: '',
+      })
+    }
+  }
+
+  process.exit()
 })

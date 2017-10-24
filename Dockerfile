@@ -27,4 +27,4 @@ RUN yarn install && \
     yarn remove apidoc && \
     ls -l apidoc/index.html
 
-CMD yarn start
+CMD ["node", "src/start.js"]
