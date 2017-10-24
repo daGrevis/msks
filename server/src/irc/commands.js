@@ -27,35 +27,11 @@ const onVersion = async () => {
   return versionText
 }
 
-const onReload = async ({ message }) => {
-  if (!fp.includes(message.from, config.irc.admins)) {
-    return
-  }
-
-  logger.info(`!reload requested by ${message.from}, exiting...`)
-
-  const now = new Date()
-
-  const users = await leaveNetwork(ircClient.user.nick)
-  for (const user of users) {
-    await saveMessage({
-      kind: 'quit',
-      timestamp: now,
-      from: user.nick,
-      to: user.channel,
-      text: '',
-    })
-  }
-
-  process.exit(0)
-}
-
 const commandMap = {
   ping: onPing,
   echo: onEcho,
   uptime: onUptime,
   version: onVersion,
-  reload: onReload,
 }
 
 const matchCommand = message => {
