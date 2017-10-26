@@ -10,7 +10,7 @@ const {
 } = require('../rethink/queries')
 const { indexMessage } = require('../elastic/queries')
 const { ircClient, ctx, isMe, isPM } = require('./index')
-const { matchCommand } = require('./commands')
+const { getCommand } = require('./commands')
 const userStore = require('../userStore')
 const rateLimitStore = require('../rateLimitStore')
 
@@ -240,7 +240,7 @@ const onMessage = async (payload) => {
     return
   }
 
-  const command = matchCommand(message)
+  const command = getCommand(message)
 
   if (!command) {
     return

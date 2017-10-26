@@ -2,14 +2,14 @@ const fp = require('lodash/fp')
 
 const { humanizeDelta } = require('../utils')
 const { versionText } = require('../version')
-const { ircClient, ctx } = require('./index')
+const { ircClient, ctx, isPM } = require('./index')
 
 const onPing = async () => {
   return 'pong'
 }
 
-const onEcho = async ({ params }) => {
-  return params
+const onEcho = async ({ input }) => {
+  return input
 }
 
 const onUptime = async () => {
@@ -33,42 +33,52 @@ const commandMap = {
 
 const matchCommand = message => {
   let { text } = message
-  let isAddressedToMe = false
-  let hasCommandPrefix = false
+  let textBefore
 
-  const nickPattern = new RegExp(`^${ircClient.user.nick}[,:]{1} ?`)
-  if (nickPattern.test(text)) {
-    isAddressedToMe = true
-    text = text.replace(nickPattern, '')
-  }
+  const nickPattern = new RegExp(`^${ircClient.user.nick}[,:] `)
+  textBefore = text
+  text = text.replace(nickPattern, '')
+  const isAddressedToMe = text !== textBefore
 
   const commandPattern = /^[!,]{1}/
-  if (commandPattern.test(text)) {
-    hasCommandPrefix = true
-    text = text.replace(commandPattern, '')
-  }
+  textBefore = text
+  text = text.replace(commandPattern, '')
+  const hasCommandPrefix = text !== textBefore
 
   const separatorPos = text.indexOf(' ')
 
   const commandName = separatorPos === -1 ? text : text.slice(0, separatorPos)
-  const commandParams = separatorPos === -1 ? '' : text.slice(separatorPos + 1)
+  const commandInput = separatorPos === -1 ? '' : text.slice(separatorPos + 1)
 
-  const command = commandMap[commandName]
+  const commandFn = commandMap[commandName]
 
-  if (!command) {
-    return
-  }
-  if (!hasCommandPrefix && !isAddressedToMe) {
-    return
-  }
-  if (hasCommandPrefix && isAddressedToMe) {
+  if (!commandFn) {
     return
   }
 
-  return async () => await command({
-    params: commandParams,
-    message,
-  })
+  if (!isPM(message) && !hasCommandPrefix && !isAddressedToMe) {
+    return
+  }
+
+  return {
+    fn: commandFn,
+    context: {
+      input: commandInput,
+      message,
+    },
+  }
+}
+
+const getCommand = message => {
+  const commandMatch = matchCommand(message)
+
+  if (!commandMatch) {
+    return
+  }
+
+  const { fn, context } = commandMatch
+
+  return async () => await commandMatch.fn(commandMatch.context)
 }
 
 module.exports = {
@@ -77,4 +87,5 @@ module.exports = {
   onUptime,
   onVersion,
   matchCommand,
+  getCommand,
 }

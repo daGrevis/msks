@@ -2,6 +2,7 @@
   "private": true,
   "devDependencies": {
     "apidoc": "^0.17.6",
+    "jest": "^21.2.1",
     "nodemon": "^1.11.0"
   },
   "dependencies": {
@@ -28,6 +29,7 @@
   },
   "scripts": {
     "start": "node src/start.js",
+    "test": "jest",
     "repl": "node src/repl.js",
     "build": "cd .. && docker build -t msks . && docker save -o ~/msks.tar msks",
     "deploy": "yarn run build && scp ~/msks.tar root@dagrev.is:~ && ssh root@dagrev.is docker load -i msks.tar",
