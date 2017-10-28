@@ -25,6 +25,10 @@ Queue.configure(Promise)
 
 const SERVER_PORT = 3001
 
+process.on('unhandledRejection', reason => {
+  console.log(reason)
+})
+
 const koa = new Koa()
 
 koa.use(httpLogger())
