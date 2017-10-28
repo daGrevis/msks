@@ -49,10 +49,6 @@ router.get('/api/users', async ctx => {
   ctx.body = await api.getUsers(ctx.request.query.channel, ctx.request.query.nick)
 })
 
-router.get('/api/messages/:messageId', async ctx => {
-  ctx.body = await api.getMessage(ctx.params.messageId)
-})
-
 router.get('/api/messages', async ctx => {
   ctx.body = await api.getMessages(
     ctx.request.query.channel,
@@ -88,6 +84,10 @@ router.get('/api/messages/search', async ctx => {
     ctx.request.query.limit || 50,
     ctx.request.query.messageId
   )
+})
+
+router.get('/api/messages/:messageId', async ctx => {
+  ctx.body = await api.getMessage(ctx.params.messageId)
 })
 
 router.get('/:messageId', async (ctx, next) => {
