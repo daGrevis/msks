@@ -56,7 +56,7 @@ const matchCommand = message => {
     return
   }
 
-  if (!isPM(message) && !hasCommandPrefix && !isAddressedToMe) {
+  if (!isPrivate(message) && !hasCommandPrefix && !isAddressedToMe) {
     return
   }
 
@@ -78,7 +78,7 @@ const getCommand = message => {
 
   const { fn, context } = commandMatch
 
-  return async () => await commandMatch.fn(commandMatch.context)
+  return async () => await fn(context)
 }
 
 module.exports = {

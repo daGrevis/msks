@@ -30,6 +30,7 @@ describe('matchCommand resolving to command', () => {
   itWillMatchPing({ text: '!ping' })
   itWillMatchPing({ text: ',ping' })
   itWillMatchPing({ text: 'msks, ping' })
+  itWillMatchPing({ text: 'msks: ping' })
   itWillMatchPing({ text: 'msks, !ping' })
   itWillMatchPing({ text: 'msks, ,ping' })
   itWillMatchPing({ text: 'ping', to: 'msks' })
