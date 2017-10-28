@@ -39,7 +39,13 @@ const searchMessages = async (channel, query, limit, afterTimestamp) => {
           !query.nick ? [] : { term: { from: query.nick }}
         ),
         must: !query.text ? [] : [{
-          match: { text: query.text },
+          match: {
+            text: {
+              query: query.text,
+              operator: 'and',
+              fuzziness: 'auto',
+            }
+          },
         }],
       },
     },
