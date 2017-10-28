@@ -2,7 +2,7 @@ const fp = require('lodash/fp')
 
 const { humanizeDelta } = require('../utils')
 const { versionText } = require('../version')
-const { ircClient, ctx, isPM } = require('./index')
+const { ircClient, ctx, isPrivate } = require('./index')
 
 const onPing = async () => {
   return 'pong'

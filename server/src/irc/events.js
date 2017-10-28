@@ -9,7 +9,7 @@ const {
   updateUsers, updateUser, updateNick,
 } = require('../rethink/queries')
 const { indexMessage } = require('../elastic/queries')
-const { ircClient, ctx, isMe, isPM } = require('./index')
+const { ircClient, ctx, isMe, isPrivate } = require('./index')
 const { getCommand } = require('./commands')
 const userStore = require('../userStore')
 const rateLimitStore = require('../rateLimitStore')
@@ -221,19 +221,20 @@ const onMessage = async (payload) => {
     text: payload.message,
   }
 
-  const isPrivate = isPM(message)
+  const isPM = isPrivate(message)
 
-  if (!isPrivate) {
+  if (!isPM) {
     const user = userStore.get([payload.target, payload.nick])
 
     message = _.assign(message, {
       isOp: user.isOp,
       isVoiced: user.isVoiced,
     })
-  }
 
-  message = await saveMessage(message)
-  await indexMessage(message)
+    message = await saveMessage(message)
+    await indexMessage(message)
+
+  }
 
   const isSilent = _.includes(config.irc.silentChannels, message.to)
   if (isSilent) {
@@ -290,11 +291,11 @@ const onMessage = async (payload) => {
     kind: 'message',
     timestamp: new Date(),
     from: ircClient.user.nick,
-    to: isPrivate ? message.from : message.to,
+    to: isPM ? message.from : message.to,
     text: responseText,
   }
 
-  if (!isPrivate) {
+  if (!isPM) {
     const responseUser = userStore.get([responseMessage.to, responseMessage.from])
 
     responseMessage = _.assign(responseMessage, {
@@ -325,6 +326,10 @@ const onAction = async (payload) => {
 }
 
 const onNotice = async (payload) => {
+  if (payload.target === '*' || payload.target === ircClient.user.nick) {
+    return
+  }
+
   const user = userStore.get([payload.target, payload.nick])
 
   let message = {

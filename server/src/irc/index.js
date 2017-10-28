@@ -25,15 +25,16 @@ let ctx = {
 
 const isMe = nick => ircClient.user.nick === nick
 
-const isPM = message => (
+const isChannel = s =>
   // Apparently & is a valid prefix for channel.
-  !_.startsWith(message.to, '#')
-  && !_.startsWith(message.to, '&')
-)
+  _.startsWith(s, '#') || _.startsWith(s, '&')
+
+const isPrivate = message => !isChannel(message.to)
 
 module.exports = {
   ircClient,
   ctx,
   isMe,
-  isPM,
+  isChannel,
+  isPrivate,
 }
