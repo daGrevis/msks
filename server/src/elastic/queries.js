@@ -29,6 +29,13 @@ const indexMessages = messages => {
 }
 
 const searchMessages = async (channel, query, limit, afterTimestamp) => {
+  const { text, nick } = query
+
+  const isPhraseSearch = fp.some(delimeter => (
+    fp.startsWith(delimeter, text) && fp.endsWith(delimeter, text)
+  ), ['"', '\''])
+  const phraseText = isPhraseSearch ? text.slice(1, -1) : null
+
   let body = {
     size: limit,
     sort: [{ timestamp: { order: 'desc' }}],
@@ -36,17 +43,25 @@ const searchMessages = async (channel, query, limit, afterTimestamp) => {
       bool: {
         filter: fp.concat(
           { term: { to: channel }},
-          !query.nick ? [] : { term: { from: query.nick }}
+          !nick ? [] : { term: { from: nick }}
         ),
-        must: !query.text ? [] : [{
-          match: {
-            text: {
-              query: query.text,
-              operator: 'and',
-              fuzziness: 'auto',
-            }
+        must: !text ? [] : [
+          isPhraseSearch
+          ? {
+            match_phrase: {
+              text: phraseText,
+            },
+          }
+          : {
+            match: {
+              text: {
+                query: text,
+                operator: 'and',
+                fuzziness: 'auto',
+              },
+            },
           },
-        }],
+        ],
       },
     },
   }
