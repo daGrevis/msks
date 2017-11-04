@@ -9,6 +9,7 @@ import { setTitle } from '../actions'
 import { sortedChannelsSelector } from '../selectors'
 
 import '../styles/Front.css'
+import octocatSvg from '../vectors/octocat.svg'
 
 class Front extends React.Component {
   componentWillMount() {
@@ -18,6 +19,10 @@ class Front extends React.Component {
   render() {
     return (
       <div id='front'>
+        <a href='https://github.com/daGrevis/msks' target='_blank'>
+          <img className='octocat' src={octocatSvg} alt='' />
+        </a>
+
         <a href='https://github.com/daGrevis/msks' target='_blank'>
           <h1>msks</h1>
         </a>

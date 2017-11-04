@@ -12,7 +12,7 @@ import {
 import Scroller from './Scroller'
 import MessagesGrid from './MessagesGrid'
 
-import scrollIconSvg from '../icons/scroll-icon.svg'
+import scrollDownSvg from '../vectors/scroll-down.svg'
 
 class Messages extends React.Component {
   componentWillMount() {
@@ -63,7 +63,7 @@ class Messages extends React.Component {
         >
           {!this.props.isViewingArchive ? null : (
             <div className='scroll-icon' onClick={this.onScrollIconClick}>
-              <img src={scrollIconSvg} alt='' />
+              <img src={scrollDownSvg} alt='' />
             </div>
           )}
         </MessagesGrid>

@@ -17,7 +17,7 @@ import SearchInput from './SearchInput'
 import Users from './Users'
 
 import '../styles/Channel.css'
-import searchIconSvg from '../icons/search-icon.svg'
+import searchSvg from '../vectors/search.svg'
 
 class Channel extends React.Component {
   state = {
@@ -80,7 +80,7 @@ class Channel extends React.Component {
               </div>
             </div>
             <div className='search-icon' onClick={this.onSearchIconClick}>
-              <img src={searchIconSvg} alt='' />
+              <img src={searchSvg} alt='' />
             </div>
 
             <h2 className={nameClasses} onClick={this.onNameClick}>
