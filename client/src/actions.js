@@ -20,13 +20,7 @@ const setVisibility = createAction('SET_VISIBILITY')
 
 const setScrollPosition = createAction('SET_SCROLL_POSITION')
 
-const navigated = createAction('NAVIGATED')
-
-const socketConnected = createAction('SOCKET_CONNECTED')
-const socketDisconnected = createAction('SOCKET_DISCONNECTED')
-const socketReconnected = createAction('SOCKET_RECONNECTED')
-
-const setTitle = title => (dispatch, getState) => {
+const setTitle = title => dispatch => {
   if (document.title !== title) {
     dispatch({
       type: 'SET_TITLE',
@@ -36,6 +30,12 @@ const setTitle = title => (dispatch, getState) => {
     document.title = title
   }
 }
+
+const navigated = createAction('NAVIGATED')
+
+const socketConnected = createAction('SOCKET_CONNECTED')
+const socketDisconnected = createAction('SOCKET_DISCONNECTED')
+const socketReconnected = createAction('SOCKET_RECONNECTED')
 
 const subscribeToChannels = createAction('server/SUBSCRIBE_TO_CHANNELS')
 
@@ -140,13 +140,29 @@ const getMessagesAfter = () => (dispatch, getState) => {
   })
 }
 
-const getMessagesAround = messageId => (dispatch, getState) => {
+const getMessagesAround = messageId => dispatch => {
   dispatch({
     type: 'server/GET_MESSAGES_AROUND',
     payload: {
       messageId: messageId,
     },
   })
+}
+
+const leaveArchive = () => (dispatch, getState) => {
+  dispatch({
+    type: 'LEAVE_ARCHIVE',
+  })
+
+  const state = getState()
+
+  const href = config.embedChannel ? '' : state.channelName
+
+  navigate(href)
+
+  dispatch(
+    getMessages()
+  )
 }
 
 const updateUnread = createAction('UPDATE_UNREAD')
@@ -164,7 +180,9 @@ const setFavicoBadge = () => (dispatch, getState) => {
 }
 
 const toggleSearch = () => (dispatch, getState) => {
-  dispatch({ type: 'TOGGLE_SEARCH' })
+  dispatch({
+    type: 'TOGGLE_SEARCH',
+  })
 
   const state = getState()
   const { channelName } = state
@@ -229,19 +247,20 @@ const searchMessages = ({ query }) => (dispatch, getState) => {
 export {
   setBroken,
   setVisibility,
+  setScrollPosition,
+  setTitle,
   navigated,
   socketConnected,
   socketDisconnected,
   socketReconnected,
-  setTitle,
   subscribeToChannels,
+  subscribeToUsers,
+  subscribeToMessages,
   getMessages,
   getMessagesBefore,
   getMessagesAfter,
   getMessagesAround,
-  subscribeToMessages,
-  subscribeToUsers,
-  setScrollPosition,
+  leaveArchive,
   updateUnread,
   resetUnread,
   setFavicoBadge,

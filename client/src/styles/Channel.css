@@ -78,6 +78,17 @@
   text-overflow: ellipsis;
 }
 
+#channel .scroll-icon {
+  position: fixed;
+  bottom: 0;
+  right: 160px;
+  width: 64px;
+  height: 64px;
+  opacity: .4;
+  cursor: pointer;
+  transition: right .25s ease-in;
+}
+
 #channel .messages {
   margin: auto 0;
   width: 100%;
@@ -132,8 +143,12 @@
     background: white;
     min-height: 100vh;
   }
-  #channel .content.is-open {
+  #channel.is-sidebar-open .content {
     right: 160px;
+  }
+
+  #channel.is-sidebar-closed .content .scroll-icon {
+    right: 0;
   }
 
   #channel .sidebar {
@@ -145,7 +160,7 @@
     -webkit-overflow-scrolling: touch;
     z-index: 0;
   }
-  #channel .sidebar.is-open {
+  #channel.is-sidebar-open .sidebar {
     right: 0;
   }
 }

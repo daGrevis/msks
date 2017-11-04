@@ -10,7 +10,6 @@ import {
   routeSelector, channelSelector, userCountSelector, groupedUsersSelector,
   isSearchOpenSelector, searchQuerySelector, activeMessageSelector,
 } from '../selectors'
-import Maybe from '../components/Maybe'
 import Text from '../components/Text'
 import Messages from '../components/Messages'
 import SearchMessages from '../components/SearchMessages'
@@ -18,7 +17,7 @@ import SearchInput from './SearchInput'
 import Users from './Users'
 
 import '../styles/Channel.css'
-import searchIconSvg from '../styles/search-icon.svg'
+import searchIconSvg from '../icons/search-icon.svg'
 
 class Channel extends React.Component {
   state = {
@@ -57,11 +56,9 @@ class Channel extends React.Component {
   }
 
   render() {
-    const sidebarClasses = classNames('sidebar', {
-      'is-open': this.state.isSidebarOpen,
-    })
-    const contentClasses = classNames('content', {
-      'is-open': this.state.isSidebarOpen,
+    const channelClasses = classNames({
+      'is-sidebar-open': this.state.isSidebarOpen,
+      'is-sidebar-closed': !this.state.isSidebarOpen,
     })
     const hamburgerClasses = classNames('hamburger-icon hamburger hamburger--squeeze', {
       'is-active': this.state.isSidebarOpen,
@@ -74,8 +71,8 @@ class Channel extends React.Component {
     })
 
     return (
-      <div id='channel'>
-        <div className={contentClasses}>
+      <div id='channel' className={channelClasses}>
+        <div className='content'>
           <div className='header'>
             <div className={hamburgerClasses} onClick={this.onHamburgerIconClick}>
               <div className='hamburger-box'>
@@ -91,11 +88,11 @@ class Channel extends React.Component {
             </h2>
             <span className='user-count'>[ {this.props.userCount || '—'} ]</span>
 
-            <Maybe when={this.props.channel.topic}>
+            {!this.props.channel.topic ? null : (
               <div className={topicClasses} onClick={this.onTopicClick}>
                 <Text>{this.props.channel.topic}</Text>
               </div>
-            </Maybe>
+            )}
           </div>
 
           {this.props.isSearchOpen
@@ -107,7 +104,7 @@ class Channel extends React.Component {
             : null}
         </div>
 
-        <div className={sidebarClasses}>
+        <div className='sidebar'>
           <Users groupedUsers={this.props.groupedUsers} />
         </div>
       </div>

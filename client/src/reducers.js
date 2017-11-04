@@ -85,10 +85,7 @@ const messagesUpdater = handleActions({
     fp.set(['isViewingArchive', payload.channel], false)
   ),
 
-  'server/GET_MESSAGES_BEFORE': ({ payload }) => fp.set(
-    ['loadCache', payload.messageId],
-    true
-  ),
+  'server/GET_MESSAGES_BEFORE': ({ payload }) => fp.set(['loadCache', payload.messageId], true),
   'client/SET_MESSAGES_BEFORE': ({ payload }) => fp.pipe(
     fp.update(
       ['messages', payload.channel],
@@ -100,10 +97,7 @@ const messagesUpdater = handleActions({
     )
   ),
 
-  'server/GET_MESSAGES_AFTER': ({ payload }) => fp.set(
-    ['loadCache', payload.messageId],
-    true
-  ),
+  'server/GET_MESSAGES_AFTER': ({ payload }) => fp.set(['loadCache', payload.messageId], true),
   'client/SET_MESSAGES_AFTER': ({ payload }) => fp.pipe(
     fp.update(
       ['messages', payload.channel],
@@ -195,6 +189,12 @@ const messagesUpdater = handleActions({
       : state
     )
   },
+
+  'LEAVE_ARCHIVE': () => state => fp.pipe(
+    fp.set(['messages', state.channelName], []),
+    fp.set('loadCache', {}),
+    fp.set(['isViewingArchive', state.channelName], false)
+  )(state),
 })
 
 const faviconUpdater = handleActions({

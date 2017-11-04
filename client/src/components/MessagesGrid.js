@@ -27,7 +27,7 @@ const DayHeader = ({ text, date }) => {
 
 const MessagesGrid = props => {
   const {
-    messages, activeMessage, isViewingArchive, hasReachedBeginning, isSubscribedToMessages,
+    children, messages, activeMessage, isViewingArchive, hasReachedBeginning, isSubscribedToMessages,
     searchHighlights, isSearchOpen, isSearchOutdated, isSearchIntro, isSearchNotFound,
   } = props
 
@@ -116,6 +116,8 @@ const MessagesGrid = props => {
       })}
 
       {isBottomLoading ? <Loader /> : null}
+
+      {children}
     </div>
   )
 }

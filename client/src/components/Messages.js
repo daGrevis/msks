@@ -3,10 +3,16 @@ import { connect } from 'react-redux'
 
 import titles from '../../../common/src/titles'
 import { setTitle } from '../actions'
-import { getMessages, getMessagesBefore, getMessagesAfter, getMessagesAround } from '../actions'
-import { routeSelector, channelSelector, messagesSelector, activeMessageSelector } from '../selectors'
+import {
+  getMessages, getMessagesBefore, getMessagesAfter, getMessagesAround, leaveArchive
+} from '../actions'
+import {
+  routeSelector, channelSelector, messagesSelector, activeMessageSelector,
+} from '../selectors'
 import Scroller from './Scroller'
 import MessagesGrid from './MessagesGrid'
+
+import scrollIconSvg from '../icons/scroll-icon.svg'
 
 class Messages extends React.Component {
   componentWillMount() {
@@ -33,6 +39,10 @@ class Messages extends React.Component {
     )
   }
 
+  onScrollIconClick = () => {
+    this.props.leaveArchive()
+  }
+
   render() {
     return (
       <Scroller
@@ -50,7 +60,13 @@ class Messages extends React.Component {
         <MessagesGrid
           messages={this.props.messages}
           activeMessage={this.props.activeMessage}
-        />
+        >
+          {!this.props.isViewingArchive ? null : (
+            <div className='scroll-icon' onClick={this.onScrollIconClick}>
+              <img src={scrollIconSvg} alt='' />
+            </div>
+          )}
+        </MessagesGrid>
       </Scroller>
     )
   }
@@ -70,6 +86,7 @@ const mapDispatchToProps = {
   getMessagesBefore,
   getMessagesAfter,
   getMessagesAround,
+  leaveArchive,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Messages)
