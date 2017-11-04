@@ -44,11 +44,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "build-msks": "REACT_APP_BASE_PATH=/msks/ REACT_APP_SOCKET_PATH='/msks/socket.io' yarn run build",
-    "build-developerslv": "REACT_APP_EMBED_CHANNEL='#developerslv' yarn run build",
+    "build-msks": "PUBLIC_URL=/msks REACT_APP_BASE_PATH=/msks/ REACT_APP_SOCKET_PATH='/msks/socket.io' yarn run build",
+    "build-developerslv": "PUBLIC_URL=/ REACT_APP_EMBED_CHANNEL='#developerslv' yarn run build",
     "deploy-msks": "yarn run build-msks && rsync -azi --delete-after build/ root@dagrev.is:~/msks/build",
     "deploy-developerslv": "yarn run build-developerslv && rsync -azi --delete-after build/ root@dagrev.is:~/msks/developerslv"
   },
-  "proxy": "http://localhost:3001/",
-  "homepage": "/"
+  "proxy": "http://localhost:3001/"
 }
