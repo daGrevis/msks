@@ -14,6 +14,13 @@ const SCROLL_ACTIONS = {
   restore: 4,
 }
 
+const isCloseToTop = node => node.scrollTop < 200
+
+const isCloseToBottom = node => (
+  node.scrollHeight - (node.scrollTop + node.clientHeight)
+  < 200
+)
+
 class Scroller extends React.Component {
   node = null
 
@@ -84,9 +91,14 @@ class Scroller extends React.Component {
   }
 
   updateScroll = () => {
+    const isScrollable = this.node.clientHeight !== this.node.scrollHeight
     const shouldRescroll = (
       this.props.items.length
-      && this.node.clientHeight === this.node.scrollHeight
+      && (
+        !isScrollable
+        || isCloseToTop(this.node)
+        || isCloseToBottom(this.node)
+      )
     )
     if (shouldRescroll) {
       this.onScroll()
@@ -131,18 +143,11 @@ class Scroller extends React.Component {
       return
     }
 
-    const isCloseToTop = this.node.scrollTop < 200
-
-    const isCloseToBottom = (
-      this.node.scrollHeight - (this.node.scrollTop + this.node.clientHeight)
-      < 200
-    )
-
-    if (this.props.onScrolledTop && isCloseToTop) {
+    if (this.props.onScrolledTop && isCloseToTop(this.node)) {
       this.props.onScrolledTop()
     }
 
-    if (this.props.onScrolledBottom && isCloseToBottom) {
+    if (this.props.onScrolledBottom && isCloseToBottom(this.node)) {
       this.props.onScrolledBottom()
     }
 
