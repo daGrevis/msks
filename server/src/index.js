@@ -109,9 +109,14 @@ const eventMap = {
   notice: events.onNotice,
 }
 
-_.forEach(eventMap, (fn, name) => {
-  ircClient.on(name, payload => {
-    eventQueue.add(() => fn(payload))
+_.forEach(eventMap, (promise, eventName) => {
+  ircClient.on(eventName, payload => {
+    eventQueue.add(() => {
+      promise(payload)
+        .catch(e => {
+          logger.error(`on ${eventName}\n`, payload, '\n', e)
+        })
+    })
   })
 })
 
