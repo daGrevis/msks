@@ -14,6 +14,15 @@ const { getCommand } = require('./commands')
 const userStore = require('../userStore')
 const rateLimitStore = require('../rateLimitStore')
 
+const setUserModes = message => {
+  const user = userStore.get([message.to, message.from])
+
+  return !user ? message : _.assign(message, {
+    isOp: user.isOp,
+    isVoiced: user.isVoiced,
+  })
+}
+
 const onDebug = async (s) => {
   if (!config.irc.debug) {
     return
@@ -87,39 +96,30 @@ const onQuit = async (payload) => {
 }
 
 const onPart = async (payload) => {
-  const user = userStore.get([payload.channel, payload.nick])
-
   await leaveChannel(payload.channel, payload.nick)
 
-  await saveMessage({
+  await saveMessage(setUserModes({
     kind: 'part',
     timestamp: new Date(),
     from: payload.nick,
     to: payload.channel,
     text: payload.message,
-    isOp: user.isOp,
-    isVoiced: user.isVoiced,
-  })
-
+  }))
 }
 
 const onKick = async (payload) => {
   const reason = payload.message === payload.kicked ? '' : payload.message
 
-  const user = userStore.get([payload.channel, payload.nick])
-
   await leaveChannel(payload.channel, payload.kicked)
 
-  await saveMessage({
+  await saveMessage(setUserModes({
     kind: 'kick',
     timestamp: new Date(),
     from: payload.nick,
     to: payload.channel,
     text: reason,
-    isOp: user.isOp,
-    isVoiced: user.isVoiced,
     kicked: payload.kicked,
-  })
+  }))
 
   if (isMe(payload.kicked)) {
     logger.warn(`Kicked by ${payload.nick}, rejoining ${payload.channel}!`)
@@ -177,34 +177,26 @@ const onMode = async (payload) => {
 
     await updateUser(targetUser)
 
-    const user = userStore.get([payload.target, payload.nick])
-
-    await saveMessage({
+    await saveMessage(setUserModes({
       kind: 'mode',
       timestamp: now,
       from: payload.nick,
       to: payload.target,
       text: mode,
-      isOp: user ? user.isOp : false,
-      isVoiced: user ? user.isVoiced : false,
       param,
-    })
+    }))
   }
 }
 
 const onTopic = async (payload) => {
   if (payload.nick) {
-    const user = userStore.get([payload.channel, payload.nick])
-
-    await saveMessage({
+    await saveMessage(setUserModes({
       kind: 'topic',
       timestamp: new Date(),
       from: payload.nick,
       to: payload.channel,
       text: payload.topic,
-      isOp: user.isOp,
-      isVoiced: user.isVoiced,
-    })
+    }))
   }
 
   await updateTopic(payload.channel, payload.topic)
@@ -224,16 +216,10 @@ const onMessage = async (payload) => {
   const isPM = isPrivate(message)
 
   if (!isPM) {
-    const user = userStore.get([payload.target, payload.nick])
-
-    message = _.assign(message, {
-      isOp: user.isOp,
-      isVoiced: user.isVoiced,
-    })
+    message = setUserModes(message)
 
     message = await saveMessage(message)
     await indexMessage(message)
-
   }
 
   const isSilent = _.includes(config.irc.silentChannels, message.to)
@@ -296,12 +282,7 @@ const onMessage = async (payload) => {
   }
 
   if (!isPM) {
-    const responseUser = userStore.get([responseMessage.to, responseMessage.from])
-
-    responseMessage = _.assign(responseMessage, {
-      isOp: responseUser.isOp,
-      isVoiced: responseUser.isVoiced,
-    })
+    responseMessage = setUserModes(responseMessage)
   }
 
   ircClient.say(responseMessage.to, responseMessage.text)
@@ -311,17 +292,13 @@ const onMessage = async (payload) => {
 }
 
 const onAction = async (payload) => {
-  const user = userStore.get([payload.target, payload.nick])
-
-  const message = await saveMessage({
+  const message = await saveMessage(setUserModes({
     kind: 'action',
     timestamp: new Date(),
     from: payload.nick,
     to: payload.target,
     text: payload.message,
-    isOp: user.isOp,
-    isVoiced: user.isVoiced,
-  })
+  }))
   await indexMessage(message)
 }
 
@@ -330,24 +307,13 @@ const onNotice = async (payload) => {
     return
   }
 
-  const user = userStore.get([payload.target, payload.nick])
-
-  let message = {
+  const message = await saveMessage(setUserModes({
     kind: 'notice',
     timestamp: new Date(),
     from: payload.nick,
     to: payload.target,
     text: payload.message,
-  }
-
-  if (user) {
-    message = _.assign(message, {
-      isOp: user.isOp,
-      isVoiced: user.isVoiced,
-    })
-  }
-
-  message = await saveMessage(message)
+  }))
   await indexMessage(message)
 }
 
