@@ -65,16 +65,16 @@ const onJoin = async (payload) => {
     text: '',
   })
 
+  await joinChannel({
+    id: [payload.channel, payload.nick],
+    channel: payload.channel,
+    nick: payload.nick,
+  })
+
   if (isMe(payload.nick)) {
     logger.verbose(`Joined ${payload.channel}!`)
 
     await createChannel({ name: payload.channel })
-  } else {
-    await joinChannel({
-      id: [payload.channel, payload.nick],
-      channel: payload.channel,
-      nick: payload.nick,
-    })
   }
 }
 
@@ -170,10 +170,13 @@ const onMode = async (payload) => {
       return
     }
 
-    const targetUser = _.assign(
-      userStore.get([payload.target, param]),
-      { [isOp ? 'isOp' : 'isVoiced']: mode[0] === '+' }
-    )
+    const targetUser = {
+      id: [payload.target, param],
+      channel: payload.target,
+      nick: param,
+      ...userStore.get([payload.target, param]),
+      [isOp ? 'isOp' : 'isVoiced']: (mode[0] === '+'),
+    }
 
     await updateUser(targetUser)
 
