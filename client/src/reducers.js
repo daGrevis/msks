@@ -8,7 +8,7 @@ const appUpdater = handleActions({
   SET_BROKEN: () => fp.set('isBroken', true),
   SET_VISIBILITY: ({ payload }) => fp.set('isVisible', payload),
 
-  SET_SCROLL_POSITION: ({ payload: { id, position } }) => fp.set(
+  SAVE_LAST_SCROLL_POSITION: ({ payload: { id, position } }) => fp.set(
     ['scrollPositions', id],
     position
   ),

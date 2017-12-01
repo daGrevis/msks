@@ -18,7 +18,7 @@ const favico = new Favico({
 const setBroken = createAction('SET_BROKEN')
 const setVisibility = createAction('SET_VISIBILITY')
 
-const setScrollPosition = createAction('SET_SCROLL_POSITION')
+const saveLastScrollPosition = createAction('SAVE_LAST_SCROLL_POSITION')
 
 const setTitle = title => dispatch => {
   if (document.title !== title) {
@@ -247,7 +247,7 @@ const searchMessages = ({ query }) => (dispatch, getState) => {
 export {
   setBroken,
   setVisibility,
-  setScrollPosition,
+  saveLastScrollPosition,
   setTitle,
   navigated,
   socketConnected,

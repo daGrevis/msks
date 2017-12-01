@@ -3,7 +3,7 @@ import scrollIntoViewIfNeeded from 'scroll-into-view-if-needed'
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { setScrollPosition } from '../actions'
+import { saveLastScrollPosition } from '../actions'
 
 import '../styles/Scroller.css'
 
@@ -74,17 +74,15 @@ class Scroller extends React.Component {
 
     const hasReachedBottom = (
       this.node
-      && (
-        this.node.scrollHeight
-        === (this.node.scrollTop + this.node.clientHeight)
-      )
+      && this.node.scrollHeight - (this.scrollTop + this.node.clientHeight) <= 1
     )
     if (hasReachedBottom && this.props.stickToBottom) {
       this.scrollAction = SCROLL_ACTIONS.toBottom
       return
     }
 
-    if (nextProps.scrollPosition) {
+    const shouldRestore = !prevProps && nextProps.scrollPosition
+    if (shouldRestore) {
       this.scrollAction = SCROLL_ACTIONS.restore
       return
     }
@@ -118,9 +116,7 @@ class Scroller extends React.Component {
         break
 
       case SCROLL_ACTIONS.toBottom:
-        this.node.scrollTop = (
-          this.node.scrollHeight - this.node.clientHeight
-        )
+        this.node.scrollTop = this.node.scrollHeight
         break
 
       case SCROLL_ACTIONS.restore:
@@ -151,9 +147,9 @@ class Scroller extends React.Component {
       this.props.onScrolledBottom()
     }
 
-    this.props.setScrollPosition({
+    this.props.saveLastScrollPosition({
       id: this.props.id,
-      position: this.node.scrollTop,
+      position: Math.round(this.node.scrollTop),
     })
   }, 100)
 
@@ -175,7 +171,7 @@ const mapStateToProps = (state, props) => ({
 })
 
 const mapDispatchToProps = {
-  setScrollPosition,
+  saveLastScrollPosition,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Scroller)
