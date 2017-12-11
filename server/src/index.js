@@ -111,12 +111,12 @@ const eventMap = {
 
 _.forEach(eventMap, (promise, eventName) => {
   ircClient.on(eventName, payload => {
-    eventQueue.add(() => {
+    eventQueue.add(() => (
       promise(payload)
         .catch(e => {
           logger.error(`on ${eventName}\n`, payload, '\n', e)
         })
-    })
+    ))
   })
 })
 
