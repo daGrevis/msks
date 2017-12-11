@@ -45,7 +45,7 @@ const MessagesGrid = props => {
   const isBottomLoading = (
     isSearchOpen
     ? false
-    : !isSubscribedToMessages || isViewingArchive
+    : messages.length && (!isSubscribedToMessages || isViewingArchive)
   )
 
   let startOfDay, dayText
