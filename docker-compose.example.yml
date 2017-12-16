@@ -24,13 +24,18 @@ services:
 
   elastic:
     container_name: elastic
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.1
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.1.0
     volumes:
-      - ~/msks/elastic-data:/usr/share/elasticsearch/data
+     - ~/msks/elastic-data:/usr/share/elasticsearch/data
     environment:
-      http.host: '0.0.0.0'
-      transport.host: '127.0.0.1'
-      ES_JAVA_OPTS: '-Xmx256m -Xms256m'
+     - http.host=0.0.0.0
+     - transport.host=127.0.0.1
+     - bootstrap.memory_lock=true
+     - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     restart: always
 
   msks:

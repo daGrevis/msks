@@ -24,7 +24,7 @@ Msks server requires [RethinkDB](https://www.rethinkdb.com/) & [Elasticsearch](h
 
     docker run -d --name msks-rethink -p 28015:28015 -p 8080:8080 rethinkdb
 
-    docker run -d --name msks-elastic -p 9200:9200 -e "http.host=0.0.0.0" -e "transport.host=127.0.0.1" docker.elastic.co/elasticsearch/elasticsearch:5.5.1
+    docker run -d --name msks-elastic -p 9200:9200 -e "http.host=0.0.0.0" -e "transport.host=127.0.0.1" docker.elastic.co/elasticsearch/elasticsearch-oss:6.1.0
 
 ### Configuration
 
