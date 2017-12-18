@@ -3,11 +3,9 @@ import * as qs from 'querystring'
 
 import config from './config'
 
-const history = createHistory()
-
-const navigate = path => {
-  history.push(config.basePath + path)
-}
+const history = createHistory({
+  basename: config.basePath,
+})
 
 const getPathname = loc => {
   let path = loc.pathname + loc.hash
@@ -32,7 +30,6 @@ const getQuery = loc => {
 
 export {
   history,
-  navigate,
   getPathname,
   getQuery,
 }

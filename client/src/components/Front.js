@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import titles from '../../../common/src/titles'
 
-import { navigate } from '../history'
+import { history } from '../history'
 import { setTitle } from '../actions'
 import { sortedChannelsSelector } from '../selectors'
 
@@ -29,7 +29,7 @@ class Front extends React.Component {
 
         {_.map(this.props.sortedChannels, channel => (
           <header key={channel.name}>
-            <h2 className='strong' onClick={() => navigate(channel.name)}>{channel.name}</h2>
+            <h2 className='strong' onClick={() => history.push(channel.name)}>{channel.name}</h2>
           </header>
         ))}
       </div>

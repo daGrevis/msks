@@ -4,7 +4,7 @@ import * as qs from 'querystring'
 import Favico from 'favico.js'
 
 import config from './config'
-import { navigate } from './history'
+import { history } from './history'
 import {
   messagesSelector,
   foundMessagesSelector, isSearchOpenSelector, isSearchQueryEmptySelector, searchQuerySelector,
@@ -18,7 +18,18 @@ const favico = new Favico({
 const setBroken = createAction('SET_BROKEN')
 const setVisibility = createAction('SET_VISIBILITY')
 
-const saveLastScrollPosition = createAction('SAVE_LAST_SCROLL_POSITION')
+const saveLastScrollPosition = ({ id, position }) => (dispatch, getState) => {
+  const state = getState()
+
+  if (fp.isEqual(fp.get(['scrollPositions', id], state), position)) {
+    return
+  }
+
+  dispatch({
+    type: 'SAVE_LAST_SCROLL_POSITION',
+    payload: { id, position },
+  })
+}
 
 const setTitle = title => dispatch => {
   if (document.title !== title) {
@@ -158,7 +169,7 @@ const leaveArchive = () => (dispatch, getState) => {
 
   const href = config.embedChannel ? '' : state.channelName
 
-  navigate(href)
+  history.push(href)
 
   dispatch(
     getMessages()
@@ -191,7 +202,7 @@ const toggleSearch = () => (dispatch, getState) => {
   const search = isOpen ? '' : '?search'
   const href = config.embedChannel ? search : `${channelName}${search}`
 
-  navigate(href)
+  history.push(href)
 }
 
 const inputSearch = query => (dispatch, getState) => {
@@ -216,7 +227,11 @@ const inputSearch = query => (dispatch, getState) => {
   )
   const href = config.embedChannel ? search : `${channelName}${search}`
 
-  navigate(href)
+  if (fp.isEmpty(prevQuery)) {
+    history.push(href)
+  } else {
+    history.replace(href)
+  }
 }
 
 const searchMessages = ({ query }) => (dispatch, getState) => {

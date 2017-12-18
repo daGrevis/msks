@@ -24,7 +24,7 @@ import * as selectors from './selectors'
 import { colorize, bold, italic, underline } from './text'
 import App from './components/App'
 
-import { history, navigate, getPathname, getQuery } from  './history'
+import { history, getPathname, getQuery } from  './history'
 import socket from './socket'
 
 import viewportUnitsBuggyfill from 'viewport-units-buggyfill'
@@ -109,7 +109,6 @@ document.addEventListener('visibilitychange', onVisibilityChange)
 window._ = _
 window.fp = fp
 window.socket = socket
-window.navigate = navigate
 window.store = store
 window.dispatch = dispatch
 window.getState = getState

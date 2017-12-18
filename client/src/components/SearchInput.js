@@ -1,3 +1,4 @@
+import fp from 'lodash/fp'
 import React from 'react'
 
 import '../styles/SearchInput.css'
@@ -10,7 +11,7 @@ class SearchInput extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.query.text) {
+    if (fp.isEmpty(this.props.query)) {
       this.inputNode.focus()
     }
   }

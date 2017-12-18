@@ -1,3 +1,7 @@
+.nick {
+  cursor: pointer;
+}
+
 .nick .prefix {
   font-size: 14px;
 }

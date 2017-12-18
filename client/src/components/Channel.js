@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import { connect } from 'react-redux'
 
 import config from '../config'
-import { navigate } from '../history'
+import { history } from '../history'
 import { subscribeToUsers, toggleSearch, inputSearch } from '../actions'
 import {
   routeSelector, channelSelector, userCountSelector, groupedUsersSelector,
@@ -41,18 +41,22 @@ class Channel extends React.Component {
     const { channel, activeMessage, isSearchOpen } = this.props
 
     if (config.embedChannel) {
-      navigate('')
+      history.push('')
     } else {
       if (activeMessage || isSearchOpen) {
-        navigate(channel.name)
+        history.push(channel.name)
       } else {
-        navigate('')
+        history.push('')
       }
     }
   }
 
   onTopicClick = () => {
     this.setState({ isTopicClipped: !this.state.isTopicClipped })
+  }
+
+  onSidebarClick = () => {
+    this.setState({ isSidebarOpen: false })
   }
 
   render() {
@@ -104,7 +108,7 @@ class Channel extends React.Component {
             : null}
         </div>
 
-        <div className='sidebar'>
+        <div className='sidebar' onClick={this.onSidebarClick}>
           <Users groupedUsers={this.props.groupedUsers} />
         </div>
       </div>

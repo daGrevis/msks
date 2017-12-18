@@ -1,13 +1,26 @@
 import React from 'react'
+import { connect } from 'react-redux'
 
 import { getColor } from '../colors'
+import { inputSearch } from '../actions'
 
 import '../styles/Nick.css'
 
-const Nick = ({ from, isOp, isVoiced }) =>
-  <span className='nick strong' style={{ color: getColor(from) }} title={from}>
+const Nick = ({ from, to, isOp, isVoiced, inputSearch }) =>
+  <span
+    className='nick strong'
+    style={{ color: getColor(from) }}
+    title={from}
+    onClick={() => {
+      inputSearch({ nick: from })
+    }}
+  >
     <span className='prefix'>{(isOp ? '@' : (isVoiced ? '+' : ''))}</span>
     {from}
   </span>
 
-export default Nick
+const mapDispatchToProps = {
+  inputSearch,
+}
+
+export default connect(null, mapDispatchToProps)(Nick)
