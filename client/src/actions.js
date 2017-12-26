@@ -1,14 +1,20 @@
+import Promise from 'bluebird'
 import fp from 'lodash/fp'
 import { createAction } from 'redux-actions'
 import * as qs from 'querystring'
 import Favico from 'favico.js'
 
 import config from './config'
+import http from './http'
 import { history } from './history'
 import {
-  messagesSelector,
+  messagesSelector, hasReachedBeginningSelector,
   foundMessagesSelector, isSearchOpenSelector, isSearchQueryEmptySelector, searchQuerySelector,
 } from './selectors'
+
+let getMessagesBeforePromise = Promise.resolve()
+let getMessagesAfterPromise = Promise.resolve()
+let searchMessagesPromise = Promise.resolve()
 
 const favico = new Favico({
   animation: 'none',
@@ -84,7 +90,7 @@ const subscribeToMessages = () => (dispatch, getState) => {
   }
 }
 
-const getMessages = () => (dispatch, getState) => {
+const getMessages = () => async (dispatch, getState) => {
   const state = getState()
 
   const messages = messagesSelector(state)
@@ -94,15 +100,36 @@ const getMessages = () => (dispatch, getState) => {
   }
 
   dispatch({
-    type: 'server/GET_MESSAGES',
+    type: 'GET_MESSAGES',
     payload: {
       channel: state.channelName,
     },
   })
+
+  const response = await http.get('/api/messages', {
+    params: {
+      channel: state.channelName,
+    },
+  })
+
+  dispatch({
+    type: 'SET_MESSAGES',
+    payload: response.data,
+  })
 }
 
-const getMessagesBefore = () => (dispatch, getState) => {
+const getMessagesBefore = () => async (dispatch, getState) => {
+  if (!getMessagesBeforePromise.isFulfilled()) {
+    return
+  }
+
   const state = getState()
+
+  const hasReachedBeginning = hasReachedBeginningSelector(state)
+
+  if (hasReachedBeginning) {
+    return
+  }
 
   const messages = messagesSelector(state)
 
@@ -112,19 +139,27 @@ const getMessagesBefore = () => (dispatch, getState) => {
 
   const firstMessage = fp.first(messages)
 
-  if (state.loadCache[firstMessage.id]) {
-    return
-  }
-
   dispatch({
-    type: 'server/GET_MESSAGES_BEFORE',
+    type: 'GET_MESSAGES_BEFORE',
     payload: {
       messageId: firstMessage.id,
     },
   })
+
+  getMessagesBeforePromise = http.get(`/api/messages/before/${firstMessage.id}`)
+  const response = await getMessagesBeforePromise
+
+  dispatch({
+    type: 'SET_MESSAGES_BEFORE',
+    payload: response.data,
+  })
 }
 
-const getMessagesAfter = () => (dispatch, getState) => {
+const getMessagesAfter = () => async (dispatch, getState) => {
+  if (!getMessagesAfterPromise.isFulfilled()) {
+    return
+  }
+
   const state = getState()
 
   if (!state.isViewingArchive[state.channelName]) {
@@ -139,24 +174,35 @@ const getMessagesAfter = () => (dispatch, getState) => {
 
   const lastMessage = fp.last(messages)
 
-  if (state.loadCache[lastMessage.id]) {
-    return
-  }
-
   dispatch({
-    type: 'server/GET_MESSAGES_AFTER',
+    type: 'GET_MESSAGES_AFTER',
     payload: {
       messageId: lastMessage.id,
     },
   })
+
+  getMessagesAfterPromise = http.get(`/api/messages/after/${lastMessage.id}`)
+  const response = await getMessagesAfterPromise
+
+  dispatch({
+    type: 'SET_MESSAGES_AFTER',
+    payload: response.data,
+  })
 }
 
-const getMessagesAround = messageId => dispatch => {
+const getMessagesAround = messageId => async dispatch => {
   dispatch({
-    type: 'server/GET_MESSAGES_AROUND',
+    type: 'GET_MESSAGES_AROUND',
     payload: {
-      messageId: messageId,
+      messageId,
     },
+  })
+
+  const response = await http.get(`/api/messages/around/${messageId}`)
+
+  dispatch({
+    type: 'SET_MESSAGES_AROUND',
+    payload: response.data,
   })
 }
 
@@ -234,8 +280,14 @@ const inputSearch = query => (dispatch, getState) => {
   }
 }
 
-const searchMessages = ({ query }) => (dispatch, getState) => {
+const searchMessages = ({ query }) => async (dispatch, getState) => {
   const state = getState()
+
+  const hasReachedBeginning = hasReachedBeginningSelector(state)
+
+  if (hasReachedBeginning) {
+    return
+  }
 
   if (isSearchQueryEmptySelector(state)) {
     return
@@ -245,17 +297,33 @@ const searchMessages = ({ query }) => (dispatch, getState) => {
 
   const firstMessage = messages[0]
 
-  if (firstMessage && state.searchCache === firstMessage.id) {
+  if (firstMessage && !getMessagesBeforePromise.isFulfilled()) {
     return
   }
 
   dispatch({
-    type: 'server/SEARCH_MESSAGES',
+    type: 'SEARCH_MESSAGES',
     payload: {
       channel: state.channelName,
-      query,
+      text: query.text,
+      nick: query.nick,
       messageId: firstMessage ? firstMessage.id : null,
     },
+  })
+
+  searchMessagesPromise = http.get('/api/messages/search', {
+    params: {
+      channel: state.channelName,
+      text: query.text,
+      nick: query.nick,
+      messageId: firstMessage ? firstMessage.id : null,
+    },
+  })
+  const response = await searchMessagesPromise
+
+  dispatch({
+    type: 'FOUND_MESSAGES',
+    payload: response.data,
   })
 }
 

@@ -100,14 +100,6 @@ const initialState = {
     // '#developerslv': false,
   },
 
-  loadCache: {
-    // '#developerslv': true,
-    // 'd3348233-440e-4962-b60a-9fb174f75331': true,
-  },
-  searchCache: {
-    // 'd3348233-440e-4962-b60a-9fb174f75331': true,
-  },
-
   hasReachedBeginning: {
     // '#developerslv': true,
   },

@@ -1,3 +1,5 @@
+import Promise from 'bluebird'
+window.Promise = Promise
 import _ from 'lodash'
 import fp from 'lodash/fp'
 // eslint-disable-next-line no-unused-vars

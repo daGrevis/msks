@@ -2,7 +2,7 @@ import fp from 'lodash/fp'
 import { handleActions, concat } from 'redux-fp'
 
 import config from './config'
-import { searchQuerySelector, foundMessagesSelector } from './selectors'
+import { searchQuerySelector } from './selectors'
 
 const appUpdater = handleActions({
   SET_BROKEN: () => fp.set('isBroken', true),
@@ -29,8 +29,6 @@ const socketUpdater = handleActions({
   SOCKET_RECONNECTED: () => state => fp.pipe(
     fp.set('resetChannels', true),
     fp.set('resetUsers', fp.mapValues(() => true, state.users)),
-    fp.set('loadCache', {}),
-    fp.set('searchCache', {})
   )(state),
 })
 
@@ -80,13 +78,12 @@ const usersUpdater = handleActions({
 })
 
 const messagesUpdater = handleActions({
-  'client/SET_MESSAGES': ({ payload }) => fp.pipe(
+  SET_MESSAGES: ({ payload }) => fp.pipe(
     fp.set(['messages', payload.channel], payload.messages),
     fp.set(['isViewingArchive', payload.channel], false)
   ),
 
-  'server/GET_MESSAGES_BEFORE': ({ payload }) => fp.set(['loadCache', payload.messageId], true),
-  'client/SET_MESSAGES_BEFORE': ({ payload }) => fp.pipe(
+  SET_MESSAGES_BEFORE: ({ payload }) => fp.pipe(
     fp.update(
       ['messages', payload.channel],
       currentMessages => fp.concat(payload.messages, currentMessages)
@@ -97,8 +94,7 @@ const messagesUpdater = handleActions({
     )
   ),
 
-  'server/GET_MESSAGES_AFTER': ({ payload }) => fp.set(['loadCache', payload.messageId], true),
-  'client/SET_MESSAGES_AFTER': ({ payload }) => fp.pipe(
+  SET_MESSAGES_AFTER: ({ payload }) => fp.pipe(
     fp.update(
       ['messages', payload.channel],
       currentMessages => fp.concat(currentMessages, payload.messages)
@@ -109,13 +105,12 @@ const messagesUpdater = handleActions({
     )
   ),
 
-  'server/GET_MESSAGES_AROUND': () => state => fp.pipe(
+  GET_MESSAGES_AROUND: () => state => fp.pipe(
     fp.set(['messages', state.channelName], []),
     fp.unset(['scrollPositions', `messages.${state.channelName}`])
   )(state),
-  'client/SET_MESSAGES_AROUND': ({ payload }) => fp.pipe(
+  SET_MESSAGES_AROUND: ({ payload }) => fp.pipe(
     fp.set(['messages', payload.channel], payload.messages),
-    fp.set('loadCache', {}),
     fp.set(['isViewingArchive', payload.channel], true)
   ),
 
@@ -157,7 +152,9 @@ const messagesUpdater = handleActions({
     )(state)
   },
 
-  'client/FOUND_MESSAGES': ({ payload }) => state => {
+  INPUT_SEARCH: ({ payload }) => fp.set(['search', 'hasReachedBeginning'], false),
+
+  FOUND_MESSAGES: ({ payload }) => state => {
     const { messages, channel, query, limit, messageId } = payload
 
     const isOutdated = (
@@ -181,19 +178,10 @@ const messagesUpdater = handleActions({
     }))(state)
   },
 
-  'server/SEARCH_MESSAGES': ({ payload }) => state => {
-    const firstMessage = foundMessagesSelector(state)[0]
-    return (
-      firstMessage
-      ? fp.set('searchCache', firstMessage.id)(state)
-      : state
-    )
-  },
-
-  'LEAVE_ARCHIVE': () => state => fp.pipe(
+  LEAVE_ARCHIVE: () => state => fp.pipe(
     fp.set(['messages', state.channelName], []),
-    fp.set('loadCache', {}),
-    fp.set(['isViewingArchive', state.channelName], false)
+    fp.set(['isViewingArchive', state.channelName], false),
+    fp.set(['hasReachedBeginning', state.channelName], false),
   )(state),
 })
 

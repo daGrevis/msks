@@ -12,7 +12,9 @@
     "react-scripts": "^0.9.3"
   },
   "dependencies": {
+    "axios": "^0.17.1",
     "big-integer": "^1.6.17",
+    "bluebird": "^3.5.1",
     "classnames": "^2.2.5",
     "date-fns": "^1.28.5",
     "favico.js": "^0.3.10",
