@@ -80,7 +80,7 @@ router.get('/api/messages/around/:messageId', async ctx => {
 router.get('/api/messages/search', async ctx => {
   ctx.body = await api.searchMessages(
     ctx.request.query.channel,
-    fp.omit(['channel', 'limit', 'offset'], ctx.request.query),
+    fp.pick(['text', 'nick'], ctx.request.query),
     ctx.request.query.limit || 50,
     ctx.request.query.messageId
   )
