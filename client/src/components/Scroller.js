@@ -14,11 +14,11 @@ const SCROLL_ACTIONS = {
   restore: 4,
 }
 
-const isCloseToTop = node => node.scrollTop < 200
+const isCloseToTop = node => node.scrollTop < window.innerHeight * 2
 
 const isCloseToBottom = node => (
   node.scrollHeight - (node.scrollTop + node.clientHeight)
-  < 200
+  < window.innerHeight * 2
 )
 
 class Scroller extends React.Component {
@@ -74,6 +74,7 @@ class Scroller extends React.Component {
 
     const hasReachedBottom = (
       this.node
+      // May be 1px off due to native rounding.
       && this.node.scrollHeight - (this.scrollTop + this.node.clientHeight) <= 1
     )
     if (hasReachedBottom && this.props.stickToBottom) {
