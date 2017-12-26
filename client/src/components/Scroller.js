@@ -111,9 +111,12 @@ class Scroller extends React.Component {
         break
 
       case SCROLL_ACTIONS.adjustForTop:
+        // Force stop momentum scrolling.
+        this.node.style.overflow = 'hidden'
         this.node.scrollTop = (
           this.scrollTop + (this.node.scrollHeight - this.scrollHeight)
         )
+        this.node.style.overflow = ''
         break
 
       case SCROLL_ACTIONS.toBottom:
