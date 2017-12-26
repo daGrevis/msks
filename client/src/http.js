@@ -1,8 +1,11 @@
 import axios from 'axios'
 
+import config from './config'
+
 const RETRY_DELAYS = [1000, 2000, 3000, 4000, 5000]
 
 const http = axios.create({
+  baseURL: config.basePath,
   timeout: 30000,
 })
 
