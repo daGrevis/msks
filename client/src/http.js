@@ -25,7 +25,11 @@ http.interceptors.response.use(null, e => {
     }, delay)
   })
 
-  return backoff.then(() => http(e.config))
+  return backoff.then(() => http({
+    ...e.config,
+    // Don't prefix new baseURL when retying the request.
+    baseURL: '/',
+  }))
 })
 
 
