@@ -297,7 +297,7 @@ const searchMessages = ({ query }) => async (dispatch, getState) => {
 
   const firstMessage = messages[0]
 
-  if (firstMessage && !getMessagesBeforePromise.isFulfilled()) {
+  if (firstMessage && !searchMessagesPromise.isFulfilled()) {
     return
   }
 
