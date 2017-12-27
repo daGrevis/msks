@@ -12,6 +12,8 @@ import {
   foundMessagesSelector, isSearchOpenSelector, isSearchQueryEmptySelector, searchQuerySelector,
 } from './selectors'
 
+const MESSAGE_LIMIT = 150
+
 let getMessagesBeforePromise = Promise.resolve()
 let getMessagesAfterPromise = Promise.resolve()
 let searchMessagesPromise = Promise.resolve()
@@ -109,6 +111,7 @@ const getMessages = () => async (dispatch, getState) => {
   const response = await http.get('/api/messages', {
     params: {
       channel: state.channelName,
+      limit: MESSAGE_LIMIT,
     },
   })
 
@@ -146,7 +149,11 @@ const getMessagesBefore = () => async (dispatch, getState) => {
     },
   })
 
-  getMessagesBeforePromise = http.get(`/api/messages/before/${firstMessage.id}`)
+  getMessagesBeforePromise = http.get(`/api/messages/before/${firstMessage.id}`, {
+    params: {
+      limit: MESSAGE_LIMIT,
+    },
+  })
   const response = await getMessagesBeforePromise
 
   dispatch({
@@ -181,7 +188,11 @@ const getMessagesAfter = () => async (dispatch, getState) => {
     },
   })
 
-  getMessagesAfterPromise = http.get(`/api/messages/after/${lastMessage.id}`)
+  getMessagesAfterPromise = http.get(`/api/messages/after/${lastMessage.id}`, {
+    params: {
+      limit: MESSAGE_LIMIT,
+    },
+  })
   const response = await getMessagesAfterPromise
 
   dispatch({
@@ -198,7 +209,11 @@ const getMessagesAround = messageId => async dispatch => {
     },
   })
 
-  const response = await http.get(`/api/messages/around/${messageId}`)
+  const response = await http.get(`/api/messages/around/${messageId}`, {
+    params: {
+      limit: MESSAGE_LIMIT * 2,
+    },
+  })
 
   dispatch({
     type: 'SET_MESSAGES_AROUND',
@@ -317,6 +332,7 @@ const searchMessages = ({ query }) => async (dispatch, getState) => {
       text: query.text,
       nick: query.nick,
       messageId: firstMessage ? firstMessage.id : null,
+      limit: MESSAGE_LIMIT,
     },
   })
   const response = await searchMessagesPromise
