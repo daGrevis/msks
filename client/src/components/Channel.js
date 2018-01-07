@@ -11,6 +11,7 @@ import {
   isSearchOpenSelector, searchQuerySelector, activeMessageSelector,
 } from '../selectors'
 import Text from '../components/Text'
+import Link from '../components/Link'
 import Messages from '../components/Messages'
 import SearchMessages from '../components/SearchMessages'
 import SearchInput from './SearchInput'
@@ -83,9 +84,9 @@ class Channel extends React.Component {
                 <div className='hamburger-inner'></div>
               </div>
             </div>
-            <div className='search-icon' onClick={this.onSearchIconClick}>
+            <Link className='search-icon' onClick={this.onSearchIconClick}>
               <img src={searchSvg} alt='' />
-            </div>
+            </Link>
 
             <h2 className={nameClasses} onClick={this.onNameClick}>
               {this.props.channel.name}
@@ -109,7 +110,10 @@ class Channel extends React.Component {
         </div>
 
         <div className='sidebar' onClick={this.onSidebarClick}>
-          <Users groupedUsers={this.props.groupedUsers} />
+          <Users
+            groupedUsers={this.props.groupedUsers}
+            channel={this.props.channel}
+          />
         </div>
       </div>
     )

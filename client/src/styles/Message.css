@@ -16,9 +16,6 @@
   cursor: pointer;
 }
 
-#channel .message .nick {
-  font-size: 16px;
-}
 #channel .message .text {
   font-size: 15px;
   overflow-wrap: break-word;

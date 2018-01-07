@@ -20,7 +20,7 @@ class SearchInput extends React.Component {
     return (
       <div className='SearchInput'>
         <input
-          className='nick'
+          className='nick-input'
           placeholder='Nick'
           value={this.props.query.nick || ''}
           onChange={ev => this.props.inputSearch({ nick: ev.target.value })}
@@ -28,7 +28,7 @@ class SearchInput extends React.Component {
         />
         <input
           ref={this.onInputRef}
-          className='text'
+          className='text-input'
           placeholder='Search Text'
           value={this.props.query.text || ''}
           onChange={ev => this.props.inputSearch({ text: ev.target.value })}

@@ -16,8 +16,9 @@
   line-height: 2;
 }
 
-#front h2 {
-  cursor: pointer;
-  display: inline;
+#front .channel a {
+  display: inline-block;
+  font-size: 24px;
   line-height: 2;
+  cursor: pointer;
 }

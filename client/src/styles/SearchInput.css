@@ -11,13 +11,13 @@
   border: 1px solid #cacaca;
   outline: none;
 }
-.SearchInput .nick {
+.SearchInput .nick-input {
   flex: 0 0 auto;
   width: 120px;
   margin-right: 10px;
   text-align: right;
 }
-.SearchInput .text {
+.SearchInput .text-input {
   flex: 1 0 auto;
 }
 
