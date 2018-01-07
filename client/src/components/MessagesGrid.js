@@ -6,10 +6,12 @@ import { connect } from 'react-redux'
 import { isSameDay, isSameYear, getDaysBetween, getStartOfDay } from '../utils'
 import {
   hasReachedBeginningSelector, searchHighlightsSelector,
-  isSearchOpenSelector, isSearchOutdatedSelector, isSearchIntroSelector, isSearchNotFoundSelector,
+  isSearchOpenSelector, isSearchIntroSelector, isSearchNotFoundSelector,
 } from '../selectors'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
+
+import '../styles/MessagesGrid.css'
 
 const DayHeader = ({ text, date }) => {
   return (
@@ -28,7 +30,7 @@ const DayHeader = ({ text, date }) => {
 const MessagesGrid = props => {
   const {
     children, messages, activeMessage, isViewingArchive, hasReachedBeginning, isSubscribedToMessages,
-    searchHighlights, isSearchOpen, isSearchOutdated, isSearchIntro, isSearchNotFound,
+    searchHighlights, isSearchOpen, isSearchIntro, isSearchNotFound,
   } = props
 
   if (isSearchIntro || isSearchNotFound) {
@@ -38,9 +40,7 @@ const MessagesGrid = props => {
   const now = new Date()
 
   const isTopLoading = (
-    isSearchOpen
-    ? !messages.length || !hasReachedBeginning || isSearchOutdated
-    : !messages.length || !hasReachedBeginning
+    !hasReachedBeginning
   )
   const isBottomLoading = (
     isSearchOpen
@@ -51,7 +51,7 @@ const MessagesGrid = props => {
   let startOfDay, dayText
 
   return (
-    <div className='messages'>
+    <div className='messages-grid'>
       {isTopLoading ? <Loader /> : null}
 
       {_.map(messages, (message, i) => {
@@ -130,7 +130,6 @@ const mapStateToProps = (state, props) => ({
   isSubscribedToMessages: state.isSubscribedToMessages[state.channelName],
   searchHighlights: searchHighlightsSelector(state),
   isSearchOpen: isSearchOpenSelector(state),
-  isSearchOutdated: isSearchOutdatedSelector(state),
   isSearchIntro: isSearchIntroSelector(state),
   isSearchNotFound: isSearchNotFoundSelector(state),
 })

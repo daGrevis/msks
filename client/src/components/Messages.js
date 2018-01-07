@@ -11,6 +11,7 @@ import {
 } from '../selectors'
 import Scroller from './Scroller'
 import MessagesGrid from './MessagesGrid'
+import Loader from '../components/Loader'
 
 import scrollDownSvg from '../vectors/scroll-down.svg'
 
@@ -57,16 +58,17 @@ class Messages extends React.Component {
         }}
         stickToBottom={!this.props.isViewingArchive}
       >
-        <MessagesGrid
-          messages={this.props.messages}
-          activeMessage={this.props.activeMessage}
-        >
-          {!this.props.isViewingArchive ? null : (
-            <div className='scroll-icon' onClick={this.onScrollIconClick}>
-              <img src={scrollDownSvg} alt='' />
-            </div>
-          )}
-        </MessagesGrid>
+        {this.props.messages.length ? (
+          <MessagesGrid messages={this.props.messages} activeMessage={this.props.activeMessage}>
+            {!this.props.isViewingArchive ? null : (
+              <div className='scroll-icon' onClick={this.onScrollIconClick}>
+                <img src={scrollDownSvg} alt='' />
+              </div>
+            )}
+          </MessagesGrid>
+        ) : (
+          <Loader isTall />
+        )}
       </Scroller>
     )
   }

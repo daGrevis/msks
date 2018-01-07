@@ -8,17 +8,17 @@ import { saveLastScrollPosition } from '../actions'
 import '../styles/Scroller.css'
 
 const SCROLL_ACTIONS = {
-  toItem: 1,
-  adjustForTop: 2,
-  toBottom: 3,
-  restore: 4,
+  toItem: 'toItem',
+  adjustForTop: 'adjustForTop',
+  toBottom: 'toBottom',
+  restore: 'restore',
 }
 
-const isCloseToTop = node => node.scrollTop < window.innerHeight * 2
+const isCloseToTop = node => node.scrollTop < window.innerHeight
 
 const isCloseToBottom = node => (
   node.scrollHeight - (node.scrollTop + node.clientHeight)
-  < window.innerHeight * 2
+  < window.innerHeight
 )
 
 class Scroller extends React.Component {
@@ -28,6 +28,9 @@ class Scroller extends React.Component {
   scrollTop = null
 
   scrollAction = null
+
+  isScrollUpdated = false
+  isScrollingToMessage = false
 
   componentWillMount() {
     this.calculateScroll(null, this.props)
@@ -74,6 +77,7 @@ class Scroller extends React.Component {
 
     const hasReachedBottom = (
       this.node
+      && nextProps.items.length
       // May be 1px off due to native rounding.
       && this.node.scrollHeight - (this.scrollTop + this.node.clientHeight) <= 1
     )
@@ -103,11 +107,18 @@ class Scroller extends React.Component {
       this.onScroll()
     }
 
+    if (this.isScrollingToMessage) {
+      return
+    }
+
     switch (this.scrollAction) {
       case SCROLL_ACTIONS.toItem:
-        scrollIntoViewIfNeeded(document.getElementById(this.props.itemId), true, {
-          duration: 250,
-        })
+        const duration = 250
+        this.isScrollingToMessage = true
+        scrollIntoViewIfNeeded(document.getElementById(this.props.itemId), true, { duration })
+        setTimeout(() => {
+          this.isScrollingToMessage = false
+        }, duration)
         break
 
       case SCROLL_ACTIONS.adjustForTop:
@@ -116,7 +127,7 @@ class Scroller extends React.Component {
         this.node.scrollTop = (
           this.scrollTop + (this.node.scrollHeight - this.scrollHeight)
         )
-        this.node.style.overflow = ''
+        this.node.style.overflow = 'scroll'
         break
 
       case SCROLL_ACTIONS.toBottom:
@@ -131,6 +142,10 @@ class Scroller extends React.Component {
         break
     }
 
+    if (this.scrollAction) {
+      this.isScrollUpdated = true
+    }
+
     this.scrollAction = null
   }
 
@@ -138,8 +153,16 @@ class Scroller extends React.Component {
     this.node = node
   }
 
-  onDebouncedScroll = _.debounce(() => {
+  onThrottledScroll = _.throttle(() => {
     if (!this.node) {
+      return
+    }
+
+    if (!this.isScrollUpdated) {
+      return
+    }
+
+    if (this.isScrollingToMessage) {
       return
     }
 
@@ -155,10 +178,10 @@ class Scroller extends React.Component {
       id: this.props.id,
       position: Math.round(this.node.scrollTop),
     })
-  }, 100)
+  }, 250)
 
   onScroll = () => {
-    this.onDebouncedScroll()
+    this.onThrottledScroll()
   }
 
   render() {

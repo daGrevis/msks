@@ -4,10 +4,11 @@ import { connect } from 'react-redux'
 import { searchMessages } from '../actions'
 import {
   channelSelector, foundMessagesSelector,
-  searchQuerySelector, isSearchIntroSelector, isSearchNotFoundSelector,
+  searchQuerySelector, isSearchIntroSelector, isSearchNotFoundSelector, isSearchOutdatedSelector,
 } from '../selectors'
 import Scroller from './Scroller'
 import MessagesGrid from './MessagesGrid'
+import Loader from '../components/Loader'
 
 const Notice = props => (
   <div className='notice'>
@@ -32,17 +33,27 @@ class SearchMessages extends React.Component {
             query: this.props.searchQuery,
           })
         }}
-        stickToBottom={true}
+        stickToBottom
       >
-        {this.props.isSearchIntro ? (
-          <Notice>Start typing to search...</Notice>
-        ) : null}
-
-        {this.props.isSearchNotFound ? (
-          <Notice>Nothing was found...</Notice>
-        ) : null}
-
-        <MessagesGrid messages={this.props.messages} />
+        {(() => {
+          if (this.props.isSearchIntro) {
+            return (
+              <Notice>Start typing to search...</Notice>
+            )
+          } else if (this.props.isSearchNotFound) {
+            return (
+              <Notice>Nothing was found...</Notice>
+            )
+          } else if (this.props.isSearchOutdated) {
+            return (
+              <Loader isTall />
+            )
+          } else {
+            return (
+              <MessagesGrid messages={this.props.messages} />
+            )
+          }
+        })()}
       </Scroller>
     )
   }
@@ -54,6 +65,7 @@ const mapStateToProps = (state, props) => ({
   searchQuery: searchQuerySelector(state),
   isSearchIntro: isSearchIntroSelector(state),
   isSearchNotFound: isSearchNotFoundSelector(state),
+  isSearchOutdated: isSearchOutdatedSelector(state),
 })
 
 const mapDispatchToProps = {

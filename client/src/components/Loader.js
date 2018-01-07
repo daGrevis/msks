@@ -2,7 +2,7 @@ import React from 'react'
 
 import '../styles/Loader.css'
 
-export default () => (
+const LoaderAnimation = () =>
   <div className='loader loader-active'>
     <div className='loader-inner ball-pulse'>
       <div></div>
@@ -10,4 +10,13 @@ export default () => (
       <div></div>
     </div>
   </div>
+
+export default ({ isTall }) => (
+  isTall ? (
+    <div className='loader-tall'>
+      <LoaderAnimation />
+    </div>
+  ) : (
+    <LoaderAnimation />
+  )
 )

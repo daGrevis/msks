@@ -1,6 +1,5 @@
 .scroller {
-  display: flex;
-  flex: 1 1 auto;
+  height: 100%;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
 }
