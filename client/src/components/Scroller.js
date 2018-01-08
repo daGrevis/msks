@@ -118,6 +118,7 @@ class Scroller extends React.Component {
         scrollIntoViewIfNeeded(document.getElementById(this.props.itemId), true, { duration })
         setTimeout(() => {
           this.isScrollingToMessage = false
+          this.onScroll()
         }, duration)
         break
 
@@ -153,7 +154,7 @@ class Scroller extends React.Component {
     this.node = node
   }
 
-  onThrottledScroll = _.throttle(() => {
+  onScroll = () => {
     if (!this.node) {
       return
     }
@@ -178,15 +179,15 @@ class Scroller extends React.Component {
       id: this.props.id,
       position: Math.round(this.node.scrollTop),
     })
-  }, 250)
-
-  onScroll = () => {
-    this.onThrottledScroll()
   }
+
+  onThrottledScroll = _.throttle(() => {
+    this.onScroll()
+  }, 250)
 
   render() {
     return (
-      <div className='scroller' ref={this.onRef} onScroll={this.onScroll}>
+      <div className='scroller' ref={this.onRef} onScroll={this.onThrottledScroll}>
         {this.props.children}
       </div>
     )
