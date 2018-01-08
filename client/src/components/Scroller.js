@@ -128,7 +128,7 @@ class Scroller extends React.Component {
         this.node.scrollTop = (
           this.scrollTop + (this.node.scrollHeight - this.scrollHeight)
         )
-        this.node.style.overflow = 'scroll'
+        this.node.style.overflowY = 'scroll'
         break
 
       case SCROLL_ACTIONS.toBottom:
