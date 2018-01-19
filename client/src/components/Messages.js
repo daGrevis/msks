@@ -7,7 +7,7 @@ import {
   getMessages, getMessagesBefore, getMessagesAfter, getMessagesAround, leaveArchive
 } from '../actions'
 import {
-  routeSelector, channelSelector, messagesSelector, activeMessageSelector,
+  routeSelector, channelSelector, messagesSelector, activeMessageSelector, hasReachedBeginningSelector,
 } from '../selectors'
 import Scroller from './Scroller'
 import MessagesGrid from './MessagesGrid'
@@ -19,7 +19,7 @@ class Messages extends React.Component {
   componentWillMount() {
     if (this.props.route.params.messageId) {
       this.props.getMessagesAround(this.props.route.params.messageId)
-    } else {
+    } else if (!this.props.messages.length) {
       this.props.getMessages()
     }
   }
@@ -51,11 +51,22 @@ class Messages extends React.Component {
         items={this.props.messages}
         itemId={this.props.activeMessage ? this.props.activeMessage.id : null}
         onScrolledTop={() => {
+          if (this.props.hasReachedBeginning) {
+            return false
+          }
+
           this.props.getMessagesBefore()
+          return true
         }}
         onScrolledBottom={() => {
+          if (!this.props.isViewingArchive) {
+            return false
+          }
+
           this.props.getMessagesAfter()
+          return true
         }}
+        shouldRefireScrolledBottom={this.props.isSocketReconnected && this.props.isSocketConnected}
         stickToBottom={!this.props.isViewingArchive}
       >
         {this.props.messages.length ? (
@@ -80,6 +91,9 @@ const mapStateToProps = (state, props) => ({
   messages: messagesSelector(state),
   activeMessage: activeMessageSelector(state),
   isViewingArchive: state.isViewingArchive[state.channelName],
+  hasReachedBeginning: hasReachedBeginningSelector(state),
+  isSocketConnected: state.isSocketConnected,
+  isSocketReconnected: state.isSocketReconnected,
 })
 
 const mapDispatchToProps = {

@@ -19,7 +19,10 @@ const historyUpdater = handleActions({
 })
 
 const socketUpdater = handleActions({
+  SOCKET_CONNECTED: () => fp.set('isSocketConnected', true),
+
   SOCKET_DISCONNECTED: () => fp.pipe(
+    fp.set('isSocketConnected', false),
     fp.update('isSubscribedToChannels', fp.mapValues(() => false)),
     fp.update('isSubscribedToUsers', fp.mapValues(() => false)),
     fp.update('isSubscribedToMessages', fp.mapValues(() => false)),
@@ -27,6 +30,7 @@ const socketUpdater = handleActions({
   ),
 
   SOCKET_RECONNECTED: () => state => fp.pipe(
+    fp.set('isSocketReconnected', true),
     fp.set('resetChannels', true),
     fp.set('resetUsers', fp.mapValues(() => true, state.users)),
   )(state),

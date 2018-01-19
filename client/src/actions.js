@@ -1,4 +1,3 @@
-import Promise from 'bluebird'
 import fp from 'lodash/fp'
 import { createAction } from 'redux-actions'
 import * as qs from 'querystring'
@@ -13,10 +12,6 @@ import {
 } from './selectors'
 
 const MESSAGE_LIMIT = 150
-
-let getMessagesBeforePromise = Promise.resolve()
-let getMessagesAfterPromise = Promise.resolve()
-let searchMessagesPromise = Promise.resolve()
 
 const favico = new Favico({
   animation: 'none',
@@ -95,12 +90,6 @@ const subscribeToMessages = () => (dispatch, getState) => {
 const getMessages = () => async (dispatch, getState) => {
   const state = getState()
 
-  const messages = messagesSelector(state)
-
-  if (messages.length) {
-    return
-  }
-
   dispatch({
     type: 'GET_MESSAGES',
     payload: {
@@ -122,23 +111,9 @@ const getMessages = () => async (dispatch, getState) => {
 }
 
 const getMessagesBefore = () => async (dispatch, getState) => {
-  if (!getMessagesBeforePromise.isFulfilled()) {
-    return
-  }
-
   const state = getState()
 
-  const hasReachedBeginning = hasReachedBeginningSelector(state)
-
-  if (hasReachedBeginning) {
-    return
-  }
-
   const messages = messagesSelector(state)
-
-  if (!messages.length) {
-    return
-  }
 
   const firstMessage = fp.first(messages)
 
@@ -149,12 +124,11 @@ const getMessagesBefore = () => async (dispatch, getState) => {
     },
   })
 
-  getMessagesBeforePromise = http.get(`/api/messages/before/${firstMessage.id}`, {
+  const response = await http.get(`/api/messages/before/${firstMessage.id}`, {
     params: {
       limit: MESSAGE_LIMIT,
     },
   })
-  const response = await getMessagesBeforePromise
 
   dispatch({
     type: 'SET_MESSAGES_BEFORE',
@@ -163,21 +137,9 @@ const getMessagesBefore = () => async (dispatch, getState) => {
 }
 
 const getMessagesAfter = () => async (dispatch, getState) => {
-  if (!getMessagesAfterPromise.isFulfilled()) {
-    return
-  }
-
   const state = getState()
 
-  if (!state.isViewingArchive[state.channelName]) {
-    return
-  }
-
   const messages = messagesSelector(state)
-
-  if (!messages.length) {
-    return
-  }
 
   const lastMessage = fp.last(messages)
 
@@ -188,12 +150,11 @@ const getMessagesAfter = () => async (dispatch, getState) => {
     },
   })
 
-  getMessagesAfterPromise = http.get(`/api/messages/after/${lastMessage.id}`, {
+  const response = await http.get(`/api/messages/after/${lastMessage.id}`, {
     params: {
       limit: MESSAGE_LIMIT,
     },
   })
-  const response = await getMessagesAfterPromise
 
   dispatch({
     type: 'SET_MESSAGES_AFTER',
@@ -232,9 +193,7 @@ const leaveArchive = () => (dispatch, getState) => {
 
   history.push(href)
 
-  dispatch(
-    getMessages()
-  )
+  dispatch(getMessages())
 }
 
 const updateUnread = createAction('UPDATE_UNREAD')
@@ -312,10 +271,6 @@ const searchMessages = ({ query }) => async (dispatch, getState) => {
 
   const firstMessage = messages[0]
 
-  if (firstMessage && !searchMessagesPromise.isFulfilled()) {
-    return
-  }
-
   dispatch({
     type: 'SEARCH_MESSAGES',
     payload: {
@@ -326,7 +281,7 @@ const searchMessages = ({ query }) => async (dispatch, getState) => {
     },
   })
 
-  searchMessagesPromise = http.get('/api/messages/search', {
+  const response = await http.get('/api/messages/search', {
     params: {
       channel: state.channelName,
       text: query.text,
@@ -335,7 +290,6 @@ const searchMessages = ({ query }) => async (dispatch, getState) => {
       limit: MESSAGE_LIMIT,
     },
   })
-  const response = await searchMessagesPromise
 
   dispatch({
     type: 'FOUND_MESSAGES',

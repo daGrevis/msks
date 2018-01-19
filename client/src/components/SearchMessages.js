@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import { searchMessages } from '../actions'
 import {
-  channelSelector, foundMessagesSelector,
+  channelSelector, foundMessagesSelector, hasReachedBeginningSelector,
   searchQuerySelector, isSearchIntroSelector, isSearchNotFoundSelector, isSearchOutdatedSelector,
 } from '../selectors'
 import Scroller from './Scroller'
@@ -29,9 +29,14 @@ class SearchMessages extends React.Component {
         id={`search.${this.props.channel.name}`}
         items={this.props.messages}
         onScrolledTop={() => {
+          if (this.props.hasReachedBeginning) {
+            return false
+          }
+
           this.props.searchMessages({
             query: this.props.searchQuery,
           })
+          return true
         }}
         stickToBottom
       >
@@ -66,6 +71,7 @@ const mapStateToProps = (state, props) => ({
   isSearchIntro: isSearchIntroSelector(state),
   isSearchNotFound: isSearchNotFoundSelector(state),
   isSearchOutdated: isSearchOutdatedSelector(state),
+  hasReachedBeginning: hasReachedBeginningSelector(state),
 })
 
 const mapDispatchToProps = {

@@ -3,6 +3,9 @@ const initialState = {
 
   isVisible: true,
 
+  isSocketConnected: false,
+  isSocketReconnected: false,
+
   route: {
     path: '',
     params: {},

@@ -32,6 +32,11 @@ class Scroller extends React.Component {
   isScrollUpdated = false
   isScrollingToMessage = false
 
+  isItemAddedToTop = false
+  isItemAddedToBottom = false
+  isScrolledTopFired = false
+  isScrolledBottomFired = false
+
   componentWillMount() {
     this.calculateScroll(null, this.props)
   }
@@ -54,6 +59,37 @@ class Scroller extends React.Component {
       this.scrollTop = this.node.scrollTop
     }
 
+    if (prevProps && !prevProps.shouldRefireScrolledTop && nextProps.shouldRefireScrolledTop) {
+      this.isScrolledTopFired = false
+    }
+    if (prevProps && !prevProps.shouldRefireScrolledBottom && nextProps.shouldRefireScrolledBottom) {
+      this.isScrolledBottomFired = false
+    }
+
+    const prevItems = prevProps ? prevProps.items : []
+    const nextItems = nextProps.items
+
+    if (!nextItems.length) {
+      this.isScrollUpdated = false
+    }
+
+    this.isItemAddedToTop = !!(
+      (
+        nextItems.length
+        && prevItems.length
+        && prevItems[0].id !== nextItems[0].id
+      )
+      || (prevItems.length && !nextItems.length)
+    )
+    this.isItemAddedToBottom = !!(
+      (
+        nextItems.length
+        && prevItems.length
+        && prevItems[prevItems.length - 1].id !== nextItems[nextItems.length - 1].id
+      )
+      || (prevItems.length && !nextItems.length)
+    )
+
     const shouldScrollToItem = (
       prevProps
       && !prevProps.itemId
@@ -64,18 +100,12 @@ class Scroller extends React.Component {
       return
     }
 
-    const isItemAddedToTop = (
-      nextProps.items.length
-      && prevProps
-      && prevProps.items.length
-      && prevProps.items[0].id !== nextProps.items[0].id
-    )
-    if (isItemAddedToTop) {
+    if (this.isItemAddedToTop) {
       this.scrollAction = SCROLL_ACTIONS.adjustForTop
       return
     }
 
-    const hasReachedBottom = (
+    const hasReachedBottom = !!(
       this.node
       && nextProps.items.length
       // May be 1px off due to native rounding.
@@ -86,7 +116,10 @@ class Scroller extends React.Component {
       return
     }
 
-    const shouldRestore = !prevProps && nextProps.scrollPosition
+    const shouldRestore = !!(
+      !prevProps
+      && nextProps.scrollPosition
+    )
     if (shouldRestore) {
       this.scrollAction = SCROLL_ACTIONS.restore
       return
@@ -95,7 +128,7 @@ class Scroller extends React.Component {
 
   updateScroll = () => {
     const isScrollable = this.node.clientHeight !== this.node.scrollHeight
-    const shouldRescroll = (
+    const shouldRescroll = !!(
       this.props.items.length
       && (
         !isScrollable
@@ -103,9 +136,6 @@ class Scroller extends React.Component {
         || isCloseToBottom(this.node)
       )
     )
-    if (shouldRescroll) {
-      this.onScroll()
-    }
 
     if (this.isScrollingToMessage) {
       return
@@ -147,7 +177,20 @@ class Scroller extends React.Component {
       this.isScrollUpdated = true
     }
 
+    if (this.isItemAddedToTop) {
+      this.isItemAddedToTop = false
+      this.isScrolledTopFired = false
+    }
+    if (this.isItemAddedToBottom) {
+      this.isItemAddedToBottom = false
+      this.isScrolledBottomFired = false
+    }
+
     this.scrollAction = null
+
+    if (shouldRescroll) {
+      this.onScroll()
+    }
   }
 
   onRef = node => {
@@ -167,12 +210,24 @@ class Scroller extends React.Component {
       return
     }
 
-    if (this.props.onScrolledTop && isCloseToTop(this.node)) {
-      this.props.onScrolledTop()
+    const shouldFireScrolledTop = !!(
+      this.props.items.length
+      && this.props.onScrolledTop
+      && !this.isScrolledTopFired
+      && isCloseToTop(this.node)
+    )
+    if (shouldFireScrolledTop) {
+      this.isScrolledTopFired = this.props.onScrolledTop()
     }
 
-    if (this.props.onScrolledBottom && isCloseToBottom(this.node)) {
-      this.props.onScrolledBottom()
+    const shouldFireScrolledBottom = !!(
+      this.props.items.length
+      && this.props.onScrolledBottom
+      && !this.isScrolledBottomFired
+      && isCloseToBottom(this.node)
+    )
+    if (shouldFireScrolledBottom) {
+      this.isScrolledBottomFired = this.props.onScrolledBottom()
     }
 
     this.props.saveLastScrollPosition({
