@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { history } from '../history'
+import { push } from '../history'
 
 export default props =>
   <a
@@ -11,7 +11,7 @@ export default props =>
       if (props.onClick) {
         props.onClick()
       } else if (props.href) {
-        history.push(props.href)
+        push(props.href)
       }
     }}
   >

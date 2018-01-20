@@ -1,16 +1,15 @@
 import React from 'react'
-import { connect } from 'react-redux'
 
+import { push } from '../history'
 import { getColor } from '../colors'
-import { inputSearch } from '../actions'
 import Link from './Link'
 
 import '../styles/Nick.css'
 
-const Nick = ({ from, to, isOp, isVoiced, inputSearch }) =>
+const Nick = ({ from, to, isOp, isVoiced }) =>
   <Link
     onClick={() => {
-      inputSearch({ nick: from })
+      push(`${to}?search&`, { nick: from })
     }}
     className='nick strong'
     style={{ color: getColor(from) }}
@@ -20,8 +19,4 @@ const Nick = ({ from, to, isOp, isVoiced, inputSearch }) =>
     {from}
   </Link>
 
-const mapDispatchToProps = {
-  inputSearch,
-}
-
-export default connect(null, mapDispatchToProps)(Nick)
+export default Nick

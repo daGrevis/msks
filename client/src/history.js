@@ -1,5 +1,5 @@
 import createHistory from 'history/createBrowserHistory'
-import * as qs from 'querystring'
+import * as querystring from 'querystring'
 
 import config from './config'
 
@@ -25,11 +25,21 @@ const getQuery = loc => {
 
   const search = path.replace(/[^?]*\??/, '')
 
-  return qs.decode(search)
+  return querystring.decode(search)
+}
+
+const push = (path, query = {}) => {
+  history.push(path + querystring.encode(query))
+}
+
+const replace = (path, query = {}) => {
+  history.replace(path + querystring.encode(query))
 }
 
 export {
   history,
   getPathname,
   getQuery,
+  push,
+  replace,
 }

@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
 
@@ -17,10 +18,18 @@ const Notice = props => (
 )
 
 class SearchMessages extends React.Component {
+  searchMessages = _.throttle((query) => {
+    this.props.searchMessages({ query })
+  }, 1000)
+
   componentWillMount() {
-    this.props.searchMessages({
-      query: this.props.searchQuery,
-    })
+    this.searchMessages(this.props.searchQuery)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(this.props.searchQuery, nextProps.searchQuery)) {
+      this.searchMessages(nextProps.searchQuery)
+    }
   }
 
   render() {

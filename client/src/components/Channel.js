@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import { connect } from 'react-redux'
 
 import config from '../config'
-import { history } from '../history'
+import { push } from '../history'
 import { subscribeToUsers, toggleSearch, inputSearch } from '../actions'
 import {
   routeSelector, channelSelector, userCountSelector, groupedUsersSelector,
@@ -42,12 +42,12 @@ class Channel extends React.Component {
     const { channel, activeMessage, isSearchOpen } = this.props
 
     if (config.embedChannel) {
-      history.push('')
+      push('')
     } else {
       if (activeMessage || isSearchOpen) {
-        history.push(channel.name)
+        push(channel.name)
       } else {
-        history.push('')
+        push('')
       }
     }
   }

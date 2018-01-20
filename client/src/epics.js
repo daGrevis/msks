@@ -2,7 +2,7 @@ import fp from 'lodash/fp'
 import { combineEpics } from 'redux-observable'
 
 import {
-  socketReconnected, subscribeToChannels, subscribeToUsers, subscribeToMessages, searchMessages,
+  socketReconnected, subscribeToChannels, subscribeToUsers, subscribeToMessages,
   updateUnread, resetUnread, setFavicoBadge,
 } from './actions'
 
@@ -26,11 +26,6 @@ const subscribeToUsersEpic = action$ =>
 const subscribeToMessagesEpic = (action$, store) =>
   action$.ofType('client/CHANNEL_CHANGES')
     .map(() => subscribeToMessages())
-
-const searchEpic = (action$, store) =>
-  action$.ofType('INPUT_SEARCH')
-    .debounceTime(1000)
-    .map(({ payload }) => searchMessages({ query: payload }))
 
 const updateUnreadEpic = (action$, store) =>
   action$.ofType('client/ADD_MESSAGE')
@@ -58,7 +53,6 @@ const rootEpic = combineEpics(
   subscribeToChannelsEpic,
   subscribeToUsersEpic,
   subscribeToMessagesEpic,
-  searchEpic,
   updateUnreadEpic,
   setFavicoBadgeEpic,
   resetUnreadEpic,

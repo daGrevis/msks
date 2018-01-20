@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import { onlyUpdateForKeys } from 'recompose'
 
 import config from '../config'
-import { history } from '../history'
+import { push } from '../history'
 import Text from './Text'
 import Nick from './Nick'
 
@@ -77,17 +77,9 @@ const Message = onlyUpdateForKeys(['id', 'isActive', 'highlights'])(props => {
           title={format(date, 'YYYY-MM-DDTHH:mm:ssZ')}
           onClick={() => {
             if (config.embedChannel) {
-              if (!isActive) {
-                history.push(message.id)
-              } else {
-                history.push('')
-              }
+              push(isActive ? '' : message.id)
             } else {
-              if (!isActive) {
-                history.push(`${message.to}/${message.id}`)
-              } else {
-                history.push(message.to)
-              }
+              push(isActive ? message.to : `${message.to}/${message.id}`)
             }
           }}
         >

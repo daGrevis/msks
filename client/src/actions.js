@@ -1,14 +1,13 @@
 import fp from 'lodash/fp'
 import { createAction } from 'redux-actions'
-import * as qs from 'querystring'
 import Favico from 'favico.js'
 
 import config from './config'
 import http from './http'
-import { history } from './history'
+import { push, replace } from './history'
 import {
-  messagesSelector, hasReachedBeginningSelector,
-  foundMessagesSelector, isSearchOpenSelector, isSearchQueryEmptySelector, searchQuerySelector,
+  messagesSelector, foundMessagesSelector, searchQuerySelector,
+  isSearchOpenSelector, isSearchQueryEmptySelector,
 } from './selectors'
 
 const MESSAGE_LIMIT = 150
@@ -191,7 +190,7 @@ const leaveArchive = () => (dispatch, getState) => {
 
   const href = config.embedChannel ? '' : state.channelName
 
-  history.push(href)
+  push(href)
 
   dispatch(getMessages())
 }
@@ -216,17 +215,19 @@ const toggleSearch = () => (dispatch, getState) => {
   })
 
   const state = getState()
+
   const { channelName } = state
   const isOpen = isSearchOpenSelector(state)
 
   const search = isOpen ? '' : '?search'
   const href = config.embedChannel ? search : `${channelName}${search}`
 
-  history.push(href)
+  push(href)
 }
 
 const inputSearch = query => (dispatch, getState) => {
   const state = getState()
+
   const { channelName } = state
   const prevQuery = searchQuerySelector(state)
 
@@ -240,28 +241,18 @@ const inputSearch = query => (dispatch, getState) => {
     payload: nextQuery,
   })
 
-  const search = (
-    '?search'
-    + (!fp.isEmpty(nextQuery) ? '&' : '')
-    + qs.encode(nextQuery)
-  )
-  const href = config.embedChannel ? search : `${channelName}${search}`
+  let path = '?search' + (!fp.isEmpty(nextQuery) ? '&' : '')
+  path = config.embedChannel ? path : `${channelName}${path}`
 
   if (fp.isEmpty(prevQuery)) {
-    history.push(href)
+    push(path, nextQuery)
   } else {
-    history.replace(href)
+    replace(path, nextQuery)
   }
 }
 
 const searchMessages = ({ query }) => async (dispatch, getState) => {
   const state = getState()
-
-  const hasReachedBeginning = hasReachedBeginningSelector(state)
-
-  if (hasReachedBeginning) {
-    return
-  }
 
   if (isSearchQueryEmptySelector(state)) {
     return

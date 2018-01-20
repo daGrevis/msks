@@ -1,13 +1,13 @@
 import React from 'react'
 
-import { history } from '../history'
+import { push } from '../history'
 
 import '../styles/NotFound.css'
 
 const NotFound = () => (
   <div
     className='NotFound'
-    onClick={() => history.push('')}
+    onClick={() => push('')}
   >
     404
   </div>
