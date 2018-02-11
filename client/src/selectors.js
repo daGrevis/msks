@@ -9,7 +9,7 @@ const querySelector = createSelector(
   fp.get('query')
 )
 
-const channelsSelector = state => state.channels || []
+const channelsSelector = fp.get('channels')
 
 const sortedChannelsSelector = createSelector(
   channelsSelector,
@@ -89,11 +89,11 @@ const activeMessageSelector = createSelector(
   )
 )
 
-const allUsersSelector = state => state.users || []
+const allUsersSelector = state => state.users || {}
 
 const usersSelector = createSelector(
   allUsersSelector, channelNameSelector,
-  (users, channelName) => users[channelName]
+  (allUsers, channelName) => allUsers[channelName]
 )
 
 const userCountSelector = createSelector(

@@ -40,7 +40,7 @@ const channelUpdater = handleActions({
   NAVIGATED: ({ payload }) => fp.set('channelName', (
     config.embedChannel
     ? config.embedChannel
-    : payload.params.channelName
+    : payload.params.channelName || null
   )),
 
   'client/CHANNEL_CHANGES': ({ payload: { changes }}) => state => fp.pipe(
@@ -145,7 +145,7 @@ const messagesUpdater = handleActions({
       ['messages', payload.to],
       messages => (
         !newerMessages.length
-        // It this is the latest message, append it.
+        // If there are no newer messages, append it.
         ? fp.concat(messages, payload)
         // If there are newer messages, insert the message in right place.
         : fp.concat(
