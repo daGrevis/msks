@@ -10,8 +10,6 @@ import {
   isSearchOpenSelector, isSearchQueryEmptySelector,
 } from './selectors'
 
-const MESSAGE_LIMIT = 150
-
 const favico = new Favico({
   animation: 'none',
   bgColor: '#e91e63',
@@ -99,7 +97,7 @@ const getMessages = () => async (dispatch, getState) => {
   const response = await http.get('/api/messages', {
     params: {
       channel: state.channelName,
-      limit: MESSAGE_LIMIT,
+      limit: 150,
     },
   })
 
@@ -125,7 +123,7 @@ const getMessagesBefore = () => async (dispatch, getState) => {
 
   const response = await http.get(`/api/messages/before/${firstMessage.id}`, {
     params: {
-      limit: MESSAGE_LIMIT,
+      limit: 150,
     },
   })
 
@@ -151,7 +149,7 @@ const getMessagesAfter = () => async (dispatch, getState) => {
 
   const response = await http.get(`/api/messages/after/${lastMessage.id}`, {
     params: {
-      limit: MESSAGE_LIMIT,
+      limit: 150,
     },
   })
 
@@ -171,7 +169,7 @@ const getMessagesAround = messageId => async dispatch => {
 
   const response = await http.get(`/api/messages/around/${messageId}`, {
     params: {
-      limit: MESSAGE_LIMIT * 2,
+      limit: 200,
     },
   })
 
@@ -278,7 +276,7 @@ const searchMessages = ({ query }) => async (dispatch, getState) => {
       text: query.text,
       nick: query.nick,
       messageId: firstMessage ? firstMessage.id : null,
-      limit: MESSAGE_LIMIT,
+      limit: 100,
     },
   })
 
