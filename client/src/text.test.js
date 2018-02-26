@@ -1,31 +1,25 @@
 import {
-  parse as parseWithOpts, tokenize as tokenizeWithOpts, createToken,
+  parse, tokenize, createToken, colorize, bold, italic, underline, logChars,
   COLOR_CHAR, BOLD_CHAR, ITALIC_CHAR, UNDERLINE_CHAR, RESET_CHAR,
-  colorize, bold, italic, underline, logChars,
 } from './text'
-
-const opts = { highlights: ['foo', 'bar'] }
-
-const tokenize = tokenizeWithOpts(opts)
-const parse = parseWithOpts(opts)
 
 describe('lexer', () => {
   const s = 'hello'
 
   it('tokenizes text', () => {
-    expect(tokenize(s))
+    expect(tokenize()(s))
       .toEqual([
         createToken('text', s),
       ])
   })
 
   it('tokenizes links', () => {
-    expect(tokenize('http://dagrev.is'))
+    expect(tokenize()('http://dagrev.is'))
       .toEqual([
         createToken('link', 'http://dagrev.is'),
       ])
 
-    expect(tokenize('http://dagrev.is & http://dagrevis.lv'))
+    expect(tokenize()('http://dagrev.is & http://dagrevis.lv'))
       .toEqual([
         createToken('link', 'http://dagrev.is'),
         createToken('text', ' & '),
@@ -34,13 +28,13 @@ describe('lexer', () => {
   })
 
   it('tokenizes colors', () => {
-    expect(tokenize(colorize([4], s)))
+    expect(tokenize()(colorize([4], s)))
       .toEqual([
         createToken('foreground', 4),
         createToken('text', s),
       ])
 
-    expect(tokenize(colorize([4, 1], s) + ' ' + colorize([2], s)))
+    expect(tokenize()(colorize([4, 1], s) + ' ' + colorize([2], s)))
       .toEqual([
         createToken('foreground', 4),
         createToken('background', 1),
@@ -51,13 +45,13 @@ describe('lexer', () => {
   })
 
   it('tokenizes resets', () => {
-    expect(tokenize(s + RESET_CHAR))
+    expect(tokenize()(s + RESET_CHAR))
       .toEqual([
         createToken('text', s),
         createToken('reset'),
       ])
 
-    expect(tokenize(colorize([4], s) + RESET_CHAR + ' world'))
+    expect(tokenize()(colorize([4], s) + RESET_CHAR + ' world'))
       .toEqual([
         createToken('foreground', 4),
         createToken('text', s),
@@ -67,14 +61,14 @@ describe('lexer', () => {
   })
 
   it('tokenizes styles', () => {
-    expect(tokenize(bold(s)))
+    expect(tokenize()(bold(s)))
       .toEqual([
         createToken('bold'),
         createToken('text', s),
         createToken('bold'),
       ])
 
-    expect(tokenize(`${bold('bold')}, ${italic('italic')} & ${underline('underline')}`))
+    expect(tokenize()(`${bold('bold')}, ${italic('italic')} & ${underline('underline')}`))
       .toEqual([
         createToken('bold'),
         createToken('text', 'bold'),
@@ -91,7 +85,9 @@ describe('lexer', () => {
   })
 
   it('tokenizes highlights', () => {
-    expect(tokenize('Foo and BAR'))
+    expect(tokenize({
+      highlights: '<highlight>Foo</highlight> and <highlight>BAR</highlight>',
+    })('Foo and BAR'))
       .toEqual([
         createToken('highlight', 'Foo'),
         createToken('text', ' and '),
@@ -102,32 +98,32 @@ describe('lexer', () => {
 
 describe('parser', () => {
   it('parses text', () => {
-    expect(parse('hello'))
+    expect(parse()('hello'))
       .toEqual([{ text: 'hello' }])
   })
 
   it('parses bold', () => {
-    expect(parse(bold('hello')))
+    expect(parse()(bold('hello')))
       .toEqual([{ text: 'hello', styles: ['bold'] }])
   })
 
   it('parses italic', () => {
-    expect(parse(italic('hello')))
+    expect(parse()(italic('hello')))
       .toEqual([{ text: 'hello', styles: ['italic'] }])
   })
 
   it('parses underline', () => {
-    expect(parse(underline('hello')))
+    expect(parse()(underline('hello')))
       .toEqual([{ text: 'hello', styles: ['underline'] }])
   })
 
   it('parses bold/italic', () => {
-    expect(parse(bold(italic('hello'))))
+    expect(parse()(bold(italic('hello'))))
       .toEqual([{ text: 'hello', styles: ['bold', 'italic'] }])
   })
 
   it('parses bold/italic & underline', () => {
-    expect(parse(`${bold(italic('hello'))} ${underline('world')}`))
+    expect(parse()(`${bold(italic('hello'))} ${underline('world')}`))
       .toEqual([
         { text: 'hello', styles: ['bold', 'italic'] },
         { text: ' ' },
@@ -136,7 +132,7 @@ describe('parser', () => {
   })
 
   it('parses bold & more bold', () => {
-    expect(parse(`${bold('bold')} & ${bold('more bold')}`))
+    expect(parse()(`${bold('bold')} & ${bold('more bold')}`))
       .toEqual([
         { text: 'bold', styles: ['bold'] },
         { text: ' & ' },
@@ -145,12 +141,12 @@ describe('parser', () => {
   })
 
   it('parses foreground', () => {
-    expect(parse(colorize([4], 'hello')))
+    expect(parse()(colorize([4], 'hello')))
       .toEqual([{ text: 'hello', foreground: 4 }])
   })
 
   it('parses foreground & background', () => {
-    expect(parse(colorize([4, 7], 'hello')))
+    expect(parse()(colorize([4, 7], 'hello')))
       .toEqual([{ text: 'hello', foreground: 4, background: 7 }])
   })
 
@@ -158,7 +154,7 @@ describe('parser', () => {
     const s = (
       colorize([4], 'r') + colorize([3], 'g') + colorize([2], 'b')
     )
-    expect(parse(s))
+    expect(parse()(s))
       .toEqual([
         { text: 'r', foreground: 4 },
         { text: 'g', foreground: 3 },
@@ -167,12 +163,12 @@ describe('parser', () => {
   })
 
   it('parses foreground & bold', () => {
-    expect(parse(colorize([4], bold('hello'))))
+    expect(parse()(colorize([4], bold('hello'))))
       .toEqual([{ text: 'hello', foreground: 4, styles: ['bold'] }])
   })
 
   it('parses link', () => {
-    expect(parse('https://developers.lv/')).toEqual([
+    expect(parse()('https://developers.lv/')).toEqual([
       { text: 'https://developers.lv/', isLink: true },
     ])
   })
@@ -180,7 +176,7 @@ describe('parser', () => {
   it('parses bold, red link', () => {
     const link = 'http://dagrev.is/'
     const s = `blog at ${bold(colorize([4], link))}`
-    expect(parse(s)).toEqual([
+    expect(parse()(s)).toEqual([
       { text: 'blog at ' },
       { text: link, isLink: true, foreground: 4, styles: ['bold'] },
     ])
@@ -191,7 +187,7 @@ describe('parser', () => {
       colorize([3, 1], 'x')
       + colorize([4], 'mas')
     )
-    expect(parse(s))
+    expect(parse()(s))
       .toEqual([
         { text: 'x', foreground: 3, background: 1 },
         { text: 'mas', foreground: 4, background: 1 },
@@ -206,7 +202,7 @@ describe('parser', () => {
       + RESET_CHAR
       + 'y'
     )
-    expect(parse(s))
+    expect(parse()(s))
       .toEqual([
         { text: 'x', foreground: 4, styles: ['bold', 'italic', 'underline'] },
         { text: 'y' },
@@ -214,7 +210,9 @@ describe('parser', () => {
   })
 
   it('parses highlight', () => {
-    expect(parse('foo'))
+    expect(parse({
+      highlights: '<highlight>foo</highlight>',
+    })('foo'))
       .toEqual([
         { text: 'foo', isHighlight: true },
       ])

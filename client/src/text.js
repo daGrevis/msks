@@ -117,7 +117,7 @@ const applyTokenizer = tokenizerFn => fp.pipe([
   fp.flatten,
 ])
 
-const tokenize = ({ highlights }) => fp.pipe([
+const tokenize = ({ highlights } = {}) => fp.pipe([
   input => [createToken('text', highlights ? highlights : input)],
   highlights ? applyTokenizer(tokenizeHighlights) : fp.identity,
   applyTokenizer(tokenizeColors),
@@ -200,7 +200,7 @@ const fragmentize = () => tokens => fp.reduce((prev, token) => {
   }
 }, { fragments: [] }, tokens).fragments
 
-const parse = opts => input => {
+const parse = (opts = {}) => input => {
   const tokens = tokenize(opts)(input)
   const fragments = fragmentize(opts)(tokens)
 
