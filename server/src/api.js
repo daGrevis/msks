@@ -162,10 +162,13 @@ const searchMessages = async (channel, query, limit, messageId) => {
   const results = await elasticQueries.searchMessages(channel, query, limit, afterTimestamp)
 
   let messages = await rethinkQueries.getMessagesByIds(fp.map('_id', results.hits))
-  messages = fp.map(message => ({
-    ...message,
-    highlights: fp.find({ _id: message.id }, results.hits).highlight.text[0],
-  }), messages)
+  messages = fp.map(message => {
+    const hit = fp.find({ _id: message.id }, results.hits)
+    return {
+      ...message,
+      highlights: hit.highlight ? hit.highlight.text[0] : undefined,
+    }
+  }, messages)
 
   return {
     messages,
