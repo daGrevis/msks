@@ -68,6 +68,7 @@ const searchMessages = async (channel, query, limit, afterTimestamp) => {
       pre_tags: ['<highlight>'],
       post_tags: ['</highlight>'],
       fields: { text: {}},
+      number_of_fragments: 0,
     },
   }
 
