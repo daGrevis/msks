@@ -64,6 +64,11 @@ const searchMessages = async (channel, query, limit, afterTimestamp) => {
         ],
       },
     },
+    highlight: {
+      pre_tags: ['<highlight>'],
+      post_tags: ['</highlight>'],
+      fields: { text: {}},
+    },
   }
 
   if (afterTimestamp) {

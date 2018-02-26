@@ -42,6 +42,19 @@ const createToken = (type, payload) => {
   return { type, payload }
 }
 
+const tokenizeHighlights = token => {
+  const splits = fp.split(/<highlight>(.+?)<\/highlight>/, token.payload)
+
+  return fp.pipe([
+    fp.chunk(2),
+    fp.map(([text, highlight]) => fp.reject(fp.isUndefined, [
+      text ? createToken('text', text) : undefined,
+      highlight ? createToken('highlight', highlight) : undefined,
+    ])),
+    fp.flatten,
+  ])(splits)
+}
+
 const tokenizeLinks = token => {
   const splits = fp.split(/(\S+:\/\/\S+)/, token.payload)
 
@@ -70,30 +83,6 @@ const tokenizeColors = token => {
     ])),
     fp.flatten,
   ])(token.payload)
-}
-
-const tokenizeHighlights = highlights => token => {
-  if (!highlights || !highlights.length) {
-    return token
-  }
-
-  const escapedHighlights = fp.map(fp.escapeRegExp, highlights)
-  const pattern = new RegExp(`(${escapedHighlights.join('|')})`, 'i')
-
-  const splits = fp.split(pattern, token.payload)
-
-  if (splits.length === 1) {
-    return token
-  }
-
-  return fp.pipe([
-    fp.chunk(2),
-    fp.map(([s, highlight]) => fp.reject(fp.isUndefined, [
-      s ? createToken('text', s) : undefined,
-      highlight ? createToken('highlight', highlight) : undefined,
-    ])),
-    fp.flatten,
-  ])(splits)
 }
 
 const createTokenizer = (type, pattern) => token => {
@@ -129,14 +118,14 @@ const applyTokenizer = tokenizerFn => fp.pipe([
 ])
 
 const tokenize = ({ highlights }) => fp.pipe([
-  input => [createToken('text', input)],
+  input => [createToken('text', highlights ? highlights : input)],
+  highlights ? applyTokenizer(tokenizeHighlights) : fp.identity,
   applyTokenizer(tokenizeColors),
   applyTokenizer(tokenizeResets),
   applyTokenizer(tokenizeBolds),
   applyTokenizer(tokenizeItalics),
   applyTokenizer(tokenizeUnderlines),
   applyTokenizer(tokenizeLinks),
-  applyTokenizer(tokenizeHighlights(highlights)),
 ])
 
 const fragmentize = () => tokens => fp.reduce((prev, token) => {

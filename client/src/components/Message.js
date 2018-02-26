@@ -11,15 +11,15 @@ import Nick from './Nick'
 
 import '../styles/Message.css'
 
-const MessageText = ({ message, highlights }) => {
+const MessageText = ({ message }) => {
   let text
   switch (message.kind) {
     case 'message':
     case 'notice':
-      text = <Text highlights={highlights}>{message.text}</Text>
+      text = <Text highlights={message.highlights}>{message.text}</Text>
       break
     case 'action':
-      text = <span><Nick {...message} /> <Text highlights={highlights}>{message.text}</Text></span>
+      text = <span><Nick {...message} /> <Text highlights={message.highlights}>{message.text}</Text></span>
       break
     case 'join':
       text = <span><Nick {...message} /> joined</span>
@@ -58,8 +58,8 @@ const MessageText = ({ message, highlights }) => {
   )
 }
 
-const Message = onlyUpdateForKeys(['id', 'isActive', 'highlights'])(props => {
-  const { message, date, isFirst, isActive, highlights } = props
+const Message = onlyUpdateForKeys(['id', 'isActive'])(props => {
+  const { message, date, isFirst, isActive } = props
 
   const messageClasses = classNames('message', `kind-${message.kind}`, {
     'is-first': isFirst,
@@ -88,7 +88,7 @@ const Message = onlyUpdateForKeys(['id', 'isActive', 'highlights'])(props => {
         {isNickVisible ? <Nick {...message} /> : null}
       </div>
 
-      <MessageText message={message} highlights={highlights} />
+      <MessageText message={message} />
     </div>
   )
 })
