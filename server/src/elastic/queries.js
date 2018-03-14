@@ -28,12 +28,19 @@ const indexMessages = messages => {
   })
 }
 
+const PHRASE_SEARCH_DELIMETER_PAIRS = [
+  ['"', '"'],
+  ['\'', '\''],
+  ['“', '”'],
+  ['‘', '’'],
+]
+
 const searchMessages = async (channel, query, limit, afterTimestamp) => {
   const { text, nick } = query
 
-  const isPhraseSearch = fp.some(delimeter => (
-    fp.startsWith(delimeter, text) && fp.endsWith(delimeter, text)
-  ), ['"', '\''])
+  const isPhraseSearch = fp.some(([startDelimeter, endDelimeter]) => (
+    fp.startsWith(startDelimeter, text) && fp.endsWith(endDelimeter, text)
+  ), PHRASE_SEARCH_DELIMETER_PAIRS)
   const phraseText = isPhraseSearch ? text.slice(1, -1) : null
 
   let body = {
