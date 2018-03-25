@@ -101,7 +101,18 @@ const messagesUpdater = handleActions({
   SET_MESSAGES_AFTER: ({ payload }) => fp.pipe(
     fp.update(
       ['messages', payload.channel],
-      currentMessages => fp.concat(currentMessages, payload.messages)
+      currentMessages => {
+        // For some reason, on rare occasions, SET_MESSAGES_AFTER action is dispatched twice when reconnecting.
+        // It should not happen and I can't reproduce it. Nevertheless, it happens.
+        // Quick-fix below should prevent duplicate messages.
+        const firstMessage = payload.messages.length ? payload.messages[0] : null
+        if (firstMessage && fp.find({ id: firstMessage.id }, currentMessages)) {
+          console.log('SET_MESSAGES_AFTER with duplicate messages')
+          return currentMessages
+        }
+
+        return fp.concat(currentMessages, payload.messages)
+      },
     ),
     fp.set(
       ['isViewingArchive', payload.channel],
