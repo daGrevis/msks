@@ -21,3 +21,8 @@
   flex: 1 0 auto;
 }
 
+@media screen and (min-width: 667px) {
+  .SearchInput .nick-input {
+    width: 160px;
+  }
+}

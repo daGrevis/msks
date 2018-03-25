@@ -58,6 +58,13 @@
   font-style: italic;
 }
 
+#channel .message .meta .author {
+  visibility: hidden;
+}
+#channel .message.kind-message .meta .author, #channel .message.kind-notice .meta .author {
+  visibility: visible;
+}
+
 @media screen and (max-width: 374px) {
   #channel .message.is-first {
     margin-top: 5px;
@@ -78,8 +85,13 @@
   #channel .message .meta .timestamp {
     padding-top: 5px;
   }
-  #channel .message .meta .nick {
-    padding-right: 5px
+  #channel .message .meta .author {
+    display: none;
+  }
+
+  #channel .message.kind-message .meta .author, #channel .message.kind-notice .meta .author {
+    padding-right: 5px;
+    display: block;
   }
 }
 
@@ -94,7 +106,6 @@
   }
 
   #channel .message .meta {
-    width: 120px;
     display: flex;
     flex: 0 0 auto;
     justify-content: space-between;
@@ -105,12 +116,22 @@
     padding-top: 4px;
     margin-right: 8px;
   }
-  #channel .message .meta .nick {
+  #channel .message .meta .author {
+    text-align: right;
+    width: 80px;
+  }
+  #channel .message .meta .author {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   #channel .message .text {
     padding-top: 2px;
+  }
+}
+
+@media screen and (min-width: 667px) {
+  #channel .message .meta .author {
+    width: 120px;
   }
 }

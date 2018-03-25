@@ -67,8 +67,6 @@ const Message = onlyUpdateForKeys(['id', 'isActive'])(props => {
     'is-active': isActive,
   })
 
-  const isNickVisible = message.kind === 'message' || message.kind === 'notice'
-
   return (
     <div id={isActive ? message.id : null} className={messageClasses}>
       <div className='meta'>
@@ -85,7 +83,10 @@ const Message = onlyUpdateForKeys(['id', 'isActive'])(props => {
         >
           {format(date, 'HH:mm')}
         </span>
-        {isNickVisible ? <Nick {...message} /> : null}
+
+        <span className='author'>
+          <Nick {...message} />
+        </span>
       </div>
 
       <MessageText message={message} />
