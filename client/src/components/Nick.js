@@ -1,5 +1,6 @@
 import React from 'react'
 
+import config from '../config'
 import { push } from '../history'
 import { getColor } from '../colors'
 import Link from './Link'
@@ -9,7 +10,7 @@ import '../styles/Nick.css'
 const Nick = ({ from, to, isOp, isVoiced }) =>
   <Link
     onClick={() => {
-      push(`${to}?search&`, { nick: from })
+      push(`${config.embedChannel ? '' : to}?search&`, { nick: from })
     }}
     className='nick strong'
     style={{ color: getColor(from) }}
