@@ -29,11 +29,11 @@ const getQuery = loc => {
 }
 
 const push = (path, query = {}) => {
-  history.push(path + querystring.encode(query))
+  history.push('/' + path + querystring.encode(query))
 }
 
 const replace = (path, query = {}) => {
-  history.replace(path + querystring.encode(query))
+  history.replace('/' + path + querystring.encode(query))
 }
 
 export {
