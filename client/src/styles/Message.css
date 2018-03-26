@@ -120,7 +120,8 @@
     text-align: right;
     width: 80px;
   }
-  #channel .message .meta .author {
+  #channel .message .meta .author .nick {
+    display: block;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
