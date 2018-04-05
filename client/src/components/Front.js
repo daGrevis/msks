@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
 
-import titles from '../../../common/src/titles'
+import titles from '../common/titles'
 
 import { setTitle } from '../actions'
 import { sortedChannelsSelector } from '../selectors'
@@ -19,11 +19,11 @@ class Front extends React.Component {
   render() {
     return (
       <div id='front'>
-        <a href='https://github.com/daGrevis/msks' target='_blank'>
+        <a href='https://github.com/daGrevis/msks' target='_blank' rel='noopener noreferrer'>
           <img className='octocat' src={octocatSvg} alt='' />
         </a>
 
-        <a href='https://github.com/daGrevis/msks' target='_blank'>
+        <a href='https://github.com/daGrevis/msks' target='_blank' rel='noopener noreferrer'>
           <h1>msks</h1>
         </a>
 

@@ -1,5 +1,4 @@
 import Promise from 'bluebird'
-window.Promise = Promise
 import _ from 'lodash'
 import fp from 'lodash/fp'
 // eslint-disable-next-line no-unused-vars
@@ -10,7 +9,7 @@ import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import thunkMiddleware from 'redux-thunk'
 import { createEpicMiddleware } from 'redux-observable'
-import createLogger from 'redux-logger'
+import { createLogger } from 'redux-logger'
 import createSocketIoMiddleware from 'redux-socket.io'
 
 import router from './router'
@@ -31,12 +30,14 @@ import socket from './socket'
 
 import viewportUnitsBuggyfill from 'viewport-units-buggyfill'
 
-viewportUnitsBuggyfill.init()
-
 import 'loaders.css/loaders.min.css'
 import 'hamburgers/dist/hamburgers.min.css'
 
 import './index.css'
+
+window.Promise = Promise
+
+viewportUnitsBuggyfill.init()
 
 const socketMiddleware = createSocketIoMiddleware(socket, 'server/')
 
@@ -69,9 +70,7 @@ const onNavigated = async (location) => {
   const pathname = getPathname(location)
   const query = getQuery(location)
 
-  const { path, params, meta } = await router.resolve({
-    path: pathname,
-  })
+  const { context: { params }, path, meta } = await router.resolve({ pathname })
 
   dispatch(
     navigated({ path, params, meta, pathname, query })

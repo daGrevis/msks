@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import format from 'date-fns/format'
 import React from 'react'
 import classNames from 'classnames'

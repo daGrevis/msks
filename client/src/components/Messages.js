@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import titles from '../../../common/src/titles'
+import titles from '../common/titles'
 import { setTitle } from '../actions'
 import {
   getMessages, getMessagesBefore, getMessagesAfter, getMessagesAround, leaveArchive
