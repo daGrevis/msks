@@ -1,3 +1,5 @@
+import history from './history'
+
 const initialState = {
   isBroken: false,
 
@@ -7,6 +9,8 @@ const initialState = {
   isSocketReconnected: false,
 
   route: {
+    location: history.location,
+    action: 'PUSH',
     path: '',
     params: {},
     meta: {},
@@ -18,8 +22,6 @@ const initialState = {
     // 'messages.#developerslv': 123,
     // 'search.#developerslv': 234,
   },
-
-  channelName: null,
 
   channels: {
     // '##javascript': {

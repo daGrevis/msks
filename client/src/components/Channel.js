@@ -3,8 +3,7 @@ import classNames from 'classnames'
 import { connect } from 'react-redux'
 
 import config from '../config'
-import { push } from '../history'
-import { subscribeToUsers, toggleSearch, inputSearch } from '../actions'
+import { push, subscribeToUsers, toggleSearch, inputSearch } from '../actions'
 import {
   routeSelector, channelSelector, userCountSelector, groupedUsersSelector,
   isSearchOpenSelector, searchQuerySelector, activeMessageSelector,
@@ -38,15 +37,15 @@ class Channel extends React.Component {
   }
 
   onNameClick = () => {
-    const { channel, activeMessage, isSearchOpen } = this.props
+    const { channel, activeMessage, isSearchOpen, push } = this.props
 
     if (config.embedChannel) {
-      push('')
+      push('/')
     } else {
       if (activeMessage || isSearchOpen) {
-        push(channel.name)
+        push(`/${channel.name}`)
       } else {
-        push('')
+        push('/')
       }
     }
   }
@@ -121,7 +120,6 @@ class Channel extends React.Component {
 
 const mapStateToProps = (state, props) => {
   return {
-    isSubscribedToUsers: state.isSubscribedToUsers[state.channelName],
     channel: channelSelector(state),
     route: routeSelector(state),
     groupedUsers: groupedUsersSelector(state),
@@ -133,6 +131,7 @@ const mapStateToProps = (state, props) => {
 }
 
 const mapDispatchToProps = {
+  push,
   subscribeToUsers,
   toggleSearch,
   inputSearch,

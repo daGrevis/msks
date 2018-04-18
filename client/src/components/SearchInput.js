@@ -23,7 +23,9 @@ class SearchInput extends React.Component {
           className='nick-input'
           placeholder='Nick'
           value={this.props.query.nick || ''}
-          onChange={ev => this.props.inputSearch({ nick: ev.target.value })}
+          onChange={ev => {
+            this.props.inputSearch({ nick: ev.target.value })
+          }}
           spellCheck={false}
         />
         <input
@@ -31,7 +33,9 @@ class SearchInput extends React.Component {
           className='text-input'
           placeholder='Search Text'
           value={this.props.query.text || ''}
-          onChange={ev => this.props.inputSearch({ text: ev.target.value })}
+          onChange={ev => {
+            this.props.inputSearch({ text: ev.target.value })
+          }}
           spellCheck={false}
         />
       </div>

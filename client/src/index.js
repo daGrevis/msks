@@ -12,7 +12,6 @@ import { createEpicMiddleware } from 'redux-observable'
 import { createLogger } from 'redux-logger'
 import createSocketIoMiddleware from 'redux-socket.io'
 
-import router from './router'
 import { initialState } from './state'
 import { rootReducer } from  './reducers'
 import { rootEpic } from './epics'
@@ -25,7 +24,7 @@ import * as selectors from './selectors'
 import { colorize, bold, italic, underline } from './text'
 import App from './components/App'
 
-import { history, getPathname, getQuery } from  './history'
+import history from  './history'
 import socket from './socket'
 
 import viewportUnitsBuggyfill from 'viewport-units-buggyfill'
@@ -66,21 +65,19 @@ window.addEventListener('error', () => {
   dispatch(setBroken())
 })
 
-const onNavigated = async (location) => {
-  const pathname = getPathname(location)
-  const query = getQuery(location)
-
-  const { context: { params }, path, meta } = await router.resolve({ pathname })
-
+dispatch(
+  navigated({
+    location: history.location,
+    action: 'PUSH',
+  })
+)
+history.listen((location, action) => {
   dispatch(
-    navigated({ path, params, meta, pathname, query })
+    navigated({
+      location,
+      action,
+    })
   )
-}
-
-const initialLocation = history.location
-onNavigated(initialLocation)
-history.listen((currentLocation) => {
-  onNavigated(currentLocation)
 })
 
 socket.on('connect', () => {

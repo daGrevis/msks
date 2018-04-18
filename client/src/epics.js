@@ -1,6 +1,7 @@
 import fp from 'lodash/fp'
 import { combineEpics } from 'redux-observable'
 
+import { channelNameSelector } from './selectors'
 import {
   socketReconnected, subscribeToChannels, subscribeToUsers, subscribeToMessages,
   updateUnread, resetUnread, setFavicoBadge,
@@ -31,9 +32,10 @@ const updateUnreadEpic = (action$, store) =>
   action$.ofType('client/ADD_MESSAGE')
     .filter(({ payload: message }) => {
       const state = store.getState()
+
       return (
         !state.isVisible
-        && message.to === state.channelName
+        && message.to === channelNameSelector(state)
         && !fp.includes(message.kind, ['join', 'quit', 'part', 'nick'])
       )
     })

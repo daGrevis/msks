@@ -16,6 +16,7 @@
     "js-md5": "^0.7.3",
     "loaders.css": "^0.1.2",
     "lodash": "^4.17.5",
+    "path-to-regexp": "^2.2.0",
     "querystring": "0.2.0",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
@@ -32,7 +33,6 @@
     "rxjs": "^5.5.8",
     "scroll-into-view-if-needed": "^1.5.0",
     "socket.io-client": "^2.1.0",
-    "universal-router": "^6.0.0",
     "viewport-units-buggyfill": "^0.6.2"
   },
   "scripts": {

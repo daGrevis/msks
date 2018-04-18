@@ -7,7 +7,8 @@ import {
   getMessages, getMessagesBefore, getMessagesAfter, getMessagesAround, leaveArchive
 } from '../actions'
 import {
-  routeSelector, channelSelector, messagesSelector, activeMessageSelector, hasReachedBeginningSelector,
+  routeSelector, channelSelector, messagesSelector, activeMessageSelector,
+  isViewingArchiveSelector, hasReachedBeginningSelector,
 } from '../selectors'
 import Scroller from './Scroller'
 import MessagesGrid from './MessagesGrid'
@@ -90,7 +91,7 @@ const mapStateToProps = (state, props) => ({
   channel: channelSelector(state),
   messages: messagesSelector(state),
   activeMessage: activeMessageSelector(state),
-  isViewingArchive: state.isViewingArchive[state.channelName],
+  isViewingArchive: isViewingArchiveSelector(state),
   hasReachedBeginning: hasReachedBeginningSelector(state),
   isSocketConnected: state.isSocketConnected,
   isSocketReconnected: state.isSocketReconnected,

@@ -1,12 +1,13 @@
 import fp from 'lodash/fp'
+import * as querystring from 'querystring'
 import { createAction } from 'redux-actions'
 import Favico from 'favico.js'
 
 import config from './config'
 import http from './http'
-import { push, replace } from './history'
+import history from './history'
 import {
-  messagesSelector, foundMessagesSelector, searchQuerySelector,
+  channelNameSelector, messagesSelector, foundMessagesSelector, searchQuerySelector,
   isSearchOpenSelector, isSearchQueryEmptySelector,
 } from './selectors'
 
@@ -17,6 +18,38 @@ const favico = new Favico({
 
 const setBroken = createAction('SET_BROKEN')
 const setVisibility = createAction('SET_VISIBILITY')
+
+const navigated = createAction('NAVIGATED')
+
+const push = (pathname, query = {}) => dispatch => {
+  const search = querystring.encode(query)
+  const location = {
+    ...history.location,
+    pathname,
+    search,
+  }
+
+  dispatch({
+    type: 'PUSH',
+    payload: location,
+  })
+  history.push(pathname + search)
+}
+
+const replace = (pathname, query = {}) => dispatch => {
+  const search = querystring.encode(query)
+  const location = {
+    ...history.location,
+    pathname,
+    search,
+  }
+
+  dispatch({
+    type: 'REPLACE',
+    payload: location,
+  })
+  history.replace(pathname + search)
+}
 
 const saveLastScrollPosition = ({ id, position }) => (dispatch, getState) => {
   const state = getState()
@@ -41,8 +74,6 @@ const setTitle = title => dispatch => {
     document.title = title
   }
 }
-
-const navigated = createAction('NAVIGATED')
 
 const socketConnected = createAction('SOCKET_CONNECTED')
 const socketDisconnected = createAction('SOCKET_DISCONNECTED')
@@ -87,16 +118,18 @@ const subscribeToMessages = () => (dispatch, getState) => {
 const getMessages = () => async (dispatch, getState) => {
   const state = getState()
 
+  const channelName = channelNameSelector(state)
+
   dispatch({
     type: 'GET_MESSAGES',
     payload: {
-      channel: state.channelName,
+      channel: channelName,
     },
   })
 
   const response = await http.get('/api/messages', {
     params: {
-      channel: state.channelName,
+      channel: channelName,
       limit: 150,
     },
   })
@@ -186,9 +219,11 @@ const leaveArchive = () => (dispatch, getState) => {
 
   const state = getState()
 
-  const href = config.embedChannel ? '' : state.channelName
+  const channelName = channelNameSelector(state)
 
-  push(href)
+  dispatch(
+    push(`/${config.embedChannel ? '' : channelName}`)
+  )
 
   dispatch(getMessages())
 }
@@ -214,19 +249,21 @@ const toggleSearch = () => (dispatch, getState) => {
 
   const state = getState()
 
-  const { channelName } = state
+  const channelName = channelNameSelector(state)
   const isOpen = isSearchOpenSelector(state)
 
   const search = isOpen ? '' : '?search'
-  const href = config.embedChannel ? search : `${channelName}${search}`
+  const href = `/${config.embedChannel ? '' : channelName}${search}`
 
-  push(href)
+  dispatch(
+    push(href)
+  )
 }
 
 const inputSearch = query => (dispatch, getState) => {
   const state = getState()
 
-  const { channelName } = state
+  const channelName = channelNameSelector(state)
   const prevQuery = searchQuerySelector(state)
 
   const nextQuery = fp.omitBy(fp.isEmpty, {
@@ -239,13 +276,17 @@ const inputSearch = query => (dispatch, getState) => {
     payload: nextQuery,
   })
 
-  let path = '?search' + (!fp.isEmpty(nextQuery) ? '&' : '')
-  path = config.embedChannel ? path : `${channelName}${path}`
+  const search = '?search' + (!fp.isEmpty(nextQuery) ? '&' : '')
+  const href = `/${config.embedChannel ? '' : channelName}${search}`
 
   if (fp.isEmpty(prevQuery)) {
-    push(path, nextQuery)
+    dispatch(
+      push(href, nextQuery)
+    )
   } else {
-    replace(path, nextQuery)
+    dispatch(
+      replace(href, nextQuery)
+    )
   }
 }
 
@@ -256,6 +297,7 @@ const searchMessages = ({ query }) => async (dispatch, getState) => {
     return
   }
 
+  const channelName = channelNameSelector(state)
   const messages = foundMessagesSelector(state)
 
   const firstMessage = messages[0]
@@ -263,7 +305,7 @@ const searchMessages = ({ query }) => async (dispatch, getState) => {
   dispatch({
     type: 'SEARCH_MESSAGES',
     payload: {
-      channel: state.channelName,
+      channel: channelName,
       text: query.text,
       nick: query.nick,
       messageId: firstMessage ? firstMessage.id : null,
@@ -272,7 +314,7 @@ const searchMessages = ({ query }) => async (dispatch, getState) => {
 
   const response = await http.get('/api/messages/search', {
     params: {
-      channel: state.channelName,
+      channel: channelName,
       text: query.text,
       nick: query.nick,
       messageId: firstMessage ? firstMessage.id : null,
@@ -289,9 +331,11 @@ const searchMessages = ({ query }) => async (dispatch, getState) => {
 export {
   setBroken,
   setVisibility,
+  navigated,
+  push,
+  replace,
   saveLastScrollPosition,
   setTitle,
-  navigated,
   socketConnected,
   socketDisconnected,
   socketReconnected,

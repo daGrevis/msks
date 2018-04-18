@@ -5,8 +5,8 @@ import { connect } from 'react-redux'
 
 import { isSameDay, isSameYear, getDaysBetween, getStartOfDay } from '../utils'
 import {
-  hasReachedBeginningSelector, searchHighlightsSelector,
-  isSearchOpenSelector, isSearchIntroSelector, isSearchNotFoundSelector,
+  isViewingArchiveSelector, hasReachedBeginningSelector, isSubscribedToMessagesSelector,
+  searchHighlightsSelector, isSearchOpenSelector, isSearchIntroSelector, isSearchNotFoundSelector,
 } from '../selectors'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
@@ -125,9 +125,9 @@ const MessagesGrid = props => {
 const mapStateToProps = (state, props) => ({
   messages: props.messages,
   activeMessage: props.activeMessage,
-  isViewingArchive: state.isViewingArchive[state.channelName],
+  isViewingArchive: isViewingArchiveSelector(state),
   hasReachedBeginning: hasReachedBeginningSelector(state),
-  isSubscribedToMessages: state.isSubscribedToMessages[state.channelName],
+  isSubscribedToMessages: isSubscribedToMessagesSelector(state),
   searchHighlights: searchHighlightsSelector(state),
   isSearchOpen: isSearchOpenSelector(state),
   isSearchIntro: isSearchIntroSelector(state),

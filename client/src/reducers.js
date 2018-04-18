@@ -1,8 +1,8 @@
 import fp from 'lodash/fp'
 import { handleActions, concat } from 'redux-fp'
 
-import config from './config'
-import { searchQuerySelector } from './selectors'
+import router from './router'
+import { channelNameSelector, searchQuerySelector } from './selectors'
 
 const appUpdater = handleActions({
   SET_BROKEN: () => fp.set('isBroken', true),
@@ -14,8 +14,19 @@ const appUpdater = handleActions({
   ),
 })
 
-const historyUpdater = handleActions({
-  NAVIGATED: ({ payload }) => fp.set('route', payload)
+const onNavigated = payload => state => {
+  const resolvedRoute = router.resolve(payload.location)
+
+  return fp.set('route', {
+    ...payload,
+    ...resolvedRoute,
+  }, state)
+}
+
+const routerUpdater = handleActions({
+  NAVIGATED: ({ payload }) => onNavigated(payload),
+  PUSH: ({ payload }) => onNavigated({ location: payload, action: 'PUSH '}),
+  REPLACE: ({ payload }) => onNavigated({ location: payload, action: 'REPLACE '}),
 })
 
 const socketUpdater = handleActions({
@@ -37,12 +48,6 @@ const socketUpdater = handleActions({
 })
 
 const channelUpdater = handleActions({
-  NAVIGATED: ({ payload }) => fp.set('channelName', (
-    config.embedChannel
-    ? config.embedChannel
-    : payload.params.channelName || null
-  )),
-
   'client/CHANNEL_CHANGES': ({ payload: { changes }}) => state => fp.pipe(
     fp.update('channels', prevChannels => {
       prevChannels = state.resetChannels ? {} : prevChannels
@@ -120,9 +125,9 @@ const messagesUpdater = handleActions({
     )
   ),
 
-  GET_MESSAGES_AROUND: () => state => fp.pipe(
-    fp.set(['messages', state.channelName], []),
-    fp.unset(['scrollPositions', `messages.${state.channelName}`])
+  GET_MESSAGES_AROUND: payload => state => fp.pipe(
+    fp.set(['messages', payload.channel], []),
+    fp.unset(['scrollPositions', `messages.${payload.channel}`])
   )(state),
   SET_MESSAGES_AROUND: ({ payload }) => fp.pipe(
     fp.set(['messages', payload.channel], payload.messages),
@@ -173,7 +178,7 @@ const messagesUpdater = handleActions({
     const { messages, channel, query, limit, messageId } = payload
 
     const isOutdated = (
-      channel !== state.channelName
+      channel !== channelNameSelector(state)
       || !fp.isEqual(query, searchQuerySelector(state))
     )
     if (isOutdated) {
@@ -193,11 +198,15 @@ const messagesUpdater = handleActions({
     }))(state)
   },
 
-  LEAVE_ARCHIVE: () => state => fp.pipe(
-    fp.set(['messages', state.channelName], []),
-    fp.set(['isViewingArchive', state.channelName], false),
-    fp.set(['hasReachedBeginning', state.channelName], false),
-  )(state),
+  LEAVE_ARCHIVE: () => state => {
+    const channelName = channelNameSelector(state)
+
+    return fp.pipe(
+      fp.set(['messages', channelName], []),
+      fp.set(['isViewingArchive', channelName], false),
+      fp.set(['hasReachedBeginning', channelName], false),
+    )(state)
+  },
 })
 
 const faviconUpdater = handleActions({
@@ -207,7 +216,7 @@ const faviconUpdater = handleActions({
 
 const rootReducer = (state, action) => concat(
   appUpdater,
-  historyUpdater,
+  routerUpdater,
   socketUpdater,
   channelUpdater,
   usersUpdater,

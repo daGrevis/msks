@@ -1,6 +1,8 @@
 import fp from 'lodash/fp'
 import { createSelector } from 'reselect'
 
+import config from './config'
+
 const routeSelector = fp.get('route')
 
 const querySelector = createSelector(
@@ -15,7 +17,10 @@ const sortedChannelsSelector = createSelector(
   fp.sortBy('name')
 )
 
-const channelNameSelector = fp.get('channelName')
+const channelNameSelector = createSelector(
+  routeSelector,
+  route => config.embedChannel ? config.embedChannel : route.params.channelName || null,
+)
 
 const channelSelector = createSelector(
   channelsSelector, channelNameSelector,
@@ -126,6 +131,16 @@ const hasReachedBeginningSelector = createSelector(
   )
 )
 
+const isSubscribedToMessagesSelector = createSelector(
+  fp.get('isSubscribedToMessages'), channelNameSelector,
+  (isSubscribedToMessages, channelName) => isSubscribedToMessages[channelName]
+)
+
+const isViewingArchiveSelector = createSelector(
+  fp.get('isViewingArchive'), channelNameSelector,
+  (isViewingArchive, channelName) => isViewingArchive[channelName]
+)
+
 export {
   routeSelector,
   channelsSelector,
@@ -149,4 +164,6 @@ export {
   groupedUsersSelector,
   isAppLoadingSelector,
   hasReachedBeginningSelector,
+  isSubscribedToMessagesSelector,
+  isViewingArchiveSelector,
 }

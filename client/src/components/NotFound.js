@@ -1,16 +1,14 @@
 import React from 'react'
 
-import { push } from '../history'
+import Link from './Link'
 
 import '../styles/NotFound.css'
 
-const NotFound = () => (
-  <div
-    className='NotFound'
-    onClick={() => push('')}
-  >
-    404
-  </div>
-)
+const NotFound =
+  <Link href='/'>
+    <div className='NotFound'>
+      404
+    </div>
+  </Link>
 
 export default NotFound

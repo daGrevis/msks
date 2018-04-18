@@ -30,7 +30,7 @@ class Scroller extends React.Component {
   scrollAction = null
 
   isScrollUpdated = false
-  isScrollingToMessage = false
+  isScrollingToItem = false
 
   isItemAddedToTop = false
   isItemAddedToBottom = false
@@ -137,17 +137,17 @@ class Scroller extends React.Component {
       )
     )
 
-    if (this.isScrollingToMessage) {
+    if (this.isScrollingToItem) {
       return
     }
 
     switch (this.scrollAction) {
       case SCROLL_ACTIONS.toItem:
         const duration = 250
-        this.isScrollingToMessage = true
+        this.isScrollingToItem = true
         scrollIntoViewIfNeeded(document.getElementById(this.props.itemId), true, { duration })
         setTimeout(() => {
-          this.isScrollingToMessage = false
+          this.isScrollingToItem = false
           this.onScroll()
         }, duration)
         break
@@ -206,7 +206,7 @@ class Scroller extends React.Component {
       return
     }
 
-    if (this.isScrollingToMessage) {
+    if (this.isScrollingToItem) {
       return
     }
 

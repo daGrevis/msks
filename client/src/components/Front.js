@@ -32,7 +32,7 @@ class Front extends React.Component {
             key={channel.name}
             className='channel'
           >
-            <Link href={channel.name} className='strong'>
+            <Link href={`/${channel.name}`} className='strong'>
               {channel.name}
             </Link>
           </div>

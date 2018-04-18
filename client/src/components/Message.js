@@ -2,9 +2,10 @@ import format from 'date-fns/format'
 import React from 'react'
 import classNames from 'classnames'
 import { onlyUpdateForKeys } from 'recompose'
+import { connect } from 'react-redux'
 
 import config from '../config'
-import { push } from '../history'
+import { push } from '../actions'
 import Text from './Text'
 import Nick from './Nick'
 
@@ -58,7 +59,7 @@ const MessageText = ({ message }) => {
 }
 
 const Message = onlyUpdateForKeys(['id', 'isActive'])(props => {
-  const { message, date, isFirst, isActive } = props
+  const { message, date, isFirst, isActive, push } = props
 
   const messageClasses = classNames('message', `kind-${message.kind}`, {
     'is-first': isFirst,
@@ -74,9 +75,9 @@ const Message = onlyUpdateForKeys(['id', 'isActive'])(props => {
           title={format(date, 'YYYY-MM-DDTHH:mm:ssZ')}
           onClick={() => {
             if (config.embedChannel) {
-              push(isActive ? '' : message.id)
+              push(`/${isActive ? '' : message.id}`)
             } else {
-              push(isActive ? message.to : `${message.to}/${message.id}`)
+              push(`/${message.to}${isActive ? '' : `/${message.id}`}`)
             }
           }}
         >
@@ -93,4 +94,8 @@ const Message = onlyUpdateForKeys(['id', 'isActive'])(props => {
   )
 })
 
-export default Message
+const mapDispatchToProps = {
+  push,
+}
+
+export default connect(null, mapDispatchToProps)(Message)
