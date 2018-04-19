@@ -30,7 +30,7 @@ router.get('/api/commands/ping', async ctx => {
 })
 
 router.get('/api/commands/echo/:params?', async ctx => {
-  ctx.body = await commands.onEcho({ params: ctx.params.params || '' })
+  ctx.body = await commands.onEcho({ input: ctx.params.params || '' })
 })
 
 router.get('/api/commands/uptime', async ctx => {
