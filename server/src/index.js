@@ -54,11 +54,6 @@ const ACTIONS = {
   'server/SUBSCRIBE_TO_CHANNELS': actions.subscribeToChannels,
   'server/SUBSCRIBE_TO_USERS': actions.subscribeToUsers,
   'server/SUBSCRIBE_TO_MESSAGES': actions.subscribeToMessages,
-  'server/GET_MESSAGES': actions.getMessages,
-  'server/GET_MESSAGES_BEFORE': actions.getMessagesBefore,
-  'server/GET_MESSAGES_AFTER': actions.getMessagesAfter,
-  'server/GET_MESSAGES_AROUND': actions.getMessagesAround,
-  'server/SEARCH_MESSAGES': actions.searchMessages,
 }
 
 io.on('connection', socket => {

@@ -117,48 +117,8 @@ const subscribeToMessages = payload => async ({ dispatch, onDisconnect }) => {
   })
 }
 
-const getMessages = ({ channel, limit }) => async ({ dispatch }) => {
-  dispatch({
-    type: 'client/SET_MESSAGES',
-    payload: await api.getMessages(channel, limit || 100),
-  })
-}
-
-const getMessagesBefore = ({ messageId, limit }) => async ({ dispatch }) => {
-  dispatch({
-    type: 'client/SET_MESSAGES_BEFORE',
-    payload: await api.getMessagesBefore(messageId, limit || 100),
-  })
-}
-
-const getMessagesAfter = ({ messageId, limit }) => async ({ dispatch }) => {
-  dispatch({
-    type: 'client/SET_MESSAGES_AFTER',
-    payload: await api.getMessagesAfter(messageId, limit || 100),
-  })
-}
-
-const getMessagesAround = ({ messageId, limit }) => async ({ dispatch }) => {
-  dispatch({
-    type: 'client/SET_MESSAGES_AROUND',
-    payload: await api.getMessagesAround(messageId, limit || 150),
-  })
-}
-
-const searchMessages = ({ channel, query, limit, messageId }) => async ({ dispatch }) => {
-  dispatch({
-    type: 'client/FOUND_MESSAGES',
-    payload: await api.searchMessages(channel, query, limit || 50, messageId),
-  })
-}
-
 module.exports = {
   subscribeToChannels,
   subscribeToUsers,
   subscribeToMessages,
-  getMessages,
-  getMessagesBefore,
-  getMessagesAfter,
-  getMessagesAround,
-  searchMessages,
 }

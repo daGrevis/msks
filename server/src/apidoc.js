@@ -208,9 +208,9 @@
  */
 
 /**
- * @api {get} /socket.io CHANNEL_CHANGES
+ * @api {get} /socket.io client/CHANNEL_CHANGES
  * @apiName CHANNEL_CHANGES
- * @apiGroup SocketIO/client
+ * @apiGroup SocketIO
  * @apiDescription
  * Dispatched when subscribed to channels
  *
@@ -226,9 +226,9 @@
  */
 
 /**
- * @api {get} /socket.io USER_CHANGES
+ * @api {get} /socket.io client/USER_CHANGES
  * @apiName USER_CHANGES
- * @apiGroup SocketIO/client
+ * @apiGroup SocketIO
  * @apiDescription
  * Dispatched when subscribed to users
  *
@@ -251,9 +251,9 @@
  */
 
 /**
- * @api {get} /socket.io ADD_MESSAGE
+ * @api {get} /socket.io client/ADD_MESSAGE
  * @apiName ADD_MESSAGE
- * @apiGroup SocketIO/client
+ * @apiGroup SocketIO
  * @apiDescription
  * Dispatched when subscribed to messages
  *
@@ -273,86 +273,9 @@
  */
 
 /**
- * @api {get} /socket.io SET_MESSAGES
- * @apiName SET_MESSAGES
- * @apiGroup SocketIO/client
- * @apiDescription
- * Sets mesages
- *
- * @apiParam {String=client/SET_MESSAGES} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.channel Channel
- * @apiParam {Number} payload.limit Message limit
- * @apiUse PayloadMessages
- */
-
-/**
- * @api {get} /socket.io SET_MESSAGES_BEFORE
- * @apiName SET_MESSAGES_BEFORE
- * @apiGroup SocketIO/client
- * @apiDescription
- * Sets mesages before given message ID
- *
- * @apiParam {String=client/SET_MESSAGES_BEFORE} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.channel Channel
- * @apiParam {String} payload.messageId Message ID
- * @apiParam {Number} payload.limit Message limit
- * @apiUse PayloadMessages
- */
-
-/**
- * @api {get} /socket.io SET_MESSAGES_AFTER
- * @apiName SET_MESSAGES_AFTER
- * @apiGroup SocketIO/client
- * @apiDescription
- * Sets mesages after given message ID
- *
- * @apiParam {String=client/SET_MESSAGES_AFTER} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.channel Channel
- * @apiParam {String} payload.messageId Message ID
- * @apiParam {Number} payload.limit Message limit
- * @apiUse PayloadMessages
- */
-
-/**
- * @api {get} /socket.io SET_MESSAGES_AROUND
- * @apiName SET_MESSAGES_AROUND
- * @apiGroup SocketIO/client
- * @apiDescription
- * Sets mesages around given message ID
- *
- * @apiParam {String=client/SET_MESSAGES_AFTER} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.channel Channel
- * @apiParam {String} payload.messageId Message ID
- * @apiParam {Number} payload.limit Message limit
- * @apiUse PayloadMessages
- */
-
-/**
- * @api {get} /socket.io FOUND_MESSAGES
- * @apiName FOUND_MESSAGES
- * @apiGroup SocketIO/client
- * @apiDescription
- * Sets mesages from search
- *
- * @apiParam {String=client/FOUND_MESSAGES} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.channel Channel
- * @apiParam {Object} payload.query Search query
- * @apiParam {String} [query.text] Text
- * @apiParam {String} [query.nick] Nick
- * @apiParam {String} payload.messageId Message ID
- * @apiParam {Number} payload.limit Message limit
- * @apiUse PayloadMessages
- */
-
-/**
- * @api {get} /socket.io SUBSCRIBE_TO_CHANNELS
+ * @api {get} /socket.io server/SUBSCRIBE_TO_CHANNELS
  * @apiName SUBSCRIBE_TO_CHANNELS
- * @apiGroup SocketIO/server
+ * @apiGroup SocketIO
  * @apiDescription
  * Subscribe to channels by dispatching `client/CHANNEL_CHANGES` action on channel changes (batched)
  *
@@ -360,9 +283,9 @@
  */
 
 /**
- * @api {get} /socket.io SUBSCRIBE_TO_USERS
+ * @api {get} /socket.io server/SUBSCRIBE_TO_USERS
  * @apiName SUBSCRIBE_TO_USERS
- * @apiGroup SocketIO/server
+ * @apiGroup SocketIO
  * @apiDescription
  * Subscribe to users by dispatching `client/USER_CHANGES` action on user changes (batched)
  *
@@ -372,82 +295,13 @@
  */
 
 /**
- * @api {get} /socket.io SUBSCRIBE_TO_MESSAGES
+ * @api {get} /socket.io server/SUBSCRIBE_TO_MESSAGES
  * @apiName SUBSCRIBE_TO_MESSAGES
- * @apiGroup SocketIO/server
+ * @apiGroup SocketIO
  * @apiDescription
  * Subscribe to messages by dispatching `client/ADD_MESSAGE` action on new message, doesn't include initial messages
  *
  * @apiParam {String=server/SUBSCRIBE_TO_MESSAGES} type Action type
  * @apiParam {Object} payload Action payload
  * @apiParam {String} payload.channelName Channel
- */
-
-/**
- * @api {get} /socket.io GET_MESSAGES
- * @apiName GET_MESSAGES
- * @apiGroup SocketIO/server
- * @apiDescription
- * Get most recent messages by dispatching `client/SET_MESSAGES` action
- *
- * @apiParam {String=server/GET_MESSAGES} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.channelName Channel
- * @apiParam {Number{1-1000}} [payload.limit=100] Message limit
- */
-
-/**
- * @api {get} /socket.io GET_MESSAGES_BEFORE
- * @apiName GET_MESSAGES_BEFORE
- * @apiGroup SocketIO/server
- * @apiDescription
- * Get messages before given message ID by dispatching `client/SET_MESSAGES_BEFORE` action
- *
- * @apiParam {String=server/GET_MESSAGES_BEFORE} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.messageId Message ID
- * @apiParam {Number{1-1000}} [payload.limit=100] Message limit
- */
-
-/**
- * @api {get} /socket.io GET_MESSAGES_AFTER
- * @apiName GET_MESSAGES_AFTER
- * @apiGroup SocketIO/server
- * @apiDescription
- * Get messages after given message ID by dispatching `client/SET_MESSAGES_AFTER` action
- *
- * @apiParam {String=server/GET_MESSAGES_AFTER} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.messageId Message ID
- * @apiParam {Number{1-1000}} [payload.limit=100] Message limit
- */
-
-/**
- * @api {get} /socket.io GET_MESSAGES_AROUND
- * @apiName GET_MESSAGES_AROUND
- * @apiGroup SocketIO/server
- * @apiDescription
- * Get messages around given message ID by dispatching `client/SET_MESSAGES_AROUND` action
- *
- * @apiParam {String=server/GET_MESSAGES_AROUND} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.messageId Message ID
- * @apiParam {Number{1-1000}} [payload.limit=150] Message limit
- */
-
-/**
- * @api {get} /socket.io SEARCH_MESSAGES
- * @apiName SEARCH_MESSAGES
- * @apiGroup SocketIO/server
- * @apiDescription
- * Search messages by dispatching `client/FOUND_MESSAGES` action
- *
- * @apiParam {String=server/SEARCH_MESSAGES} type Action type
- * @apiParam {Object} payload Action payload
- * @apiParam {String} payload.channel Channel
- * @apiParam {Object} [payload.query] Search query
- * @apiParam {String} [payload.query.text] Text
- * @apiParam {String} [payload.query.nick] Nick
- * @apiParam {Number{1-500}} [payload.limit=50] Message limit
- * @apiParam {String} [payload.messageId] Message ID for pagination
  */
