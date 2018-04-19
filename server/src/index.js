@@ -62,7 +62,11 @@ const ACTIONS = {
 }
 
 io.on('connection', socket => {
-  let context = {}
+  const dispatch = action => {
+    socket.emit('action', action)
+
+    logger.verbose(`socket/out ${action.type}`)
+  }
 
   const disconnectEvents = []
 
@@ -76,9 +80,11 @@ io.on('connection', socket => {
       return
     }
 
+    logger.verbose(`socket/in ${type}`)
+
     const action = ACTIONS[type](payload || {})
 
-    action({ socket, context, onDisconnect })
+    action({ dispatch, onDisconnect })
   })
 
   socket.on('disconnect', () => {

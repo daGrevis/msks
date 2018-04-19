@@ -25,16 +25,16 @@ const koaLogger = () => async (ctx, next) => {
   const res = ctx.res
 
   // eslint-disable-next-line no-use-before-define
-  const onfinish = done.bind(null, 'finish')
+  const onFinish = done.bind(null, 'finish')
   // eslint-disable-next-line no-use-before-define
-  const onclose = done.bind(null, 'close')
+  const onClose = done.bind(null, 'close')
 
-  res.once('finish', onfinish)
-  res.once('close', onclose)
+  res.once('finish', onFinish)
+  res.once('close', onClose)
 
   function done(event) {
-    res.removeListener('finish', onfinish)
-    res.removeListener('close', onclose)
+    res.removeListener('finish', onFinish)
+    res.removeListener('close', onClose)
 
     log(ctx)
   }

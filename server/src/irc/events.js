@@ -72,7 +72,7 @@ const onJoin = async (payload) => {
   })
 
   if (isMe(payload.nick)) {
-    logger.verbose(`Joined ${payload.channel}!`)
+    logger.info(`Joined ${payload.channel}!`)
 
     await createChannel({ name: payload.channel })
   }

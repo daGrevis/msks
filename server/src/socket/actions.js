@@ -1,7 +1,7 @@
 const r = require('../rethink')
 const api = require('../api')
 
-const subscribeToChannels = () => async ({ socket, onDisconnect }) => {
+const subscribeToChannels = () => async ({ dispatch, onDisconnect }) => {
   const changefeed = await (
     r.table('channels')
     .changes({ includeInitial: true })
@@ -23,7 +23,7 @@ const subscribeToChannels = () => async ({ socket, onDisconnect }) => {
       return
     }
 
-    socket.emit('action', {
+    dispatch({
       type: 'client/CHANNEL_CHANGES',
       payload: {
         changes,
@@ -39,7 +39,7 @@ const subscribeToChannels = () => async ({ socket, onDisconnect }) => {
   })
 }
 
-const subscribeToUsers = ({ channelName }) => async ({ socket, onDisconnect }) => {
+const subscribeToUsers = ({ channelName }) => async ({ dispatch, onDisconnect }) => {
   if (!channelName) {
     console.error('SUBSCRIBE_TO_USERS: channelName missing!')
     return
@@ -67,7 +67,7 @@ const subscribeToUsers = ({ channelName }) => async ({ socket, onDisconnect }) =
       return
     }
 
-    socket.emit('action', {
+    dispatch({
       type: 'client/USER_CHANGES',
       payload: {
         channelName,
@@ -84,7 +84,7 @@ const subscribeToUsers = ({ channelName }) => async ({ socket, onDisconnect }) =
   })
 }
 
-const subscribeToMessages = payload => async ({ socket, onDisconnect }) => {
+const subscribeToMessages = payload => async ({ dispatch, onDisconnect }) => {
   const { channelName } = payload
 
   if (!channelName) {
@@ -105,7 +105,7 @@ const subscribeToMessages = payload => async ({ socket, onDisconnect }) => {
     }
 
     if (!change.old_val) {
-      socket.emit('action', {
+      dispatch({
         type: 'client/ADD_MESSAGE',
         payload: change.new_val,
       })
@@ -117,36 +117,36 @@ const subscribeToMessages = payload => async ({ socket, onDisconnect }) => {
   })
 }
 
-const getMessages = ({ channel, limit }) => async ({ socket }) => {
-  socket.emit('action', {
+const getMessages = ({ channel, limit }) => async ({ dispatch }) => {
+  dispatch({
     type: 'client/SET_MESSAGES',
     payload: await api.getMessages(channel, limit || 100),
   })
 }
 
-const getMessagesBefore = ({ messageId, limit }) => async ({ socket }) => {
-  socket.emit('action', {
+const getMessagesBefore = ({ messageId, limit }) => async ({ dispatch }) => {
+  dispatch({
     type: 'client/SET_MESSAGES_BEFORE',
     payload: await api.getMessagesBefore(messageId, limit || 100),
   })
 }
 
-const getMessagesAfter = ({ messageId, limit }) => async ({ socket }) => {
-  socket.emit('action', {
+const getMessagesAfter = ({ messageId, limit }) => async ({ dispatch }) => {
+  dispatch({
     type: 'client/SET_MESSAGES_AFTER',
     payload: await api.getMessagesAfter(messageId, limit || 100),
   })
 }
 
-const getMessagesAround = ({ messageId, limit }) => async ({ socket }) => {
-  socket.emit('action', {
+const getMessagesAround = ({ messageId, limit }) => async ({ dispatch }) => {
+  dispatch({
     type: 'client/SET_MESSAGES_AROUND',
     payload: await api.getMessagesAround(messageId, limit || 150),
   })
 }
 
-const searchMessages = ({ channel, query, limit, messageId }) => async ({ socket }) => {
-  socket.emit('action', {
+const searchMessages = ({ channel, query, limit, messageId }) => async ({ dispatch }) => {
+  dispatch({
     type: 'client/FOUND_MESSAGES',
     payload: await api.searchMessages(channel, query, limit || 50, messageId),
   })
