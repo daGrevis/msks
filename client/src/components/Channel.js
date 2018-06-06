@@ -28,14 +28,6 @@ class Channel extends React.Component {
     this.props.subscribeToUsers(this.props.channel.name)
   }
 
-  onHamburgerIconClick = () => {
-    this.setState({ isSidebarOpen: !this.state.isSidebarOpen })
-  }
-
-  onSearchIconClick = () => {
-    this.props.toggleSearch()
-  }
-
   onNameClick = () => {
     const { channel, activeMessage, isSearchOpen, push } = this.props
 
@@ -50,8 +42,21 @@ class Channel extends React.Component {
     }
   }
 
+  onSearchIconClick = () => {
+    this.props.toggleSearch()
+  }
+
+  onHamburgerIconClick = () => {
+    this.setState(prevState => ({
+      isSidebarOpen: !prevState.isSidebarOpen,
+    }))
+  }
+
   onTopicClick = () => {
-    this.setState({ isTopicClipped: !this.state.isTopicClipped })
+    this.setState(prevState => ({
+      ...prevState,
+      isTopicClipped: !prevState.isTopicClipped,
+    }))
   }
 
   onSidebarClick = () => {
@@ -93,7 +98,9 @@ class Channel extends React.Component {
 
             {!this.props.channel.topic ? null : (
               <div className={topicClasses} onClick={this.onTopicClick}>
-                <Text>{this.props.channel.topic}</Text>
+                <div>
+                  <Text>{this.props.channel.topic}</Text>
+                </div>
               </div>
             )}
           </div>

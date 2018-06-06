@@ -17,15 +17,15 @@ export default props => {
       'highlight': isHighlight,
     })
     if (isLink) {
-      return <a key={i} href={text} target='_blank' className={classes}>{text}</a>
+      return <a key={i} href={text} target='_blank' className={classes || undefined}>{text}</a>
     } else {
-      return <span key={i} className={classes}>{text}</span>
+      return <span key={i} className={classes || undefined}>{text}</span>
     }
   })
 
   return (
-    textNodes.length === 1
-    ? textNodes[0]
-    : <span>{textNodes}</span>
+    <React.Fragment>
+      {textNodes}
+    </React.Fragment>
   )
 }
