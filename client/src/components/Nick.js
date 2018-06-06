@@ -13,7 +13,7 @@ const Nick = ({ from, to, isOp, isVoiced }) =>
     style={{ color: getColor(from) }}
     title={from}
   >
-    <span className='prefix'>{(isOp ? '@' : (isVoiced ? '+' : ''))}</span>
+    <span className='prefix'>{(isVoiced ? '+' : '') + (isOp ? '@' : '')}</span>
     {from}
   </Link>
 
