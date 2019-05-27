@@ -34,6 +34,7 @@
     "build": "cd .. && docker build -t msks . && docker save -o ~/msks.tar msks",
     "deploy": "yarn run build && scp ~/msks.tar root@dagrev.is:~ && ssh root@dagrev.is docker load -i msks.tar",
     "indexMessages": "node src/indexMessages.js",
+    "exportMessages": "node src/exportMessages.js",
     "apidoc": "apidoc -i src -o apidoc -e node_modules -f \".*\\.js$\""
   }
 }
