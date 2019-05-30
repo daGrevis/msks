@@ -50,6 +50,11 @@ const matchCommand = message => {
   const commandName = separatorPos === -1 ? text : text.slice(0, separatorPos)
   const commandInput = separatorPos === -1 ? '' : text.slice(separatorPos + 1)
 
+  // Don't respond to own properties like 'constructor'.
+  if (!fp.has(commandName, commandMap)) {
+    return
+  }
+
   const commandFn = commandMap[commandName]
 
   if (!commandFn) {
