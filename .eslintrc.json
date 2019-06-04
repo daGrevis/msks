@@ -1,0 +1,54 @@
+{
+  "extends": ["airbnb", "plugin:prettier/recommended"],
+
+  "env": {
+    "es6": true,
+    "node": true
+  },
+
+  "plugins": [
+    "import",
+    "node",
+    "promise",
+    "prettier"
+  ],
+
+  "globals": {
+    "document": false,
+    "navigator": false,
+    "window": false
+  },
+
+  "rules": {
+    "arrow-body-style": "warn",
+    "arrow-parens": "off",
+    "consistent-return": "off",
+    "func-names": "off",
+    "function-paren-newline": "off",
+    "implicit-arrow-linebreak": "off",
+    "import/prefer-default-export": "off",
+    "jsx-a11y/anchor-is-valid": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "lines-between-class-members": "off",
+    "no-await-in-loop": "off",
+    "no-case-declarations": "off",
+    "no-confusing-arrow": "off",
+    "no-continue": "off",
+    "no-lonely-if": "off",
+    "no-param-reassign": "off",
+    "no-restricted-syntax": "off",
+    "no-shadow": "off",
+    "no-underscore-dangle": "off",
+    "no-unreachable": "warn",
+    "object-curly-newline": "off",
+    "object-shorthand": "off",
+    "prefer-destructuring": "off",
+    "prefer-template": "off",
+    "react/destructuring-assignment": "off",
+    "react/jsx-filename-extension": "off",
+    "react/prop-types": "off",
+    "react/sort-comp": "off",
+    "semi": "off"
+  }
+}

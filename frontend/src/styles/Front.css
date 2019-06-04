@@ -1,0 +1,59 @@
+#front {
+  padding: 0 10px;
+  padding-bottom: 20px;
+}
+
+#front .logo h1 {
+  color: #333;
+  font-size: 28px;
+  display: inline-block;
+  line-height: 2;
+  margin: 0;
+}
+
+#front .logo .version {
+  margin-left: 5px;
+  font-size: 12px;
+  color: #cacaca;
+}
+
+#front .login-icon, #front .logout-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 48px;
+}
+
+#front .connection + .connection {
+  margin-top: 50px;
+}
+#front .connection .name {
+  margin: 25px 0 15px;
+}
+#front .connection .name a {
+  color: #555;
+}
+#front .connection .ServerId {
+  display: inline-block;
+}
+#front .connection .channel {
+  margin: 10px 0;
+}
+
+#front .connection .name {
+  margin-bottom: 25px;
+}
+
+#front .connection .sharedChannels {
+  margin-bottom: 20px;
+}
+#front .connection .userChannels {
+  margin-left: 3px;
+}
+
+#front .connection .channel.isUser {
+  line-height: .875;
+}
+#front .connection .channel.isUser .prefix {
+  margin-right: 2px;
+}

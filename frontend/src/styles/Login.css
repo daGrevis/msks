@@ -1,0 +1,41 @@
+#login {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#login .field {
+  margin: 10px 0;
+}
+
+#login input {
+  display: block;
+  height: 36px;
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 320px;
+  line-height: 1.5;
+}
+
+@media screen and (max-width: 320px) {
+  #login input {
+    max-width: calc(100vw - 20px);
+  }
+}
+
+#login button {
+  height: 36px;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 14px;
+  margin: 10px 0;
+  outline: none;
+}
+
+#login .error-message {
+  color: #e91e63;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px;
+}

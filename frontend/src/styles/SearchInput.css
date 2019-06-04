@@ -1,0 +1,23 @@
+.SearchInput {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-start;
+  padding: 10px;
+  border-top: 1px solid #cacaca;
+}
+
+.SearchInput .nick-input {
+  flex: 0 0 auto;
+  width: 120px;
+  margin-right: 10px;
+  text-align: right;
+}
+.SearchInput .text-input {
+  flex: 1 0 auto;
+}
+
+@media screen and (min-width: 667px) {
+  .SearchInput .nick-input {
+    width: 160px;
+  }
+}

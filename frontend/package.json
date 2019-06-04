@@ -1,0 +1,63 @@
+{
+  "name": "msks",
+  "private": true,
+  "devDependencies": {
+    "concurrently": "^4.1.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^4.2.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "http-proxy-middleware": "^0.19.1",
+    "onchange": "^5.2.0",
+    "prettier": "^1.16.4",
+    "react-scripts": "^2.1.3"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "axios-retry": "^3.1.2",
+    "big-integer": "^1.6.41",
+    "bluebird": "^3.5.3",
+    "classnames": "^2.2.6",
+    "date-fns": "^1.30.1",
+    "favico.js": "^0.3.10",
+    "hamburgers": "^1.1.3",
+    "history": "^4.7.2",
+    "js-md5": "^0.7.3",
+    "loaders.css": "^0.1.2",
+    "lodash": "^4.17.11",
+    "normalize.css": "^8.0.1",
+    "path-to-regexp": "^3.0.0",
+    "push.js": "^1.0.9",
+    "qs": "^6.6.0",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-redux": "^6.0.0",
+    "recompose": "^0.30.0",
+    "redux": "^4.0.1",
+    "redux-fp": "^0.2.0",
+    "redux-logger": "^3.0.6",
+    "redux-persist": "^5.10.0",
+    "redux-socket.io": "^1.3.1",
+    "redux-thunk": "^2.3.0",
+    "reselect": "^4.0.0",
+    "resize-observer-polyfill": "^1.5.1",
+    "scroll-into-view-if-needed": "^2.2.20",
+    "socket.io-client": "^2.2.0",
+    "uuid": "^3.3.2",
+    "viewport-units-buggyfill": "^0.6.2"
+  },
+  "scripts": {
+    "dev": "concurrently --kill-others --raw \"yarn prettier:watch\" \"react-scripts start\"",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "prettier": "prettier --write 'src/**/*.{js,json}'",
+    "prettier:watch": "onchange 'src/**/*.{js,json}' -- prettier --write {{changed}} > /dev/null"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

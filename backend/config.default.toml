@@ -1,0 +1,27 @@
+[elastic]
+debug = false
+host = 'localhost:9200'
+httpAuth = 'elastic:changeme'
+
+[postgres]
+host = 'localhost'
+user = 'postgres'
+password = ''
+database = 'msks'
+
+[irc]
+debug = false
+raw = false
+autoReconnectMinDelay = 2000
+autoReconnectMaxDelay = 120000
+autoReconnectGrowFactor = 1.5
+autoReconnectRandomFactor = 0.5
+botRateLimitAllowance = 5
+botRateLimitDuration = 60000
+
+[http]
+port = 3001
+clientPath = false
+# clientPath = "/srv/msks"
+# clientPath = { msks = "/srv/msks", developerslv = "/srv/developerslv" }
+cors = '*'

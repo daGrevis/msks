@@ -1,0 +1,173 @@
+#channel {
+  height: 100vh;
+}
+
+#channel .content, #channel .sidebar {
+  transition: right .25s ease-in;
+  height: 100%;
+}
+
+#channel .content {
+  overflow-y: hidden;
+}
+#channel .sidebar {
+  overflow-y: scroll;
+}
+
+#channel .sidebar {
+  width: 160px;
+  border-left: 1px solid #cacaca;
+}
+
+#channel .content {
+  display: flex;
+  flex-direction: column;
+}
+
+#channel .header {
+  padding: 0 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #cacaca;
+}
+
+#channel .header .main {
+  display: flex;
+  justify-content: space-between;
+  height: 35px;
+}
+
+#channel .header .icons {
+  margin-top: 10px;
+}
+
+#channel .header .search-icon {
+  cursor: pointer;
+  display: inline-block;
+}
+#channel .header .search-icon, #channel .header .search-icon img {
+  width: 26px;
+  height: 26px;
+}
+
+#channel .header .hamburger-icon {
+  display: none;
+  transform: scale(.65);
+  padding: 0;
+  bottom: 4px;
+  position: relative;
+}
+#channel .header .hamburger-icon:hover {
+  opacity: 1;
+}
+
+#channel .header .ChannelName {
+  line-height: 0;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  cursor: pointer;
+}
+#channel .header .ChannelName .userDot {
+  display: none;
+}
+
+#channel .header .user-count {
+  position: relative;
+  bottom: 2px;
+  padding-left: 5px;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+#channel .header .topic {
+  margin: 0;
+  margin-bottom: 5px;
+  line-height: 1.2;
+  font-size: 14px;
+  cursor: pointer;
+  color: #777;
+}
+
+#channel .header .topic.is-topic-clipped > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#channel .scroll-down-icon {
+  opacity: .4;
+  cursor: pointer;
+  transition: right .25s ease-in;
+  width: 40px;
+  height: 40px;
+  position: fixed;
+  bottom: 10px;
+  right: 20px;
+  z-index: 2;
+}
+#channel .scroll-down-icon img {
+  width: 72px;
+  height: 90px;
+  margin-left: -18px;
+  margin-top: -18px;
+}
+#channel .scroll-down-icon.has-message-input {
+  bottom: calc(10px + 45px);
+}
+#channel .scroll-down-icon.has-sidebar {
+  right: calc(20px + 160px);
+}
+
+@media screen and (max-width: 666px) {
+  #channel .header .search-icon {
+    margin-right: 5px;
+  }
+
+  #channel .header .hamburger-icon {
+    display: inline-block;
+  }
+
+  #channel .content {
+    z-index: 1;
+    position: relative;
+    top: 0;
+    right: 0;
+    background: white;
+    min-height: 100vh;
+  }
+  #channel.is-sidebar-open .content {
+    right: 160px;
+  }
+
+  #channel.is-sidebar-closed .content .scroll-down-icon {
+    right: 20px;
+  }
+
+  #channel .sidebar {
+    position: fixed;
+    top: 0;
+    right: -160px;
+    min-height: 100vh;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    z-index: 0;
+  }
+  #channel.is-sidebar-open .sidebar {
+    right: 0;
+  }
+}
+
+@media screen and (min-width: 667px) {
+  #channel {
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: space-between;
+  }
+
+  #channel .content {
+    flex: 1;
+  }
+
+  #channel .sidebar {
+    flex: 0 0 160px;
+  }
+}

@@ -1,0 +1,180 @@
+#channel .message {
+  padding-left: 10px;
+  padding-right: 15px;
+  line-height: 1.2;
+}
+
+#channel .message.is-active {
+  background: #fffbd0;
+}
+#channel .message.is-active .timestamp {
+  font-weight: bold;
+}
+
+#channel .message.is-optimistic {
+  opacity: .5;
+}
+
+#channel .message .text {
+  font-size: 15px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  word-break: break-word;
+}
+#channel .message .text .nick {
+  font-size: 15px;
+}
+
+#channel .message.type-join .text,
+#channel .message.type-quit .text,
+#channel .message.type-part .text,
+#channel .message.type-kick .text,
+#channel .message.type-nick .text,
+#channel .message.type-topic .text {
+  font-size: 13px;
+}
+
+#channel .message.type-notice .text {
+  font-weight: 500;
+}
+#channel .message.type-notice .text .exclamation {
+  padding-right: 5px;
+  font-weight: 500;
+}
+
+#channel .message.type-action .text {
+  font-style: italic;
+}
+#channel .message.type-action .text .nick {
+  font-style: normal;
+}
+
+#channel .message.type-status .text, #channel .message.type-client .text {
+  color: #cacaca;
+  font-weight: 500;
+}
+
+#channel .message.type-kick .text .kick-reason {
+  padding-left: 5px;
+  font-size: 15px;
+  font-style: italic;
+}
+
+#channel .message.type-topic .text .topic {
+  font-size: 15px;
+  font-style: italic;
+}
+
+#channel .message.type-banlist {
+  color: #cacaca;
+  font-weight: 500;
+}
+#channel .message.type-banlist h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 5px 0;
+}
+#channel .message.type-banlist h3, strong {
+  color: #555;
+}
+#channel .message.type-banlist ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#channel .message.type-whois {
+  color: #cacaca;
+  font-weight: 500;
+}
+#channel .message.type-whois strong {
+  color: #555;
+}
+
+#channel .message .meta .timestamp {
+  color: #cacaca;
+  font-size: 12px;
+}
+#channel .message .meta .timestamp.is-linkable {
+  cursor: pointer;
+}
+
+#channel .message .meta .author {
+  visibility: hidden;
+}
+#channel .message.type-text .meta .author, #channel .message.type-notice .meta .author {
+  visibility: visible;
+}
+
+@media screen and (max-width: 374px) {
+  #channel .message.is-first {
+    margin-top: 5px;
+  }
+
+  #channel .message .meta {
+    display: flex;
+    flex-direction: row-reverse;
+    /* End is start, everything is reversed... yelp!! */
+    justify-content: flex-end;
+    line-height: 1.25;
+  }
+
+  #channel .message.is-not-first .meta {
+    display: none;
+  }
+
+  #channel .message .meta .timestamp {
+    padding-top: 5px;
+  }
+  #channel .message .meta .author {
+    display: none;
+  }
+
+  #channel .message.type-text .meta .author, #channel .message.type-notice .meta .author {
+    padding-right: 5px;
+    display: block;
+  }
+}
+
+@media screen and (min-width: 375px) {
+  #channel .message {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  #channel .message.is-first {
+    margin-top: 2px;
+  }
+
+  #channel .message .meta {
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: space-between;
+    margin-right: 10px;
+  }
+
+  #channel .message .meta .timestamp {
+    padding-top: 4px;
+    margin-right: 8px;
+  }
+  #channel .message .meta .author {
+    text-align: right;
+    width: 80px;
+  }
+  #channel .message .meta .author .nick {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #channel .message .text {
+    padding-top: 2px;
+  }
+}
+
+@media screen and (min-width: 667px) {
+  #channel .message .meta .author {
+    width: 120px;
+  }
+}

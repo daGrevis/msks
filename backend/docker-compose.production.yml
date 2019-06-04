@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  elastic:
+    image: 'elasticsearch:6.6.0'
+    volumes:
+     - '~/msks/elastic-data:/usr/share/elasticsearch/data'
+    environment:
+     - bootstrap.memory_lock=true
+     - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+     - cluster.routing.allocation.disk.threshold_enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+
+  postgres:
+    build: 'src/postgres'
+    volumes:
+     - '~/msks/postgres-data:/var/lib/postgresql/data'
+    links:
+     - elastic
+    restart: always
+
+  msks:
+    build:
+      context: '..'
+      dockerfile: 'backend/Dockerfile'
+    volumes:
+     - '~/msks/config.toml:/usr/src/app/config.toml:ro'
+     - '~/msks/build:/srv/msks:ro'
+    links:
+     - elastic
+     - postgres
+    restart: always
+
+  nginx:
+    image: 'nginx:alpine'
+    ports:
+     - '80:80'
+    volumes:
+     - '~/msks/nginx.conf:/etc/nginx/nginx.conf:ro'
+     - '~/msks/build:/srv/msks:ro'
+    links:
+     - msks
+    restart: always

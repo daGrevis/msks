@@ -1,20 +1,13 @@
 # app
 config.toml
-.env
-client
+frontend
 
 # node
-node_modules
+**/*/node_modules
 npm-debug.log
-
-# rethinkdb
-rethinkdb_data
 
 # logs
 **/*.log
-
-# testing
-coverage
 
 # production
 build

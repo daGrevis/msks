@@ -1,0 +1,35 @@
+.ChannelName {
+  display: inline-block;
+  color: #333;
+  font-size: 24px;
+}
+
+.ChannelName .nick {
+  font-size: 18px;
+  margin-left: -2px;
+}
+
+.ChannelName .prefix {
+  display: inline-block;
+  padding-right: 2px;
+}
+
+.ChannelName.isDisabled .prefix {
+  color: #aaa;
+}
+
+.ChannelName .userDot {
+  position: relative;
+  bottom: 2px;
+  display: inline-block;
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background: #aaa;
+}
+
+.ChannelName .unread {
+  font-size: 16px;
+  padding-left: 5px;
+  color: #aaa;
+}

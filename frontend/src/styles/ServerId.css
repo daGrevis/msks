@@ -1,0 +1,11 @@
+.ServerId {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.ServerId.isDisabled {
+  color: #aaa;
+}
+.ServerId.isDisabled .nick {
+  color: #aaa;
+}

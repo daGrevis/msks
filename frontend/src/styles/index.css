@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:700|Roboto:400,400i,500,500i,700,700i');
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  background: white;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #555;
+  overflow-wrap: break-word;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.strong {
+  font-family: Lato, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: bold;
+  color: #333;
+}
+
+a {
+  color: #0074d9;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+input, button, textarea {
+  -webkit-appearance: none;
+  outline: none;
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  border-radius: 0;
+  border: 1px solid #cacaca;
+  height: 26px;
+  padding: 5px;
+}
+
+/* For iOS so that placeholder is not off. */
+input {
+  line-height: 1.4;
+}
+
+/* Attempts to fix textarea indent on iOS devices. */
+/* https://stackoverflow.com/questions/6890149/remove-3-pixels-in-ios-webkit-textarea */
+@supports (-webkit-overflow-scrolling: touch) {
+  textarea {
+    padding-left: 2px;
+  }
+}
+
+button {
+  background: transparent;
+}

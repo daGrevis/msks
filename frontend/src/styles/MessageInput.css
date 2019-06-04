@@ -1,0 +1,61 @@
+.MessageInput {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-start;
+  padding: 10px 10px 10px 0;
+  border-top: 1px solid #cacaca;
+}
+
+.MessageInput .exclamation {
+  width: 45px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #e91e63;
+  cursor: pointer;
+  visibility: hidden;
+}
+.MessageInput .exclamation.isActive {
+  visibility: visible;
+}
+
+.MessageInput .nick {
+  text-align: right;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.MessageInput form {
+  margin-left: 10px;
+  flex: 1 0 auto;
+}
+
+.MessageInput textarea {
+  width: 100%;
+  resize: none;
+  min-height: 28px;
+  max-height: 88px; /* Five rows. */
+}
+
+.MessageInput.isDisabled {
+  filter: grayscale(1);
+}
+
+.MessageInput.isCommand textarea {
+  font-weight: 500;
+}
+
+@media screen and (min-width: 375px) {
+  .MessageInput .nick {
+    width: 83px;
+  }
+}
+
+@media screen and (min-width: 667px) {
+  .MessageInput .nick {
+    width: 123px;
+  }
+}
