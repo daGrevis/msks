@@ -37,10 +37,9 @@ router.get('/*', async (ctx, next) => {
   let title
 
   const messageId = fp.findLast(isUuid, params)
+  const message = messageId ? await getMessage(messageId) : null
 
-  if (messageId) {
-    const message = await getMessage(messageId)
-
+  if (message) {
     title = titles.getMessageTitle(message)
   } else {
     const [serverId, channelName, nick] = params
