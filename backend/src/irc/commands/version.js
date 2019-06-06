@@ -21,14 +21,13 @@ const version = async ({ ircClient, channelName }) => {
   let response = `msks, ${REPO_LINK}`
 
   if (versionData) {
-    const [rev, currentTag, recentTag, subject, date] = versionData.split('\n')
+    const [rev, latestTag, commitCount, subject, date] = versionData.split('\n')
 
     response =
-      'Running ' +
-      (currentTag !== 'undefined'
-        ? `${currentTag}@${rev.slice(0, 7)}`
-        : recentTag) +
-      `: "${subject}" of ${date}, ${REPO_LINK}`
+      `Running \u0002${latestTag}\u0002` +
+      (Number(commitCount) > 0 ? `+${commitCount}` : '') +
+      `@\u0002${rev.slice(0, 7)}\u0002: ` +
+      `"\u001d${subject}\u001d" of ${date}, ${REPO_LINK}`
   }
 
   say(ircClient, {
