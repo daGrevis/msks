@@ -1,9 +1,11 @@
 const fs = require('fs')
+const path = require('path')
 
 const say = require('../say')
 
 const REPO_LINK = 'https://github.com/daGrevis/msks'
-const VERSION_PATH = '../../VERSION'
+
+const VERSION_PATH = path.resolve(__dirname, '../../../VERSION')
 
 let versionData
 
