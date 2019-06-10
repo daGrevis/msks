@@ -257,6 +257,21 @@ const whois = params => async (dispatch, getState) => {
   }
 }
 
+const topic = params => async (dispatch, getState) => {
+  const state = getState()
+
+  const connection = connectionSelector(state)
+  const channel = channelSelector(state)
+
+  const payload = {
+    connectionId: connection.id,
+    channelId: channel.id,
+    topic: params,
+  }
+
+  dispatch(runCommand('topic', payload))
+}
+
 const hide = () => async (dispatch, getState) => {
   const state = getState()
 
@@ -297,6 +312,7 @@ const COMMAND_MAP = {
   ban: withMode('+b'),
   unban: withMode('-b'),
   whois,
+  topic,
   hide,
   close: hide,
 }

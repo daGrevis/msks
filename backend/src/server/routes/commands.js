@@ -245,6 +245,22 @@ router.post(
   },
 )
 
+router.post(
+  '/topic',
+  withAuthenticated,
+  withConnection,
+  withIrcClient,
+  withChannel,
+  withParamRequired('topic'),
+  async ctx => {
+    const { ircClient, channel, topic } = ctx
+
+    ircClient.setTopic(channel.name, topic)
+
+    ctx.body = {}
+  },
+)
+
 router.post('/hide', withAuthenticated, withChannel, async ctx => {
   const state = store.getState()
 
