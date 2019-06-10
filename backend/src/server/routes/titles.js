@@ -9,6 +9,7 @@ const titles = require('../../env/titles')
 const config = require('../../env/config')
 const logger = require('../../env/logger')
 const isUuid = require('../../utils/isUuid')
+const store = require('../../store')
 const { getMessage } = require('../../postgres/queries/messages')
 
 const router = new KoaRouter()
@@ -36,10 +37,20 @@ router.get('/*', async (ctx, next) => {
 
   let title
 
-  const messageId = fp.findLast(isUuid, params)
+  const lastParam = fp.last(params)
+  const messageId = isUuid(lastParam) ? lastParam : undefined
+
   const message = messageId ? await getMessage(messageId) : null
 
   if (message) {
+    const state = store.getState()
+
+    const channel = state.channels[message.channelId]
+
+    if (!channel || !channel.isPublic) {
+      return next()
+    }
+
     title = titles.getMessageTitle(message)
   } else {
     const [serverId, channelName, nick] = params
