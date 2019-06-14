@@ -17,8 +17,10 @@ exports.seed = async knex => {
   }
 
   const daGrevisAccountId = 'faceb00c-0000-0000-0000-000000000000'
+  const testikAccountId = uuidv4()
   const msksDevConnectionId = 'deadc0de-0000-0000-0000-000000000000'
   const siverGadConnectionId = 'b16b00b5-0000-0000-0000-000000000000'
+  const testikConnectionId = uuidv4()
   const siverGadServerChannelId = 'cafedaff-0000-0000-0000-000000000000'
   const publicMeeseekeriaChannelId = 'deedfeed-0000-0000-0000-000000000000'
   const siverGadMeeseekeriaChannelId = uuidv4()
@@ -30,6 +32,13 @@ exports.seed = async knex => {
       id: daGrevisAccountId,
       createdAt: getUniqueDate(),
       username: 'daGrevis',
+      hashedPassword:
+        '$2b$10$T0R/COrdem7pjS.6zktqbeOJJ5344/PbonNad2unT3y6iSAOh4HZ6', // hunter2
+    },
+    {
+      id: testikAccountId,
+      createdAt: getUniqueDate(),
+      username: 'testik',
       hashedPassword:
         '$2b$10$T0R/COrdem7pjS.6zktqbeOJJ5344/PbonNad2unT3y6iSAOh4HZ6', // hunter2
     },
@@ -57,6 +66,16 @@ exports.seed = async knex => {
       port: 6697,
       autoConnect: false,
     },
+    {
+      id: testikConnectionId,
+      createdAt: getUniqueDate(),
+      accountId: testikAccountId,
+      serverId: 'freenode',
+      nick: 'testik',
+      host: 'chat.freenode.net',
+      port: 6697,
+      autoConnect: false,
+    },
   ])
 
   await knex('channels').insert([
@@ -71,6 +90,13 @@ exports.seed = async knex => {
       id: siverGadServerChannelId,
       createdAt: getUniqueDate(),
       connectionId: siverGadConnectionId,
+      name: '*',
+      type: 'server',
+    },
+    {
+      id: uuidv4(),
+      createdAt: getUniqueDate(),
+      connectionId: testikConnectionId,
       name: '*',
       type: 'server',
     },
