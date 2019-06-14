@@ -232,10 +232,19 @@ const getMessages = async query => {
   }
 
   messages = fp.map(
-    message => ({
-      ...message,
-      channelId: query.channelId,
-    }),
+    message =>
+      fp.omitBy(fp.isUndefined, {
+        channelId: query.channelId,
+        id: message.id,
+        createdAt: message.createdAt,
+        nick: message.nick,
+        type: message.type,
+        text: message.text !== '' ? message.text : undefined,
+        highlights: message.highlights ? message.highlights : undefined,
+        isOp: message.isOp ? message.isOp : undefined,
+        isVoiced: message.isVoiced ? message.isVoiced : undefined,
+        meta: message.meta !== null ? message.meta : undefined,
+      }),
     messages,
   )
 

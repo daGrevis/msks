@@ -36,7 +36,7 @@ const MessageText = ({ message, connection, channel, hasSession }) => {
 
   let highlights = message.highlights
 
-  if (!highlights && hasSession) {
+  if (!highlights && hasSession && text) {
     const index = text.indexOf(nick)
     const lastIndex = index === -1 ? null : index + nick.length
     if (
