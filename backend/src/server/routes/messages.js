@@ -10,11 +10,13 @@ const { getMessages, getMessage } = require('../../postgres/queries/messages')
 const router = new KoaRouter()
 
 router.get('/', withChannel, async ctx => {
-  const { query } = ctx.request
-
-  query.limit = +query.limit || 150
-
   const { channel } = ctx
+
+  const query = {
+    ...ctx.request.query,
+    channelId: channel.id,
+    limit: +ctx.request.query.limit || 150,
+  }
 
   if (!channel.isPublic) {
     const state = store.getState()

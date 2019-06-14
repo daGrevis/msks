@@ -1,3 +1,4 @@
+const fp = require('lodash/fp')
 const HttpStatus = require('http-status-codes')
 
 const store = require('../../store')
@@ -6,14 +7,33 @@ const withChannel = (ctx, next) => {
   const state = store.getState()
 
   const channelId = ctx.request.body.channelId || ctx.request.query.channelId
+  const serverId = ctx.request.body.serverId || ctx.request.query.serverId
+  let channelName =
+    ctx.request.body.channelName || ctx.request.query.channelName
 
-  if (!channelId) {
-    ctx.body = { error: 'Param channelId is required!' }
+  if (!channelId && !(serverId && channelName)) {
+    ctx.body = {
+      error: 'Param channelId or params serverId & channelName are required!',
+    }
     ctx.status = HttpStatus.BAD_REQUEST
     return
   }
 
-  const channel = state.channels[channelId]
+  let channel
+
+  if (channelId) {
+    channel = state.channels[channelId]
+  } else if (serverId && channelName) {
+    channelName = channelName.replace(/~/g, '#')
+
+    channel = fp.find(
+      channel =>
+        channel.isPublic &&
+        channel.name === channelName &&
+        state.connections[channel.connectionId].serverId === serverId,
+      state.channels,
+    )
+  }
 
   if (!channel) {
     ctx.body = { error: 'Channel not found!' }
