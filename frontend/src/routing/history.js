@@ -1,8 +1,8 @@
-import createHistory from 'history/createBrowserHistory'
+import { createBrowserHistory } from 'history'
 
 import config from '../env/config'
 
-const history = createHistory({
+const history = createBrowserHistory({
   basename: config.basePath,
 })
 
