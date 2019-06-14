@@ -13,9 +13,6 @@ const groupedChannelsByConnectionSelector = createSelector(
   (channels, connections) =>
     fp.pipe(
       fp.reject({ isHidden: true }),
-      fp.filter(
-        channel => channel.type === 'shared' || channel.type === 'user',
-      ),
       fp.groupBy('connectionId'),
       fp.mapValues(
         fp.pipe(
@@ -32,9 +29,7 @@ const groupedChannelsByConnectionSelector = createSelector(
       fp.toPairs,
       fp.sortBy(([connectionId]) => {
         const connection = connections[connectionId]
-        return connection.nick
-          ? [connection.serverId, connection.nick]
-          : [connection.serverId]
+        return [connection.serverId, connection.nick]
       }),
     )(channels),
 )
@@ -87,6 +82,7 @@ const createIsChannelDisabledSelector = (connection, channel) => () => {
 }
 
 export {
+  channelsSelector,
   groupedChannelsByConnectionSelector,
   channelSelector,
   channelIdSelector,
