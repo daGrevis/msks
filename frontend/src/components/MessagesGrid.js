@@ -110,12 +110,13 @@ const MessagesGrid = props => {
           }
         }
 
+        // For hiding nick and timestamp on smaller screens to save space for actual messages.
         const isFirst =
           isNewDay ||
           message.type !== 'text' ||
           prevMessage.type !== 'text' ||
-          (prevMessage.from !== message.from ||
-            messageDate - prevMessageDate >= 60000)
+          (prevMessage.nick !== message.nick ||
+            messageDate - prevMessageDate >= 1000 * 60)
 
         const isActive = activeMessage && message.id === activeMessage.id
 
