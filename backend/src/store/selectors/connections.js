@@ -1,5 +1,8 @@
 const fp = require('lodash/fp')
 
+const autoConnectionsSelector = state =>
+  fp.filter({ autoConnect: true }, state.connections)
+
 const publicConnectionsSelector = state =>
   fp.reduce(
     (a, { connectionId }) =>
@@ -27,4 +30,8 @@ const createAccountConnectionsSelector = accountId => state =>
     fp.keyBy('id'),
   )(state.connections)
 
-module.exports = { publicConnectionsSelector, createAccountConnectionsSelector }
+module.exports = {
+  autoConnectionsSelector,
+  publicConnectionsSelector,
+  createAccountConnectionsSelector,
+}

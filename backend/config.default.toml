@@ -1,5 +1,4 @@
 [elastic]
-debug = false
 host = 'localhost:9200'
 httpAuth = 'elastic:changeme'
 
@@ -10,7 +9,6 @@ password = ''
 database = 'msks'
 
 [irc]
-debug = false
 raw = false
 autoReconnectMinDelay = 2000
 autoReconnectMaxDelay = 120000
@@ -25,3 +23,12 @@ clientPath = false
 # clientPath = "/srv/msks"
 # clientPath = { msks = "/srv/msks", developerslv = "/srv/developerslv" }
 cors = '*'
+
+[logger]
+level = 'verbose'
+minServerRequestDuration = 0
+minSocketActionDuration = 0
+minPostgresQueryDuration = 0
+minReduxReducerDuration = 0
+minEventsInQueue = 0
+queueInterval = 5000

@@ -2,26 +2,33 @@
 
 const HttpStatus = require('http-status-codes')
 
+const config = require('../../env/config')
 const logger = require('../../env/logger')
 
-const log = (ctx, err) => {
-  const status = err
-    ? err.status || HttpStatus.INTERNAL_SERVER_ERROR
-    : ctx.status || HttpStatus.NOT_FOUND
+const withLogger = () => async (ctx, next) => {
+  const startTime = new Date()
 
-  logger.log(
-    err ? 'error' : 'verbose',
-    `${status}/${ctx.method} ${ctx.originalUrl}`,
-  )
-}
+  const log = (ctx, e) => {
+    const duration = new Date() - startTime
 
-const koaLogger = () => async (ctx, next) => {
+    const status = e
+      ? e.status || HttpStatus.INTERNAL_SERVER_ERROR
+      : ctx.status || HttpStatus.NOT_FOUND
+
+    if (duration >= config.logger.minServerRequestDuration) {
+      logger.log(
+        e ? 'error' : 'verbose',
+        `[server ${duration}ms] ${status}/${ctx.method} ${ctx.originalUrl}`,
+      )
+    }
+  }
+
   try {
     await next()
-  } catch (err) {
-    log(ctx, err)
+  } catch (e) {
+    log(ctx, e)
 
-    throw err
+    throw e
   }
 
   const res = ctx.res
@@ -42,4 +49,4 @@ const koaLogger = () => async (ctx, next) => {
   }
 }
 
-module.exports = koaLogger
+module.exports = withLogger

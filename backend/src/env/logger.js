@@ -1,5 +1,7 @@
 const winston = require('winston')
 
+const config = require('../env/config')
+
 const isTestEnv = process.env.NODE_ENV === 'test'
 
 const logger = winston.createLogger({
@@ -8,7 +10,7 @@ const logger = winston.createLogger({
     : [
         new winston.transports.Console({
           colorize: true,
-          level: 'verbose',
+          level: config.logger.level,
         }),
       ],
   format: winston.format.combine(

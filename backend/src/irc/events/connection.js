@@ -30,12 +30,6 @@ const onRaw = async ({ payload, connection }) => {
   }
 }
 
-const onDebug = async ({ payload }) => {
-  if (config.irc.debug) {
-    console.log('debug', payload)
-  }
-}
-
 const onConnecting = async ({ connection }) => {
   const NOW = new Date()
 
@@ -578,7 +572,6 @@ const onWhois = async ({ payload, connection }) => {
 
 module.exports = {
   onRaw,
-  onDebug,
   onConnecting,
   onConnected,
   onSocketClose,

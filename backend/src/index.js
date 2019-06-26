@@ -26,8 +26,11 @@ const {
 const eventQueue = require('./irc/eventQueue')
 const connect = require('./irc/connect')
 const store = require('./store')
+const { autoConnectionsSelector } = require('./store/selectors/connections')
 
 Promise.all([waitForPostgres(), waitForElastic()]).then(async () => {
+  logger.verbose(`Config loaded! ${JSON.stringify(config, null, 2)}`)
+
   await Promise.all([initChannels(), initConnections(), initUsers()])
 
   server.listen(config.http.port)
@@ -35,10 +38,10 @@ Promise.all([waitForPostgres(), waitForElastic()]).then(async () => {
 
   const state = store.getState()
 
-  _.forEach(state.connections, connection => {
-    if (connection.autoConnect) {
-      connect(connection)
-    }
+  const autoConnections = autoConnectionsSelector(state)
+
+  _.forEach(autoConnections, connection => {
+    connect(connection)
   })
 })
 
