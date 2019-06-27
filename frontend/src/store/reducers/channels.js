@@ -6,16 +6,16 @@ export default handleActions({
     fp.pipe(
       fp.update('isInitialChannelsLoaded', isLoaded => isLoaded || isInitial),
       fp.update('channels', prevChannels => {
-        prevChannels = state.resetChannels || isInitial ? {} : prevChannels
+        const nextChannels =
+          state.resetChannels || isInitial ? {} : { ...prevChannels }
 
-        const nextChannels = fp.reduce(
-          (channels, { next, prev }) =>
-            next
-              ? fp.set(next.id, next, channels)
-              : fp.unset(prev.id, channels),
-          prevChannels,
-          changes,
-        )
+        for (const { next, prev } of changes) {
+          if (next) {
+            nextChannels[next.id] = next
+          } else {
+            delete nextChannels[prev.id]
+          }
+        }
 
         return nextChannels
       }),

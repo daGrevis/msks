@@ -3,12 +3,14 @@ const { handleActions } = require('redux-fp')
 
 module.exports = handleActions({
   SYNC_POSTGRES: ({ payload: { table, change, changes } }) =>
-    fp.update(table, rows =>
-      fp.reduce(
-        (rows, { next, prev }) =>
-          next ? fp.set(next.id, next, rows) : fp.unset(prev.id, rows),
-        rows,
-        changes || [change],
-      ),
-    ),
+    fp.update(table, rows => {
+      for (const { next, prev } of changes || [change]) {
+        if (next) {
+          rows[next.id] = next
+        } else {
+          delete rows[prev.id]
+        }
+      }
+      return rows
+    }),
 })

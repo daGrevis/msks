@@ -9,17 +9,16 @@ export default handleActions({
         isLoaded => isLoaded || isInitial,
       ),
       fp.update('connections', prevConnections => {
-        prevConnections =
-          state.resetConnections || isInitial ? {} : prevConnections
+        const nextConnections =
+          state.resetConnections || isInitial ? {} : { ...prevConnections }
 
-        const nextConnections = fp.reduce(
-          (connections, { next, prev }) =>
-            next
-              ? fp.set(next.id, next, connections)
-              : fp.unset(prev.id, connections),
-          prevConnections,
-          changes,
-        )
+        for (const { next, prev } of changes) {
+          if (next) {
+            nextConnections[next.id] = next
+          } else {
+            delete nextConnections[prev.id]
+          }
+        }
 
         return nextConnections
       }),
