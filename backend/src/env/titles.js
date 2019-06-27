@@ -1,13 +1,13 @@
-const getChannelTitle = (serverId, channelName, nick) => {
-  if (serverId && channelName === '*' && nick) {
-    return `${serverId} / ${nick}`
+const getChannelTitle = (serverId, nick, channelName) => {
+  if (serverId && channelName === '*') {
+    if (nick) {
+      return `${serverId} / ${nick}`
+    }
+
+    return serverId
   }
 
-  if (channelName) {
-    return channelName.replace(/~/g, '#')
-  }
-
-  return 'msks'
+  return channelName.replace(/~/g, '#')
 }
 
 const getMessageTitle = message => {

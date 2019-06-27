@@ -35,33 +35,41 @@ router.get('/*', async (ctx, next) => {
     return next()
   }
 
-  let title
-
   const lastParam = fp.last(params)
   const messageId = isUuid(lastParam) ? lastParam : undefined
 
-  const message = messageId ? await getMessage(messageId) : null
+  let title
 
-  if (message) {
-    const state = store.getState()
+  if (messageId) {
+    const message = await getMessage(messageId)
 
-    const channel = state.channels[message.channelId]
+    if (message) {
+      const state = store.getState()
 
-    if (!channel || !channel.isPublic) {
-      return next()
+      const messageChannel = state.channels[message.channelId]
+
+      if (messageChannel.isPublic) {
+        title = titles.getMessageTitle(message)
+      }
     }
-
-    title = titles.getMessageTitle(message)
-  } else {
-    const [serverId, channelName, nick] = params
-
-    title = titles.getChannelTitle(serverId, channelName, nick)
   }
 
-  indexHtml = indexHtml.replace(
-    '<title>msks</title>',
-    `<title>${escapeHtml(title)}</title>`,
-  )
+  if (!title && params.length >= 2) {
+    const hasNick = params.length === 4 || (params.length === 3 && !messageId)
+
+    const serverId = params[0]
+    const nick = hasNick ? params[1] : undefined
+    const channelName = hasNick ? params[2] : params[1]
+
+    title = titles.getChannelTitle(serverId, nick, channelName)
+  }
+
+  if (title) {
+    indexHtml = indexHtml.replace(
+      '<title>msks</title>',
+      `<title>${escapeHtml(title)}</title>`,
+    )
+  }
 
   ctx.body = indexHtml
 })
