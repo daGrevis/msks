@@ -2,13 +2,13 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import * as titles from '../env/titles'
-
 import { setTitle } from '../store/actions/app'
 import { logout } from '../store/actions/session'
 import { getLinkToFront, getLinkToLogin } from '../routing/links'
 import { routeSelector } from '../store/selectors/router'
 import { hasSessionSelector } from '../store/selectors/session'
 import Link from './Link'
+import Version from './Version'
 import Login from './Login'
 import GroupedChannels from './GroupedChannels'
 
@@ -30,14 +30,7 @@ class Front extends React.Component {
           <Link href={getLinkToFront()}>
             <h1>msks</h1>
           </Link>
-          <a
-            href="https://github.com/daGrevis/msks"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="version"
-          >
-            v0.6
-          </a>
+          <Version />
         </div>
 
         {this.props.hasSession ? (

@@ -16,6 +16,9 @@
   font-size: 12px;
   color: #cacaca;
 }
+#front .logo .version strong {
+  color: #cacaca;
+}
 
 #front .login-icon, #front .logout-icon {
   position: absolute;

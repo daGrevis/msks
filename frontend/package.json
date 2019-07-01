@@ -49,7 +49,7 @@
   },
   "scripts": {
     "dev": "concurrently --kill-others --raw \"yarn prettier:watch\" \"react-scripts start\"",
-    "build": "react-scripts build",
+    "build": "./src/scripts/build.sh",
     "test": "react-scripts test",
     "prettier": "prettier --write 'src/**/*.{js,json}'",
     "prettier:watch": "onchange 'src/**/*.{js,json}' -- prettier --write {{changed}} > /dev/null"

@@ -13,7 +13,7 @@ RUN apk add --no-cache git && \
     # latestTag
     echo $(git describe --tags --abbrev=0) >> VERSION && \
     # commitCount
-    echo $(git log --oneline $(git describe --abbrev=0 --tags)..HEAD | wc -l) >> VERSION && \
+    echo $(git log --oneline $(git describe --abbrev=0 --tags)..HEAD | wc -l | awk '{ print $1 }') >> VERSION && \
     # subject
     echo $(git show -s --format=%s) >> VERSION && \
     # date
