@@ -9,7 +9,7 @@ import {
   getLinkToChannel,
   getLinkToMessage,
 } from '../routing/links'
-import { push } from '../store/actions/router'
+import { replace } from '../store/actions/router'
 import { hasSessionSelector } from '../store/selectors/session'
 import Text from './Text'
 import Nick from './Nick'
@@ -318,7 +318,7 @@ const Message = props => {
     date,
     isFirst,
     hasSession,
-    push,
+    replace,
   } = props
 
   const isLinkable =
@@ -336,7 +336,7 @@ const Message = props => {
   })
 
   const onTimestampClick = () => {
-    push(
+    replace(
       isActive
         ? getLinkToChannel(
             connection.serverId,
@@ -389,7 +389,7 @@ const mapStateToProps = (state, ownProps) => ({
 })
 
 const mapDispatchToProps = {
-  push,
+  replace,
 }
 
 export default connect(
