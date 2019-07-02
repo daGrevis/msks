@@ -19,6 +19,7 @@ const {
   broadcastConnection,
   broadcastChannel,
 } = require('../../server/socket/broadcasters')
+const join = require('../join')
 const decideOnTracker = require('../decideOnTracker')
 const shouldNotify = require('../shouldNotify')
 
@@ -84,47 +85,48 @@ const onConnected = async ({ connection, ircClient }) => {
     state.channels,
   )
 
-  const sortedChannels = fp.sortBy(
-    channel =>
-      fp.pipe(
-        fp.toUpper,
-        s => _.trimStart(s, '#'),
-      )(channel.name),
-    connectionChannels,
-  )
-
-  // Auto-join channels if needed.
-  for (const channel of sortedChannels) {
-    if (!channel.autoJoin) {
-      continue
-    }
-
-    const publicChannel = createPublicChannelSelector(channel)(state)
-    if (publicChannel && publicChannel.autoJoin) {
-      const { isTracker } = decideOnTracker(connection, channel.name)
-      const publicConnection = state.connections[publicChannel.connectionId]
-      const isTrackerJoined = state.isJoinedIrcChannel[publicChannel.id]
-
-      const isTrackerJoining = publicConnection.autoConnect && !isTrackerJoined
-
-      // Don't join the channel just yet because tracker is joining any moment now.
-      // Done because we want our join messages to be public.
-      if (!isTracker && isTrackerJoining) {
-        continue
+  const autoJoinChannelNames = fp.pipe(
+    fp.filter(channel => {
+      if (!channel.autoJoin) {
+        return
       }
+
+      const publicChannel = createPublicChannelSelector(channel)(state)
+      if (publicChannel && publicChannel.autoJoin) {
+        const { isTracker } = decideOnTracker(connection, channel.name)
+        const publicConnection = state.connections[publicChannel.connectionId]
+        const isTrackerJoined = state.isJoinedIrcChannel[publicChannel.id]
+
+        const isTrackerJoining =
+          publicConnection.autoConnect && !isTrackerJoined
+
+        // Don't join the channel just yet because tracker is joining any moment now.
+        // Done because we want our join messages to be public.
+        if (!isTracker && isTrackerJoining) {
+          return
+        }
+      }
+
+      return true
+    }),
+    fp.map('name'),
+    fp.sortBy(name => _.trimStart(_.toUpper(name), '#')),
+  )(connectionChannels)
+
+  if (autoJoinChannelNames.length) {
+    for (const channelName of autoJoinChannelNames) {
+      await newStatusMessage(connection, {
+        createdAt: new Date(),
+        text: `Auto-joining ${channelName}`,
+        meta: {
+          statusCode: 'AUTO_JOINING',
+          nick: connection.nick,
+          channelName,
+        },
+      })
     }
 
-    await newStatusMessage(connection, {
-      createdAt: new Date(),
-      text: `Auto-joining ${channel.name}`,
-      meta: {
-        statusCode: 'AUTO_JOINING',
-        nick: connection.nick,
-        channelName: channel.name,
-      },
-    })
-
-    ircClient.join(channel.name)
+    join(connection, autoJoinChannelNames)
   }
 }
 
@@ -320,21 +322,23 @@ const onJoin = async ({ payload, connection }) => {
   if (isTracker) {
     const privateChannels = createPrivateChannelsSelector(channel)(state)
 
-    for (const privateChannel of privateChannels) {
+    const autoJoinPrivateChannels = fp.filter(privateChannel => {
       if (!privateChannel.autoJoin) {
-        continue
+        return
       }
 
       if (!state.isIrcClientConnected[privateChannel.connectionId]) {
-        continue
+        return
       }
 
       if (state.isJoinedIrcChannel[privateChannel.id]) {
-        continue
+        return
       }
 
-      const ircClient = state.ircClients[privateChannel.connectionId]
+      return true
+    }, privateChannels)
 
+    for (const privateChannel of autoJoinPrivateChannels) {
       const privateConnection = state.connections[privateChannel.connectionId]
 
       await newStatusMessage(privateConnection, {
@@ -347,7 +351,7 @@ const onJoin = async ({ payload, connection }) => {
         },
       })
 
-      ircClient.join(privateChannel.name)
+      join(privateConnection, [privateChannel.name])
     }
   }
 }
