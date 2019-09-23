@@ -38,3 +38,13 @@
   background: #ddd;
 }
 
+@media (prefers-color-scheme: dark) {
+  .messages-grid .day-header .text {
+    background: #141414;
+    color: #c9c9c9;
+  }
+
+  .messages-grid .day-header .divider {
+    background: #444444;
+  }
+}

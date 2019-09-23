@@ -1,6 +1,5 @@
 .ChannelName {
   display: inline-block;
-  color: #333;
   font-size: 24px;
 }
 
@@ -32,4 +31,10 @@
   font-size: 16px;
   padding-left: 5px;
   color: #aaa;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ChannelName.isDisabled .prefix {
+    color: #444444;
+  }
 }

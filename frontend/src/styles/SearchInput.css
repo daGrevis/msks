@@ -3,7 +3,7 @@
   display: flex;
   justify-content: flex-start;
   padding: 10px;
-  border-top: 1px solid #cacaca;
+  border-top: 1px solid #444444;
 }
 
 .SearchInput .nick-input {

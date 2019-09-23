@@ -13,8 +13,6 @@ import Login from './Login'
 import GroupedChannels from './GroupedChannels'
 
 import '../styles/Front.css'
-import loginSvg from '../vectors/login.svg'
-import logoutSvg from '../vectors/logout.svg'
 
 class Front extends React.Component {
   componentWillMount() {
@@ -35,15 +33,23 @@ class Front extends React.Component {
 
         {this.props.hasSession ? (
           <Link
+            className="logout-icon"
             onClick={() => {
               this.props.logout()
             }}
           >
-            <img className="logout-icon" src={logoutSvg} alt="" />
+            <svg>
+              <use xlinkHref="#logout-svg" />
+            </svg>
           </Link>
         ) : (
-          <Link href={isLogin ? getLinkToFront() : getLinkToLogin()}>
-            <img className="login-icon" src={loginSvg} alt="" />
+          <Link
+            className="login-icon"
+            href={isLogin ? getLinkToFront() : getLinkToLogin()}
+          >
+            <svg>
+              <use xlinkHref="#login-svg" />
+            </svg>
           </Link>
         )}
 

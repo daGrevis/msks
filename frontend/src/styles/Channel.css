@@ -44,7 +44,7 @@
   cursor: pointer;
   display: inline-block;
 }
-#channel .header .search-icon, #channel .header .search-icon img {
+#channel .header .search-icon svg {
   width: 26px;
   height: 26px;
 }
@@ -104,7 +104,7 @@
   right: 20px;
   z-index: 2;
 }
-#channel .scroll-down-icon img {
+#channel .scroll-down-icon svg {
   width: 72px;
   height: 90px;
   margin-left: -18px;
@@ -131,7 +131,6 @@
     position: relative;
     top: 0;
     right: 0;
-    background: white;
     min-height: 100vh;
   }
   #channel.is-sidebar-open .content {
@@ -169,5 +168,36 @@
 
   #channel .sidebar {
     flex: 0 0 160px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  #channel .header {
+    border-bottom: 1px solid #444444;
+  }
+
+  #channel .sidebar {
+    border-left: 1px solid #444444;
+  }
+
+  #channel .header .topic {
+    color: #c9c9c9;
+  }
+
+  #channel .header .search-icon svg {
+    fill: #d9d9d9;
+  }
+
+  #channel .scroll-down-icon {
+    opacity: .6;
+  }
+  #channel .scroll-down-icon svg {
+    fill: #d9d9d9;
+  }
+
+  #channel .header .hamburger-icon .hamburger-inner,
+  #channel .header .hamburger-icon .hamburger-inner:before,
+  #channel .header .hamburger-icon .hamburger-inner:after {
+    background: #d9d9d9;
   }
 }

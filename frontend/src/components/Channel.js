@@ -42,9 +42,6 @@ import ChannelName from './ChannelName'
 
 import '../styles/Channel.css'
 
-import searchSvg from '../vectors/search.svg'
-import scrollDownSvg from '../vectors/scroll-down.svg'
-
 class Channel extends React.Component {
   state = {
     isTopicClipped: true,
@@ -190,7 +187,9 @@ class Channel extends React.Component {
                     className="search-icon"
                     onClick={this.onSearchIconClick}
                   >
-                    <img src={searchSvg} alt="" />
+                    <svg>
+                      <use xlinkHref="#search-svg" />
+                    </svg>
                   </Link>
                 )}
 
@@ -249,7 +248,9 @@ class Channel extends React.Component {
                     this.props.leaveArchive()
                   }}
                 >
-                  <img src={scrollDownSvg} alt="" />
+                  <svg>
+                    <use xlinkHref="#scroll-down-svg" />
+                  </svg>
                 </div>
               )}
             </Fragment>

@@ -20,11 +20,12 @@
   color: #cacaca;
 }
 
-#front .login-icon, #front .logout-icon {
+#front .login-icon svg, #front .logout-icon svg {
   position: absolute;
   top: 5px;
   right: 5px;
   width: 48px;
+  height: 60px;
 }
 
 #front .connection + .connection {
@@ -59,4 +60,29 @@
 }
 #front .connection .channel.isUser .prefix {
   margin-right: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  #front {
+    background: #141414;
+  }
+
+  #front .logo h1 {
+    color: #d9d9d9;
+  }
+
+  #front .logo .version {
+    color: #666666;
+  }
+  #front .logo .version strong {
+    color: #666666;
+  }
+
+  #front .login-icon svg, #front .logout-icon svg {
+    fill: #d9d9d9;
+  }
+
+  #front .connection .name a {
+    color: #c9c9c9;
+  }
 }
