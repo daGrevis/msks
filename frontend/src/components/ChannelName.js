@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
 
-import getNickColor from '../irc/getNickColor'
+import { getNickColor } from '../irc/colors'
 import { createIsChannelDisabledSelector } from '../store/selectors/channels'
 import Nick from './Nick'
 

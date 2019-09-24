@@ -1,6 +1,6 @@
 import React from 'react'
 
-import getNickColor from '../irc/getNickColor'
+import { getNickColor } from '../irc/colors'
 import Link from './Link'
 
 import '../styles/Nick.css'

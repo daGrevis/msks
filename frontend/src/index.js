@@ -15,6 +15,7 @@ import 'normalize.css/normalize.css'
 import 'loaders.css/loaders.min.css'
 import 'hamburgers/dist/hamburgers.min.css'
 import './styles/index.css'
+import './styles/colors.css'
 
 window.Promise = Promise
 
