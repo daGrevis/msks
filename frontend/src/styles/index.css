@@ -44,14 +44,6 @@ input {
   line-height: 1.4;
 }
 
-/* Attempts to fix textarea indent on iOS devices. */
-/* https://stackoverflow.com/questions/6890149/remove-3-pixels-in-ios-webkit-textarea */
-@supports (-webkit-overflow-scrolling: touch) {
-  textarea {
-    padding-left: 2px;
-  }
-}
-
 button {
   background: transparent;
 }
