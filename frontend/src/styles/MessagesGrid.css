@@ -4,6 +4,7 @@
   padding-top: 10px;
   padding-bottom: 10px;
 }
+
 .messages-grid.is-tall {
   height: 100%;
 }
@@ -14,20 +15,21 @@
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  color: #cacaca;
+  color: var(--colorBorder);
 }
 
 .messages-grid .day-header {
   padding: 15px 0;
   text-align: center;
 }
+
 .messages-grid .day-header .text {
   z-index: 3;
   position: relative;
   display: inline-block;
   padding: 0 10px;
-  background: white;
-  color: #444;
+  background: var(--colorBackground);
+  color: var(--colorNormal);
 }
 
 .messages-grid .day-header .divider {
@@ -35,16 +37,5 @@
   position: relative;
   bottom: 8px;
   height: 1px;
-  background: #ddd;
-}
-
-@media (prefers-color-scheme: dark) {
-  .messages-grid .day-header .text {
-    background: #141414;
-    color: #c9c9c9;
-  }
-
-  .messages-grid .day-header .divider {
-    background: #444444;
-  }
+  background: var(--colorBorder);
 }

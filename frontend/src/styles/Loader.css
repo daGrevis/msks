@@ -14,5 +14,5 @@
 }
 
 .loader-inner > div {
-  background: #ccc !important;
+  background: var(--colorBorder) !important;
 }

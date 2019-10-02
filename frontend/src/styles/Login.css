@@ -34,7 +34,7 @@
 }
 
 #login .error-message {
-  color: #e91e63;
+  color: var(--colorError);
   font-size: 13px;
   font-weight: 500;
   padding: 5px;

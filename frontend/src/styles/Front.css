@@ -1,10 +1,11 @@
 #front {
   padding: 0 10px;
   padding-bottom: 20px;
+  background: var(--colorBackground);
 }
 
 #front .logo h1 {
-  color: #333;
+  color: var(--colorStrong);
   font-size: 28px;
   display: inline-block;
   line-height: 2;
@@ -14,32 +15,39 @@
 #front .logo .version {
   margin-left: 5px;
   font-size: 12px;
-  color: #cacaca;
-}
-#front .logo .version strong {
-  color: #cacaca;
+  color: var(--colorBorder);
 }
 
-#front .login-icon svg, #front .logout-icon svg {
+#front .logo .version strong {
+  color: var(--colorBorder);
+}
+
+#front .login-icon svg,
+#front .logout-icon svg {
   position: absolute;
   top: 5px;
   right: 5px;
   width: 48px;
   height: 60px;
+  fill: var(--colorStrong);
 }
 
 #front .connection + .connection {
   margin-top: 50px;
 }
+
 #front .connection .name {
   margin: 25px 0 15px;
 }
+
 #front .connection .name a {
-  color: #555;
+  color: var(--colorNormal);
 }
+
 #front .connection .ServerId {
   display: inline-block;
 }
+
 #front .connection .channel {
   margin: 10px 0;
 }
@@ -51,38 +59,15 @@
 #front .connection .sharedChannels {
   margin-bottom: 20px;
 }
+
 #front .connection .userChannels {
   margin-left: 3px;
 }
 
 #front .connection .channel.isUser {
-  line-height: .875;
+  line-height: 0.875;
 }
+
 #front .connection .channel.isUser .prefix {
   margin-right: 2px;
-}
-
-@media (prefers-color-scheme: dark) {
-  #front {
-    background: #141414;
-  }
-
-  #front .logo h1 {
-    color: #d9d9d9;
-  }
-
-  #front .logo .version {
-    color: #666666;
-  }
-  #front .logo .version strong {
-    color: #666666;
-  }
-
-  #front .login-icon svg, #front .logout-icon svg {
-    fill: #d9d9d9;
-  }
-
-  #front .connection .name a {
-    color: #c9c9c9;
-  }
 }

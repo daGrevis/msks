@@ -43,7 +43,7 @@ const getNickColor = s => {
   const colorIndex = bigInt(md5(s), 16).mod(colors.length) + 0
 
   if (hasCssVarSupport) {
-    return `var(--color-${colorIndex})`
+    return `var(--nickColor${colorIndex})`
   }
 
   return colors[colorIndex]

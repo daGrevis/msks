@@ -3,7 +3,8 @@
   display: flex;
   justify-content: flex-start;
   padding: 10px 10px 10px 0;
-  border-top: 1px solid #cacaca;
+  background: var(--colorBackground);
+  border-top: 1px solid var(--colorBorder);
 }
 
 .MessageInput .exclamation {
@@ -12,7 +13,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #e91e63;
+  color: var(--colorError);
   cursor: pointer;
   visibility: hidden;
 }
@@ -57,12 +58,5 @@
 @media screen and (min-width: 667px) {
   .MessageInput .nick {
     width: 123px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .MessageInput {
-    background: #141414;
-    border-top: 1px solid #444444;
   }
 }

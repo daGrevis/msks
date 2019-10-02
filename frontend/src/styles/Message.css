@@ -5,7 +5,7 @@
 }
 
 #channel .message.is-active {
-  background: #fffbd0;
+  background: var(--colorActive);
 }
 #channel .message.is-active .timestamp {
   font-weight: bold;
@@ -51,7 +51,7 @@
 }
 
 #channel .message.type-status .text, #channel .message.type-client .text {
-  color: #cacaca;
+  color: var(--colorBorder);
   font-weight: 500;
 }
 
@@ -67,7 +67,7 @@
 }
 
 #channel .message.type-banlist {
-  color: #cacaca;
+  color: var(--colorBorder);
   font-weight: 500;
 }
 #channel .message.type-banlist h3 {
@@ -76,7 +76,7 @@
   margin: 0 0 5px 0;
 }
 #channel .message.type-banlist h3, #channel .message.type-banlist strong {
-  color: #555;
+  color: var(--colorNormal);
 }
 #channel .message.type-banlist ol {
   list-style: none;
@@ -85,15 +85,15 @@
 }
 
 #channel .message.type-whois {
-  color: #cacaca;
+  color: var(--colorBorder);
   font-weight: 500;
 }
 #channel .message.type-whois strong {
-  color: #555;
+  color: var(--colorNormal);
 }
 
 #channel .message .meta .timestamp {
-  color: #cacaca;
+  color: var(--colorBorder);
   font-size: 12px;
 }
 #channel .message .meta .timestamp.is-linkable {
@@ -176,15 +176,5 @@
 @media screen and (min-width: 667px) {
   #channel .message .meta .author {
     width: 120px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  #channel .message .meta .timestamp {
-    color: #444444;
-  }
-
-  #channel .message.is-active {
-    background: #2d2d00;
   }
 }

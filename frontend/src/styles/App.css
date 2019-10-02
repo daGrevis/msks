@@ -7,7 +7,7 @@
   width: 15px;
   height: 15px;
   transform: rotate(45deg);
-  background: #e91e63;
+  background: var(--colorError);
   z-index: 2;
 }
 

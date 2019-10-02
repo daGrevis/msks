@@ -16,7 +16,7 @@
 
 #channel .sidebar {
   width: 160px;
-  border-left: 1px solid #cacaca;
+  border-left: 1px solid var(--colorBorder);
 }
 
 #channel .content {
@@ -27,7 +27,7 @@
 #channel .header {
   padding: 0 10px;
   padding-bottom: 5px;
-  border-bottom: 1px solid #cacaca;
+  border-bottom: 1px solid var(--colorBorder);
 }
 
 #channel .header .main {
@@ -47,6 +47,7 @@
 #channel .header .search-icon svg {
   width: 26px;
   height: 26px;
+  fill: var(--colorStrong);
 }
 
 #channel .header .hamburger-icon {
@@ -58,6 +59,11 @@
 }
 #channel .header .hamburger-icon:hover {
   opacity: 1;
+}
+#channel .header .hamburger-icon .hamburger-inner,
+#channel .header .hamburger-icon .hamburger-inner:before,
+#channel .header .hamburger-icon .hamburger-inner:after {
+  background: var(--colorStrong);
 }
 
 #channel .header .ChannelName {
@@ -84,7 +90,7 @@
   line-height: 1.2;
   font-size: 14px;
   cursor: pointer;
-  color: #777;
+  color: var(--colorWeak);
 }
 
 #channel .header .topic.is-topic-clipped > div {
@@ -109,6 +115,7 @@
   height: 90px;
   margin-left: -18px;
   margin-top: -18px;
+  fill: var(--colorStrong);
 }
 #channel .scroll-down-icon.has-message-input {
   bottom: calc(10px + 45px);
@@ -168,36 +175,5 @@
 
   #channel .sidebar {
     flex: 0 0 160px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  #channel .header {
-    border-bottom: 1px solid #444444;
-  }
-
-  #channel .sidebar {
-    border-left: 1px solid #444444;
-  }
-
-  #channel .header .topic {
-    color: #c9c9c9;
-  }
-
-  #channel .header .search-icon svg {
-    fill: #d9d9d9;
-  }
-
-  #channel .scroll-down-icon {
-    opacity: .6;
-  }
-  #channel .scroll-down-icon svg {
-    fill: #d9d9d9;
-  }
-
-  #channel .header .hamburger-icon .hamburger-inner,
-  #channel .header .hamburger-icon .hamburger-inner:before,
-  #channel .header .hamburger-icon .hamburger-inner:after {
-    background: #d9d9d9;
   }
 }

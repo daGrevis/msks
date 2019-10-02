@@ -1,31 +1,70 @@
 :root {
-  --color-0: rgba(156, 39, 176, 1);
-  --color-1: rgba(3, 169, 244, 1);
-  --color-2: rgba(0, 188, 212, 1);
-  --color-3: rgba(0, 150, 136, 1);
-  --color-4: rgba(233, 30, 99, 1);
-  --color-5: rgba(121, 85, 72, 1);
-  --color-6: rgba(255, 152, 0, 1);
-  --color-7: rgba(205, 220, 57, 1);
-  --color-8: rgba(63, 81, 181, 1);
-  --color-9: rgba(139, 195, 74, 1);
-  --color-10: rgba(255, 87, 34, 1);
-  --color-11: rgba(255, 193, 7, 1);
+  --colorBackground: white;
+  --colorWeak: #777;
+  --colorNormal: #555;
+  --colorStrong: #333;
+  --colorLink: #0074d9;
+  --colorBorder: #cacaca;
+  --colorDisabled: #aaa;
+  --colorError: #e91e63;
+  --colorActive: #fffbd0;
+  --colorShadow: rgba(0, 0, 0, 0.5);
+  --colorHighlightBackground: rgb(255, 220, 0);
+  --colorHighlightForeground: #555;
+
+  --nickColor0: rgba(156, 39, 176, 1);
+  --nickColor1: rgba(3, 169, 244, 1);
+  --nickColor2: rgba(0, 188, 212, 1);
+  --nickColor3: rgba(0, 150, 136, 1);
+  --nickColor4: rgba(233, 30, 99, 1);
+  --nickColor5: rgba(121, 85, 72, 1);
+  --nickColor6: rgba(255, 152, 0, 1);
+  --nickColor7: rgba(205, 220, 57, 1);
+  --nickColor8: rgba(63, 81, 181, 1);
+  --nickColor9: rgba(139, 195, 74, 1);
+  --nickColor10: rgba(255, 87, 34, 1);
+  --nickColor11: rgba(255, 193, 7, 1);
+
+  --textColor0: white;
+  --textColor1: black;
+  --textColor2: #3f51b5;
+  --textColor3: #8bc34a;
+  --textColor4: #e91e63;
+  --textColor5: #795548;
+  --textColor6: #9c27b0;
+  --textColor7: #ff9800;
+  --textColor8: #ffc107;
+  --textColor9: #cddc39;
+  --textColor10: #009688;
+  --textColor11: #00bcd4;
+  --textColor12: #03a9f4;
+  --textColor13: #ff5722;
+  --textColor14: #aaaaaa;
+  --textColor15: #dddddd;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-0: rgba(156, 39, 176, .75);
-    --color-1: rgba(3, 169, 244, .75);
-    --color-2: rgba(0, 188, 212, .75);
-    --color-3: rgba(0, 150, 136, .75);
-    --color-4: rgba(233, 30, 99, .75);
-    --color-5: rgba(121, 85, 72, .75);
-    --color-6: rgba(255, 152, 0, .75);
-    --color-7: rgba(205, 220, 57, .75);
-    --color-8: rgba(63, 81, 181, .75);
-    --color-9: rgba(139, 195, 74, .75);
-    --color-10: rgba(255, 87, 34, .75);
-    --color-11: rgba(255, 193, 7, .75);
+    --colorBackground: #141414;
+    --colorWeak: #9e9e9e;
+    --colorNormal: #c9c9c9;
+    --colorStrong: #d9d9d9;
+    --colorBorder: #545358;
+    --colorDisabled: #444444;
+    --colorActive: #282828;
+    --colorShadow: rgba(0, 0, 0, 0);
+
+    --nickColor0: rgba(156, 39, 176, .75);
+    --nickColor1: rgba(3, 169, 244, .75);
+    --nickColor2: rgba(0, 188, 212, .75);
+    --nickColor3: rgba(0, 150, 136, .75);
+    --nickColor4: rgba(233, 30, 99, .75);
+    --nickColor5: rgba(121, 85, 72, .75);
+    --nickColor6: rgba(255, 152, 0, .75);
+    --nickColor7: rgba(205, 220, 57, .75);
+    --nickColor8: rgba(63, 81, 181, .75);
+    --nickColor9: rgba(139, 195, 74, .75);
+    --nickColor10: rgba(255, 87, 34, .75);
+    --nickColor11: rgba(255, 193, 7, .75);
   }
 }
