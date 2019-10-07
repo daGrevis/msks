@@ -1,32 +1,32 @@
 :root {
-  --colorBackground: white;
-  --colorWeak: #777;
-  --colorNormal: #555;
-  --colorStrong: #333;
+  --colorBackground: #ffffff;
+  --colorWeak: #777777;
+  --colorNormal: #555555;
+  --colorStrong: #333333;
   --colorLink: #0074d9;
   --colorBorder: #cacaca;
-  --colorDisabled: #aaa;
+  --colorDisabled: #aaaaaa;
   --colorError: #e91e63;
   --colorActive: #fffbd0;
   --colorShadow: rgba(0, 0, 0, 0.5);
-  --colorHighlightBackground: rgb(255, 220, 0);
-  --colorHighlightForeground: #555;
+  --colorHighlightBackground: #ffdc00;
+  --colorHighlightForeground: #555555;
 
-  --nickColor0: rgba(156, 39, 176, 1);
-  --nickColor1: rgba(3, 169, 244, 1);
-  --nickColor2: rgba(0, 188, 212, 1);
-  --nickColor3: rgba(0, 150, 136, 1);
-  --nickColor4: rgba(233, 30, 99, 1);
-  --nickColor5: rgba(121, 85, 72, 1);
-  --nickColor6: rgba(255, 152, 0, 1);
-  --nickColor7: rgba(205, 220, 57, 1);
-  --nickColor8: rgba(63, 81, 181, 1);
-  --nickColor9: rgba(139, 195, 74, 1);
-  --nickColor10: rgba(255, 87, 34, 1);
-  --nickColor11: rgba(255, 193, 7, 1);
+  --nickColor0: #9c27b0;
+  --nickColor1: #03a9f4;
+  --nickColor2: #00bcd4;
+  --nickColor3: #006b76;
+  --nickColor4: #e91e63;
+  --nickColor5: #795548;
+  --nickColor6: #ff9800;
+  --nickColor7: #40bf80;
+  --nickColor8: #3f51b5;
+  --nickColor9: #8bc34a;
+  --nickColor10: #ff5722;
+  --nickColor11: #ffc107;
 
-  --textColor0: white;
-  --textColor1: black;
+  --textColor0: #000000;
+  --textColor1: #ffffff;
   --textColor2: #3f51b5;
   --textColor3: #8bc34a;
   --textColor4: #e91e63;
@@ -53,19 +53,20 @@
     --colorDisabled: #444444;
     --colorActive: #282828;
     --colorShadow: rgba(0, 0, 0, 0);
+    --colorHighlightBackground: #e9ca00;
     --colorHighlightForeground: #141414;
 
-    --nickColor0: rgba(156, 39, 176, .75);
-    --nickColor1: rgba(3, 169, 244, .75);
-    --nickColor2: rgba(0, 188, 212, .75);
-    --nickColor3: rgba(0, 150, 136, .75);
-    --nickColor4: rgba(233, 30, 99, .75);
-    --nickColor5: rgba(121, 85, 72, .75);
-    --nickColor6: rgba(255, 152, 0, .75);
-    --nickColor7: rgba(205, 220, 57, .75);
-    --nickColor8: rgba(63, 81, 181, .75);
-    --nickColor9: rgba(139, 195, 74, .75);
-    --nickColor10: rgba(255, 87, 34, .75);
-    --nickColor11: rgba(255, 193, 7, .75);
+    --nickColor0: #821b93;
+    --nickColor1: #007cb3;
+    --nickColor2: #009aaf;
+    --nickColor3: #006f65;
+    --nickColor4: #ac164a;
+    --nickColor5: #7a5547;
+    --nickColor6: #bb7200;
+    --nickColor7: #3cae75;
+    --nickColor8: #3e4eb8;
+    --nickColor9: #729d3f;
+    --nickColor10: #c64510;
+    --nickColor11: #d19f00;
   }
 }
