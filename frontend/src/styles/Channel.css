@@ -10,13 +10,13 @@
 #channel .content {
   overflow-y: hidden;
 }
-#channel .sidebar {
-  overflow-y: scroll;
-}
 
 #channel .sidebar {
   width: 160px;
   border-left: 1px solid var(--colorBorder);
+  overflow-y: auto;
+  scrollbar-color: var(--colorDisabled) var(--colorBackground); /* For Firefox. */
+  -webkit-overflow-scrolling: touch;
 }
 
 #channel .content {
@@ -153,8 +153,6 @@
     top: 0;
     right: -160px;
     min-height: 100vh;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
     z-index: 0;
   }
   #channel.is-sidebar-open .sidebar {

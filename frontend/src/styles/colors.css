@@ -53,6 +53,7 @@
     --colorDisabled: #444444;
     --colorActive: #282828;
     --colorShadow: rgba(0, 0, 0, 0);
+    --colorHighlightForeground: #141414;
 
     --nickColor0: rgba(156, 39, 176, .75);
     --nickColor1: rgba(3, 169, 244, .75);
