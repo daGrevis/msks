@@ -42,6 +42,8 @@ const getLinkToSearch = (serverId, nick, channelName) =>
 const getLinkToSearchUser = (serverId, nick, channelName, searchNick) =>
   `${getLinkToSearch(serverId, nick, channelName)}&nick=${searchNick}`
 
+const withBasePath = link => `${config.basePath}${link.slice(1)}`
+
 export {
   getLinkToFront,
   getLinkToLogin,
@@ -49,4 +51,5 @@ export {
   getLinkToMessage,
   getLinkToSearch,
   getLinkToSearchUser,
+  withBasePath,
 }

@@ -3,11 +3,12 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import { push } from '../store/actions/router'
+import { withBasePath } from '../routing/links'
 
 const Link = props => (
   <a
-    href={props.href || '#'}
-    {..._.omit(props, ['push', 'onClick'])}
+    {..._.omit(props, ['push'])}
+    href={props.href ? withBasePath(props.href) : '#'}
     onClick={ev => {
       ev.preventDefault()
 
