@@ -29,7 +29,7 @@
     "normalize.css": "^8.0.1",
     "path-to-regexp": "^3.0.0",
     "push.js": "^1.0.9",
-    "qs": "^6.6.0",
+    "qs": "^6.7.3",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-redux": "^6.0.0",
